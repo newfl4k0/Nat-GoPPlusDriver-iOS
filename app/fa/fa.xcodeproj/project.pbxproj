@@ -20,6 +20,7 @@
 		6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD658D1E181E8600E59880 /* UIViewController+MMDrawerController.m */; };
 		6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65931E1820E200E59880 /* LeftViewController.m */; };
 		6CDD65971E1822AC00E59880 /* RightViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65961E1822AC00E59880 /* RightViewController.m */; };
+		6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD659A1E182E8400E59880 /* MapViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,8 @@
 		6CDD65931E1820E200E59880 /* LeftViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftViewController.m; sourceTree = "<group>"; };
 		6CDD65951E1822AC00E59880 /* RightViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RightViewController.h; path = ../RightViewController.h; sourceTree = "<group>"; };
 		6CDD65961E1822AC00E59880 /* RightViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RightViewController.m; path = ../RightViewController.m; sourceTree = "<group>"; };
+		6CDD65991E182E8400E59880 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
+		6CDD659A1E182E8400E59880 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		B25F0E7E1C53809ACC07A870 /* Pods-fa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.debug.xcconfig"; sourceTree = "<group>"; };
 		DAF55CEDD753CCEF2A38C353 /* Pods-fa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.release.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -101,14 +104,10 @@
 		6CDD656D1E18027F00E59880 /* fa */ = {
 			isa = PBXGroup;
 			children = (
+				6CDD659C1E182EEB00E59880 /* NavigationController */,
+				6CDD65981E182E5D00E59880 /* LeftViewController */,
 				6CDD65711E18027F00E59880 /* AppDelegate.h */,
 				6CDD65721E18027F00E59880 /* AppDelegate.m */,
-				6CDD65741E18027F00E59880 /* ViewController.h */,
-				6CDD65751E18027F00E59880 /* ViewController.m */,
-				6CDD65921E1820E200E59880 /* LeftViewController.h */,
-				6CDD65931E1820E200E59880 /* LeftViewController.m */,
-				6CDD65951E1822AC00E59880 /* RightViewController.h */,
-				6CDD65961E1822AC00E59880 /* RightViewController.m */,
 				6CDD65771E18027F00E59880 /* Main.storyboard */,
 				6CDD657A1E18027F00E59880 /* Assets.xcassets */,
 				6CDD657C1E18027F00E59880 /* LaunchScreen.storyboard */,
@@ -133,6 +132,28 @@
 				6CDD656F1E18027F00E59880 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6CDD65981E182E5D00E59880 /* LeftViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6CDD65991E182E8400E59880 /* MapViewController.h */,
+				6CDD659A1E182E8400E59880 /* MapViewController.m */,
+			);
+			name = LeftViewController;
+			sourceTree = "<group>";
+		};
+		6CDD659C1E182EEB00E59880 /* NavigationController */ = {
+			isa = PBXGroup;
+			children = (
+				6CDD65741E18027F00E59880 /* ViewController.h */,
+				6CDD65751E18027F00E59880 /* ViewController.m */,
+				6CDD65921E1820E200E59880 /* LeftViewController.h */,
+				6CDD65931E1820E200E59880 /* LeftViewController.m */,
+				6CDD65951E1822AC00E59880 /* RightViewController.h */,
+				6CDD65961E1822AC00E59880 /* RightViewController.m */,
+			);
+			name = NavigationController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -265,6 +286,7 @@
 				6CDD658F1E181E8600E59880 /* MMDrawerController.m in Sources */,
 				6CDD65971E1822AC00E59880 /* RightViewController.m in Sources */,
 				6CDD658E1E181E8600E59880 /* MMDrawerBarButtonItem.m in Sources */,
+				6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */,
 				6CDD65731E18027F00E59880 /* AppDelegate.m in Sources */,
 				6CDD65701E18027F00E59880 /* main.m in Sources */,
 			);

@@ -1,20 +1,18 @@
 //
-//  LeftViewController.m
+//  MapViewController.m
 //  fa
 //
 //  Created by Cristina Avila on 31/12/16.
 //  Copyright © 2016 Cristina Avila. All rights reserved.
 //
 
-#import "LeftViewController.h"
 #import "MapViewController.h"
-#import "AppDelegate.h"
 
-@interface LeftViewController ()
+@interface MapViewController ()
 
 @end
 
-@implementation LeftViewController
+@implementation MapViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -35,8 +33,5 @@
     // Pass the selected object to the new view controller.
 }
 */
-- (IBAction)doOpenMapView:(id)sender {
-    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
-}
 
 @end

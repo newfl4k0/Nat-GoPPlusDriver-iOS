@@ -89,10 +89,28 @@
             </objects>
             <point key="canvasLocation" x="1327" y="15"/>
         </scene>
-        <!--Menu-->
+        <!--MapView-->
+        <scene sceneID="liJ-4I-egA">
+            <objects>
+                <viewController storyboardIdentifier="MapViewController" title="MapView" id="R6p-Z5-sXJ" customClass="MapViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="QC0-jV-jsi"/>
+                        <viewControllerLayoutGuide type="bottom" id="Jfe-CF-YHV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="WKF-lY-48f">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Qxa-be-Rxz" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2057" y="15"/>
+        </scene>
+        <!--Left-->
         <scene sceneID="Rsr-wU-gId">
             <objects>
-                <viewController storyboardIdentifier="LeftViewController" title="Menu" id="YRj-aY-Rec" customClass="LeftViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LeftViewController" title="Left" id="YRj-aY-Rec" customClass="LeftViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="HrM-qJ-wiA"/>
                         <viewControllerLayoutGuide type="bottom" id="yO0-9f-kJG"/>
@@ -100,12 +118,25 @@
                     <view key="view" contentMode="scaleToFill" id="f3W-7s-MZp">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pYv-Vo-bEr">
+                                <rect key="frame" x="103" y="318" width="168" height="30"/>
+                                <state key="normal" title="Open Another Controller"/>
+                                <connections>
+                                    <action selector="doOpenMapView:" destination="YRj-aY-Rec" eventType="touchUpInside" id="BYF-0K-vby"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="pYv-Vo-bEr" firstAttribute="centerX" secondItem="f3W-7s-MZp" secondAttribute="centerX" id="81L-UJ-40E"/>
+                            <constraint firstItem="pYv-Vo-bEr" firstAttribute="centerY" secondItem="f3W-7s-MZp" secondAttribute="centerY" id="uki-kD-azH"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cx6-aR-YcJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1961" y="15"/>
+            <point key="canvasLocation" x="1326" y="-647"/>
         </scene>
         <!--right-->
         <scene sceneID="huE-Vu-PCN">
@@ -118,12 +149,22 @@
                     <view key="view" contentMode="scaleToFill" id="aaX-rc-xry">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="37e-Fx-LJy">
+                                <rect key="frame" x="103" y="318" width="168" height="30"/>
+                                <state key="normal" title="Open Another Controller"/>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="37e-Fx-LJy" firstAttribute="centerX" secondItem="aaX-rc-xry" secondAttribute="centerX" id="6T3-tr-Mil"/>
+                            <constraint firstItem="37e-Fx-LJy" firstAttribute="centerY" secondItem="aaX-rc-xry" secondAttribute="centerY" id="Sat-aj-WeO"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="joL-DW-jQt" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2620" y="15"/>
+            <point key="canvasLocation" x="2058" y="-647"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="lSS-2P-yLL">
