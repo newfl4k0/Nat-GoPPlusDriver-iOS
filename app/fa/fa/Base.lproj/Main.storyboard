@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Usuario" textAlignment="natural" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="628-gk-uAB">
+                                <rect key="frame" x="16" y="88" width="343" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad" returnKeyType="done"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Contraseña" textAlignment="natural" clearsOnBeginEditing="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="I28-bW-hEQ">
+                                <rect key="frame" x="16" y="126" width="343" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad" returnKeyType="done" secureTextEntry="YES"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bd8-0k-xjp">
+                                <rect key="frame" x="15.5" y="164" width="343" height="30"/>
+                                <state key="normal" title="Acceder"/>
+                                <connections>
+                                    <action selector="doLogin:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tAN-ja-LCZ"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="628-gk-uAB" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="68" id="3hE-O5-8uR"/>
+                            <constraint firstItem="Bd8-0k-xjp" firstAttribute="centerX" secondItem="I28-bW-hEQ" secondAttribute="centerX" id="6uU-F6-g3d"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="628-gk-uAB" secondAttribute="leading" id="7cw-lj-VFt"/>
+                            <constraint firstItem="Bd8-0k-xjp" firstAttribute="top" secondItem="I28-bW-hEQ" secondAttribute="bottom" constant="8" id="B4z-Vf-vhL"/>
+                            <constraint firstItem="I28-bW-hEQ" firstAttribute="height" secondItem="628-gk-uAB" secondAttribute="height" id="Ecs-06-Jq1"/>
+                            <constraint firstItem="628-gk-uAB" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="P3e-oq-Gd9"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="628-gk-uAB" secondAttribute="trailing" id="VQD-kn-FN0"/>
+                            <constraint firstItem="Bd8-0k-xjp" firstAttribute="height" secondItem="I28-bW-hEQ" secondAttribute="height" id="XKp-9S-GNM"/>
+                            <constraint firstItem="I28-bW-hEQ" firstAttribute="top" secondItem="628-gk-uAB" secondAttribute="bottom" constant="8" id="dse-O7-Ftg"/>
+                            <constraint firstItem="I28-bW-hEQ" firstAttribute="width" secondItem="628-gk-uAB" secondAttribute="width" id="e7C-PC-a1q"/>
+                            <constraint firstItem="Bd8-0k-xjp" firstAttribute="width" secondItem="I28-bW-hEQ" secondAttribute="width" id="mpa-YH-qF5"/>
+                            <constraint firstItem="I28-bW-hEQ" firstAttribute="centerX" secondItem="628-gk-uAB" secondAttribute="centerX" id="rar-X7-1ga"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="passwordInput" destination="I28-bW-hEQ" id="2in-FN-Shv"/>
+                        <outlet property="userInput" destination="628-gk-uAB" id="XFX-gO-CH4"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="32.799999999999997" y="38.23088455772114"/>
+        </scene>
+    </scenes>
+</document>

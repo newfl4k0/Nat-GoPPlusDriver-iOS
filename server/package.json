@@ -1,0 +1,12 @@
+{
+	"name": "fa",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "Cristina Avila",
+	"dependencies": {
+		"express": "4.14.0",
+		"underscore": "1.8.3",
+		"body-parser": "1.15.2",
+		"method-override": "2.3.7"
+	}
+}
