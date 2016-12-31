@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 #import "AFNetworking.h"
+#import "MMDrawerController.h"
+#import "AppDelegate.h"
 
 @interface ViewController ()
 
@@ -30,10 +32,18 @@ AFHTTPSessionManager *manager;
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (IBAction)doToggleLeft:(id)sender {
+    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+}
+
+- (IBAction)doToggleRight:(id)sender {
+    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController toggleDrawerSide:MMDrawerSideRight animated:YES completion:nil];
+}
+
 - (IBAction)doLogin:(id)sender {
     NSString *URLString = [server stringByAppendingString:@"login"];
     NSDictionary *parameters = @{@"user": [self.userInput text], @"password": [self.passwordInput text]};
-    
     
     [manager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionTask *task, id responseObject) {
         NSDictionary *response = responseObject;

@@ -17,6 +17,27 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    UIStoryboard *mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    
+    UIViewController *leftViewController   = [mainStoryBoard instantiateViewControllerWithIdentifier:@"LeftViewController"];
+    UIViewController *centerViewController = [mainStoryBoard instantiateViewControllerWithIdentifier:@"CenterViewController"];
+    UIViewController *rightViewController  = [mainStoryBoard instantiateViewControllerWithIdentifier:@"RightViewController"];
+    
+    UINavigationController *leftNavigation   = [[UINavigationController alloc] initWithRootViewController:leftViewController];
+    UINavigationController *centerNavigation = [[UINavigationController alloc] initWithRootViewController:centerViewController];
+    UINavigationController *rightNavigation  = [[UINavigationController alloc] initWithRootViewController:rightViewController];
+    
+    self.drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerNavigation
+                                                            leftDrawerViewController:leftNavigation
+                                                           rightDrawerViewController:rightNavigation];
+    
+    
+    self.drawerController.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningCenterView;
+    self.drawerController.closeDrawerGestureModeMask = MMCloseDrawerGestureModePanningCenterView;
+    
+    _window.rootViewController = self.drawerController;
+    [_window makeKeyAndVisible];
     return YES;
 }
 

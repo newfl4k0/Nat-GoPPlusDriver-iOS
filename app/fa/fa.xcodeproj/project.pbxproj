@@ -14,6 +14,12 @@
 		6CDD65791E18027F00E59880 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6CDD65771E18027F00E59880 /* Main.storyboard */; };
 		6CDD657B1E18027F00E59880 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6CDD657A1E18027F00E59880 /* Assets.xcassets */; };
 		6CDD657E1E18027F00E59880 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6CDD657C1E18027F00E59880 /* LaunchScreen.storyboard */; };
+		6CDD658E1E181E8600E59880 /* MMDrawerBarButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65861E181E8600E59880 /* MMDrawerBarButtonItem.m */; };
+		6CDD658F1E181E8600E59880 /* MMDrawerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65881E181E8600E59880 /* MMDrawerController.m */; };
+		6CDD65901E181E8600E59880 /* MMDrawerVisualState.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD658B1E181E8600E59880 /* MMDrawerVisualState.m */; };
+		6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD658D1E181E8600E59880 /* UIViewController+MMDrawerController.m */; };
+		6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65931E1820E200E59880 /* LeftViewController.m */; };
+		6CDD65971E1822AC00E59880 /* RightViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65961E1822AC00E59880 /* RightViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +34,19 @@
 		6CDD657A1E18027F00E59880 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6CDD657D1E18027F00E59880 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6CDD657F1E18027F00E59880 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6CDD65851E181E8600E59880 /* MMDrawerBarButtonItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDrawerBarButtonItem.h; sourceTree = "<group>"; };
+		6CDD65861E181E8600E59880 /* MMDrawerBarButtonItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDrawerBarButtonItem.m; sourceTree = "<group>"; };
+		6CDD65871E181E8600E59880 /* MMDrawerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDrawerController.h; sourceTree = "<group>"; };
+		6CDD65881E181E8600E59880 /* MMDrawerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDrawerController.m; sourceTree = "<group>"; };
+		6CDD65891E181E8600E59880 /* MMDrawerController+Subclass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MMDrawerController+Subclass.h"; sourceTree = "<group>"; };
+		6CDD658A1E181E8600E59880 /* MMDrawerVisualState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDrawerVisualState.h; sourceTree = "<group>"; };
+		6CDD658B1E181E8600E59880 /* MMDrawerVisualState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDrawerVisualState.m; sourceTree = "<group>"; };
+		6CDD658C1E181E8600E59880 /* UIViewController+MMDrawerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+MMDrawerController.h"; sourceTree = "<group>"; };
+		6CDD658D1E181E8600E59880 /* UIViewController+MMDrawerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+MMDrawerController.m"; sourceTree = "<group>"; };
+		6CDD65921E1820E200E59880 /* LeftViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LeftViewController.h; sourceTree = "<group>"; };
+		6CDD65931E1820E200E59880 /* LeftViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftViewController.m; sourceTree = "<group>"; };
+		6CDD65951E1822AC00E59880 /* RightViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RightViewController.h; path = ../RightViewController.h; sourceTree = "<group>"; };
+		6CDD65961E1822AC00E59880 /* RightViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RightViewController.m; path = ../RightViewController.m; sourceTree = "<group>"; };
 		B25F0E7E1C53809ACC07A870 /* Pods-fa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.debug.xcconfig"; sourceTree = "<group>"; };
 		DAF55CEDD753CCEF2A38C353 /* Pods-fa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.release.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -86,6 +105,10 @@
 				6CDD65721E18027F00E59880 /* AppDelegate.m */,
 				6CDD65741E18027F00E59880 /* ViewController.h */,
 				6CDD65751E18027F00E59880 /* ViewController.m */,
+				6CDD65921E1820E200E59880 /* LeftViewController.h */,
+				6CDD65931E1820E200E59880 /* LeftViewController.m */,
+				6CDD65951E1822AC00E59880 /* RightViewController.h */,
+				6CDD65961E1822AC00E59880 /* RightViewController.m */,
 				6CDD65771E18027F00E59880 /* Main.storyboard */,
 				6CDD657A1E18027F00E59880 /* Assets.xcassets */,
 				6CDD657C1E18027F00E59880 /* LaunchScreen.storyboard */,
@@ -98,6 +121,15 @@
 		6CDD656E1E18027F00E59880 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				6CDD65851E181E8600E59880 /* MMDrawerBarButtonItem.h */,
+				6CDD65861E181E8600E59880 /* MMDrawerBarButtonItem.m */,
+				6CDD65871E181E8600E59880 /* MMDrawerController.h */,
+				6CDD65881E181E8600E59880 /* MMDrawerController.m */,
+				6CDD65891E181E8600E59880 /* MMDrawerController+Subclass.h */,
+				6CDD658A1E181E8600E59880 /* MMDrawerVisualState.h */,
+				6CDD658B1E181E8600E59880 /* MMDrawerVisualState.m */,
+				6CDD658C1E181E8600E59880 /* UIViewController+MMDrawerController.h */,
+				6CDD658D1E181E8600E59880 /* UIViewController+MMDrawerController.m */,
 				6CDD656F1E18027F00E59880 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -226,7 +258,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6CDD65901E181E8600E59880 /* MMDrawerVisualState.m in Sources */,
+				6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */,
 				6CDD65761E18027F00E59880 /* ViewController.m in Sources */,
+				6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */,
+				6CDD658F1E181E8600E59880 /* MMDrawerController.m in Sources */,
+				6CDD65971E1822AC00E59880 /* RightViewController.m in Sources */,
+				6CDD658E1E181E8600E59880 /* MMDrawerBarButtonItem.m in Sources */,
 				6CDD65731E18027F00E59880 /* AppDelegate.m in Sources */,
 				6CDD65701E18027F00E59880 /* main.m in Sources */,
 			);
