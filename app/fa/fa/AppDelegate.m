@@ -22,15 +22,13 @@
     
     UIViewController *leftViewController   = [mainStoryBoard instantiateViewControllerWithIdentifier:@"LeftViewController"];
     UIViewController *centerViewController = [mainStoryBoard instantiateViewControllerWithIdentifier:@"CenterViewController"];
-    UIViewController *rightViewController  = [mainStoryBoard instantiateViewControllerWithIdentifier:@"RightViewController"];
     
     UINavigationController *leftNavigation   = [[UINavigationController alloc] initWithRootViewController:leftViewController];
     UINavigationController *centerNavigation = [[UINavigationController alloc] initWithRootViewController:centerViewController];
-    UINavigationController *rightNavigation  = [[UINavigationController alloc] initWithRootViewController:rightViewController];
+    
     
     self.drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerNavigation
-                                                            leftDrawerViewController:leftNavigation
-                                                           rightDrawerViewController:rightNavigation];
+                                                            leftDrawerViewController:leftNavigation];
     
     
     self.drawerController.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningCenterView;
@@ -38,6 +36,9 @@
     
     _window.rootViewController = self.drawerController;
     [_window makeKeyAndVisible];
+    
+    self.manager = [AFHTTPSessionManager manager];
+    self.serverUrl = @"http://192.168.15.100:9997/";
     return YES;
 }
 

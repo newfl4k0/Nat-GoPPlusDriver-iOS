@@ -1,19 +1,19 @@
 //
-//  MapViewController.m
+//  NextViewController.m
 //  fa
 //
-//  Created by Cristina Avila on 31/12/16.
-//  Copyright © 2016 Cristina Avila. All rights reserved.
+//  Created by Cristina Avila on 02/01/17.
+//  Copyright © 2017 Cristina Avila. All rights reserved.
 //
 
-#import "MapViewController.h"
+#import "NextViewController.h"
 #import "AppDelegate.h"
 
-@interface MapViewController ()
+@interface NextViewController ()
 
 @end
 
-@implementation MapViewController
+@implementation NextViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

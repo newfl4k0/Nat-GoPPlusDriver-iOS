@@ -7,50 +7,17 @@
 //
 
 #import "ViewController.h"
-#import "AFNetworking.h"
-#import "MMDrawerController.h"
 #import "AppDelegate.h"
 
 @interface ViewController ()
-
-@property (weak, nonatomic) IBOutlet UITextField *userInput;
-@property (weak, nonatomic) IBOutlet UITextField *passwordInput;
 
 @end
 
 @implementation ViewController
 
-NSString *server = @"http://192.168.15.100:9997/";
-AFHTTPSessionManager *manager;
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    manager = [AFHTTPSessionManager manager];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (IBAction)doToggleLeft:(id)sender {
-    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-}
-
-- (IBAction)doToggleRight:(id)sender {
-    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController toggleDrawerSide:MMDrawerSideRight animated:YES completion:nil];
-}
-
-- (IBAction)doLogin:(id)sender {
-    NSString *URLString = [server stringByAppendingString:@"login"];
-    NSDictionary *parameters = @{@"user": [self.userInput text], @"password": [self.passwordInput text]};
-    
-    [manager POST:URLString parameters:parameters progress:nil success:^(NSURLSessionTask *task, id responseObject) {
-        NSDictionary *response = responseObject;
-        NSLog(@"response: %@", response);
-    } failure:^(NSURLSessionTask *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-    }];
-}
 
 @end

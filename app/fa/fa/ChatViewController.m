@@ -1,19 +1,19 @@
 //
-//  MapViewController.m
+//  ChatViewController.m
 //  fa
 //
-//  Created by Cristina Avila on 31/12/16.
-//  Copyright © 2016 Cristina Avila. All rights reserved.
+//  Created by Cristina Avila on 02/01/17.
+//  Copyright © 2017 Cristina Avila. All rights reserved.
 //
 
-#import "MapViewController.h"
+#import "ChatViewController.h"
 #import "AppDelegate.h"
 
-@interface MapViewController ()
+@interface ChatViewController ()
 
 @end
 
-@implementation MapViewController
+@implementation ChatViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

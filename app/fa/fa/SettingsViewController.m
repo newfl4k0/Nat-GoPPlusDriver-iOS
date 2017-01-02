@@ -1,18 +1,19 @@
 //
-//  RightViewController.m
+//  SettingsViewController.m
 //  fa
 //
-//  Created by Cristina Avila on 31/12/16.
-//  Copyright © 2016 Cristina Avila. All rights reserved.
+//  Created by Cristina Avila on 02/01/17.
+//  Copyright © 2017 Cristina Avila. All rights reserved.
 //
 
-#import "RightViewController.h"
+#import "SettingsViewController.h"
+#import "AppDelegate.h"
 
-@interface RightViewController ()
+@interface SettingsViewController ()
 
 @end
 
-@implementation RightViewController
+@implementation SettingsViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -23,6 +24,12 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (IBAction)doToggleMenu:(id)sender {
+    [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
+     toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+}
+
 
 /*
 #pragma mark - Navigation

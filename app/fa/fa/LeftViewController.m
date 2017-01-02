@@ -18,25 +18,39 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController
+     setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void) viewWillAppear:(BOOL)animated {
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void) updateCenterView:(NSString*)newCenterWindowName {
+    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController
+     setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:newCenterWindowName]];
+    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController
+     toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
-*/
+
 - (IBAction)doOpenMapView:(id)sender {
-    [((AppDelegate*)[UIApplication sharedApplication].delegate).drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
+    [self updateCenterView:@"MapViewController"];
+}
+
+- (IBAction)doOpenNextView:(id)sender {
+    [self updateCenterView:@"NextViewController"];
+}
+
+- (IBAction)doOpenHistoricView:(id)sender {
+    [self updateCenterView:@"HistoricViewController"];
+}
+
+- (IBAction)doOpenChatView:(id)sender {
+    [self updateCenterView:@"ChatViewController"];
+}
+
+- (IBAction)doOpenSettingsView:(id)sender {
+    [self updateCenterView:@"SettingsViewController"];
 }
 
 @end

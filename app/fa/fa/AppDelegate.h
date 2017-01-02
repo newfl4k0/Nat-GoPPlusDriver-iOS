@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "MMDrawerController.h"
+#import "AFNetworking.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) MMDrawerController *drawerController;
+@property (strong, nonatomic) AFHTTPSessionManager *manager;
+@property (strong, nonatomic) NSString *serverUrl;
 
 @end
 

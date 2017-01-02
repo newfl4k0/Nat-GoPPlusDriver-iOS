@@ -1,5 +1,5 @@
 //
-//  RightViewController.h
+//  AccessViewController.h
 //  fa
 //
 //  Created by Cristina Avila on 31/12/16.
@@ -8,6 +8,6 @@
 
 #import "ViewController.h"
 
-@interface RightViewController : ViewController
+@interface AccessViewController : ViewController
 
 @end
