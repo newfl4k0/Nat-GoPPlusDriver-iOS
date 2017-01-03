@@ -13,6 +13,8 @@
 		6C180A271E1AAD21002DF27C /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A261E1AAD21002DF27C /* SettingsViewController.m */; };
 		6C180A2A1E1AAD37002DF27C /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A291E1AAD37002DF27C /* ChatViewController.m */; };
 		6C180A2C1E1AAF21002DF27C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C180A2B1E1AAF21002DF27C /* MapKit.framework */; };
+		6C98DCBD1E1BDBBA008CB4EB /* NextTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C98DCBC1E1BDBBA008CB4EB /* NextTableViewController.m */; };
+		6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */; };
 		6CB636891E184927005ECA7F /* AccessViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CB636881E184927005ECA7F /* AccessViewController.m */; };
 		6CDD65701E18027F00E59880 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD656F1E18027F00E59880 /* main.m */; };
 		6CDD65731E18027F00E59880 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65721E18027F00E59880 /* AppDelegate.m */; };
@@ -39,6 +41,10 @@
 		6C180A281E1AAD37002DF27C /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
 		6C180A291E1AAD37002DF27C /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
 		6C180A2B1E1AAF21002DF27C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		6C98DCBB1E1BDBBA008CB4EB /* NextTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextTableViewController.h; sourceTree = "<group>"; };
+		6C98DCBC1E1BDBBA008CB4EB /* NextTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextTableViewController.m; sourceTree = "<group>"; };
+		6C98DCBF1E1BDD7B008CB4EB /* NextTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextTableViewCell.h; sourceTree = "<group>"; };
+		6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextTableViewCell.m; sourceTree = "<group>"; };
 		6CB636871E184927005ECA7F /* AccessViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessViewController.h; sourceTree = "<group>"; };
 		6CB636881E184927005ECA7F /* AccessViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccessViewController.m; sourceTree = "<group>"; };
 		6CDD656B1E18027F00E59880 /* fa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fa.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,6 +105,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		6C98DCBE1E1BDD56008CB4EB /* TableViewCells Controller */ = {
+			isa = PBXGroup;
+			children = (
+				6C98DCBF1E1BDD7B008CB4EB /* NextTableViewCell.h */,
+				6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */,
+			);
+			name = "TableViewCells Controller";
+			sourceTree = "<group>";
+		};
 		6CB636851E1842F3005ECA7F /* MMDrawer */ = {
 			isa = PBXGroup;
 			children = (
@@ -124,6 +139,15 @@
 			name = StoryBoard;
 			sourceTree = "<group>";
 		};
+		6CC90C161E1BD9B3000BC443 /* TableView Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				6C98DCBB1E1BDBBA008CB4EB /* NextTableViewController.h */,
+				6C98DCBC1E1BDBBA008CB4EB /* NextTableViewController.m */,
+			);
+			name = "TableView Controllers";
+			sourceTree = "<group>";
+		};
 		6CDD65621E18027F00E59880 = {
 			isa = PBXGroup;
 			children = (
@@ -145,12 +169,14 @@
 		6CDD656D1E18027F00E59880 /* fa */ = {
 			isa = PBXGroup;
 			children = (
-				6CDD659C1E182EEB00E59880 /* NavigationController */,
-				6CDD65981E182E5D00E59880 /* Sidebar Controllers */,
 				6CDD65711E18027F00E59880 /* AppDelegate.h */,
 				6CDD65721E18027F00E59880 /* AppDelegate.m */,
 				6CDD657F1E18027F00E59880 /* Info.plist */,
+				6CDD659C1E182EEB00E59880 /* Navigation Controllers */,
+				6CDD65981E182E5D00E59880 /* Sidebar Controllers */,
 				6CDD656E1E18027F00E59880 /* Supporting Files */,
+				6CC90C161E1BD9B3000BC443 /* TableView Controllers */,
+				6C98DCBE1E1BDD56008CB4EB /* TableViewCells Controller */,
 			);
 			path = fa;
 			sourceTree = "<group>";
@@ -158,10 +184,10 @@
 		6CDD656E1E18027F00E59880 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				6CDD656F1E18027F00E59880 /* main.m */,
 				6CDD657A1E18027F00E59880 /* Assets.xcassets */,
 				6CB636861E18430D005ECA7F /* StoryBoard */,
 				6CB636851E1842F3005ECA7F /* MMDrawer */,
-				6CDD656F1E18027F00E59880 /* main.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -169,31 +195,31 @@
 		6CDD65981E182E5D00E59880 /* Sidebar Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				6CDD65991E182E8400E59880 /* MapViewController.h */,
-				6CDD659A1E182E8400E59880 /* MapViewController.m */,
 				6CB636871E184927005ECA7F /* AccessViewController.h */,
 				6CB636881E184927005ECA7F /* AccessViewController.m */,
+				6C180A281E1AAD37002DF27C /* ChatViewController.h */,
+				6C180A291E1AAD37002DF27C /* ChatViewController.m */,
 				6C180A1F1E1AAC0E002DF27C /* HistoricViewController.h */,
 				6C180A201E1AAC0E002DF27C /* HistoricViewController.m */,
+				6CDD65991E182E8400E59880 /* MapViewController.h */,
+				6CDD659A1E182E8400E59880 /* MapViewController.m */,
 				6C180A221E1AAD08002DF27C /* NextViewController.h */,
 				6C180A231E1AAD08002DF27C /* NextViewController.m */,
 				6C180A251E1AAD21002DF27C /* SettingsViewController.h */,
 				6C180A261E1AAD21002DF27C /* SettingsViewController.m */,
-				6C180A281E1AAD37002DF27C /* ChatViewController.h */,
-				6C180A291E1AAD37002DF27C /* ChatViewController.m */,
 			);
 			name = "Sidebar Controllers";
 			sourceTree = "<group>";
 		};
-		6CDD659C1E182EEB00E59880 /* NavigationController */ = {
+		6CDD659C1E182EEB00E59880 /* Navigation Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				6CDD65741E18027F00E59880 /* ViewController.h */,
-				6CDD65751E18027F00E59880 /* ViewController.m */,
 				6CDD65921E1820E200E59880 /* LeftViewController.h */,
 				6CDD65931E1820E200E59880 /* LeftViewController.m */,
+				6CDD65741E18027F00E59880 /* ViewController.h */,
+				6CDD65751E18027F00E59880 /* ViewController.m */,
 			);
-			name = NavigationController;
+			name = "Navigation Controllers";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -324,6 +350,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */,
 				6CB636891E184927005ECA7F /* AccessViewController.m in Sources */,
 				6C180A241E1AAD08002DF27C /* NextViewController.m in Sources */,
 				6CDD65901E181E8600E59880 /* MMDrawerVisualState.m in Sources */,
@@ -335,6 +362,7 @@
 				6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */,
 				6CDD65731E18027F00E59880 /* AppDelegate.m in Sources */,
 				6C180A211E1AAC0E002DF27C /* HistoricViewController.m in Sources */,
+				6C98DCBD1E1BDBBA008CB4EB /* NextTableViewController.m in Sources */,
 				6CDD65701E18027F00E59880 /* main.m in Sources */,
 				6C180A2A1E1AAD37002DF27C /* ChatViewController.m in Sources */,
 				6C180A271E1AAD21002DF27C /* SettingsViewController.m in Sources */,

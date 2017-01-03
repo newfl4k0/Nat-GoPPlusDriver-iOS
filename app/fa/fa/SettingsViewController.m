@@ -30,6 +30,14 @@
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
+- (IBAction)doCloseSession:(id)sender {
+}
+
+- (IBAction)doCheckServerStatus:(id)sender {
+}
+
+- (IBAction)doInitManualSync:(id)sender {
+}
 
 /*
 #pragma mark - Navigation

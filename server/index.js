@@ -6,6 +6,7 @@ const express        = require('express');
 const bodyparser     = require('body-parser');
 const methodoverride = require('method-override');
 const utils          = require('./utils');
+const chat           = require('./lib/chat');
 
 const app = express();
 
@@ -17,12 +18,8 @@ app.get('/', function(req, res) {
 	res.status(200).jsonp({ message: 'Hello World' });
 });
 
-
 app.post('/login', function(req, res) {
 	var data = req.body;
-
-	console.log(JSON.stringify(data));
-
 	var status = 400;
 	var response = {
 		status: false,
@@ -33,6 +30,29 @@ app.post('/login', function(req, res) {
 		status = 200;
 		response.status = true;
 		response.message = 'Bienvenido';
+	}
+
+	res.status(status).jsonp(response);
+});
+
+app.get('/base-chat', function(req, res) {
+	var data = req.body;
+	var status = 400;
+	var response = {
+		status: false,
+		message: 'Verifica la información',
+		chat: []
+	};
+
+	if (!utils.isEmptyValue(data.driverid)) {
+		if (!utils.isEmptyValue(data.isClientChat) && data.isClientChat === true) {
+			response.chat = chat.getCurrentChat(data.driverid, true);
+		} else {
+			response.chat = chat.getCurrentChat(data.driverid, false);
+		}
+
+		response.status = true;
+		response.message = 'Total Chat Messages : ' + response.chat.length;
 	}
 
 	res.status(status).jsonp(response);

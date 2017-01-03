@@ -9,5 +9,5 @@
 #import "ViewController.h"
 
 @interface MapViewController : ViewController
-
+@property (strong, nonatomic) NSString *demoString;
 @end
