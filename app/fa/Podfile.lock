@@ -14,13 +14,20 @@ PODS:
   - AFNetworking/Serialization (3.1.0)
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
+  - Crashlytics (3.8.3):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.11)
 
 DEPENDENCIES:
   - AFNetworking (~> 3.0)
+  - Crashlytics
+  - Fabric
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
+  Crashlytics: 2b6dbe138a42395577cfa73dfa1aa7248cadf39e
+  Fabric: 5911403591946b8228ab1c51d98f1d7137e863c6
 
-PODFILE CHECKSUM: 3e0d727aa06d1ae810f21aa92f2b91c927d12572
+PODFILE CHECKSUM: f7664c8c71bfdf8babd917bc7b0794d70a1dd28e
 
 COCOAPODS: 1.1.1

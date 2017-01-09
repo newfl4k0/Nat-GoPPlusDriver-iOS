@@ -247,6 +247,7 @@
 				6CDD65691E18027F00E59880 /* Resources */,
 				65D7992E840445D135687AEC /* [CP] Embed Pods Frameworks */,
 				7D696ACFF512E99D47FC8C24 /* [CP] Copy Pods Resources */,
+				6C9257EE1E243301009DF01F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -324,6 +325,19 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-fa/Pods-fa-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		6C9257EE1E243301009DF01F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" d242f0ad2b576a7dd9302c36d0af5f842497dbe8 582f08bc5570cdaea1c0fccf8ea70ea42c22c109742e41bac64990d9f1c5d3ea";
 		};
 		7D696ACFF512E99D47FC8C24 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

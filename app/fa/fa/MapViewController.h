@@ -7,7 +7,11 @@
 //
 
 #import "ViewController.h"
+#import <CoreLocation/CoreLocation.h>
+#import <MapKit/MapKit.h>
 
-@interface MapViewController : ViewController
+
+@interface MapViewController : ViewController<CLLocationManagerDelegate>
 @property (strong, nonatomic) NSString *demoString;
+@property (strong, nonatomic) CLLocationManager *locationManager;
 @end

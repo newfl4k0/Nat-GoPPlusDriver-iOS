@@ -7,4 +7,6 @@ target 'fa' do
 
   # Pods for fa
   pod 'AFNetworking', '~> 3.0'
+  pod 'Fabric'
+  pod 'Crashlytics'
 end

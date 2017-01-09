@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import <Fabric/Fabric.h>
+#import <Crashlytics/Crashlytics.h>
 
 @interface AppDelegate ()
 
@@ -35,6 +37,8 @@
     
     self.manager = [AFHTTPSessionManager manager];
     self.serverUrl = @"http://192.168.15.100:9997/";
+    
+    [Fabric with:@[[Crashlytics class]]];
     return YES;
 }
 
