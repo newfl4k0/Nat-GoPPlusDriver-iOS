@@ -9,5 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface NextTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *mapImage;
+@property (weak, nonatomic) IBOutlet UILabel *dataLabel;
+@property (weak, nonatomic) IBOutlet UIButton *cancelButton;
 
 @end

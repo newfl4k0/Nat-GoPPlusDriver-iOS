@@ -8,6 +8,6 @@
 
 #import "ViewController.h"
 
-@interface HistoricViewController : ViewController
+@interface HistoricViewController : ViewController<UITableViewDelegate, UITableViewDataSource>
 
 @end

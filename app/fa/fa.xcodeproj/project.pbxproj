@@ -13,7 +13,10 @@
 		6C180A271E1AAD21002DF27C /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A261E1AAD21002DF27C /* SettingsViewController.m */; };
 		6C180A2A1E1AAD37002DF27C /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A291E1AAD37002DF27C /* ChatViewController.m */; };
 		6C180A2C1E1AAF21002DF27C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C180A2B1E1AAF21002DF27C /* MapKit.framework */; };
-		6C98DCBD1E1BDBBA008CB4EB /* NextTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C98DCBC1E1BDBBA008CB4EB /* NextTableViewController.m */; };
+		6C30829C1E23CC3900692EDD /* UITableTouch.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C30829B1E23CC3900692EDD /* UITableTouch.m */; };
+		6C30829F1E23CD3100692EDD /* ChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C30829E1E23CD3100692EDD /* ChatCell.m */; };
+		6C3082A21E23CD4100692EDD /* LeftChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C3082A11E23CD4100692EDD /* LeftChatCell.m */; };
+		6C3082A51E23DB2800692EDD /* HistorialCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C3082A41E23DB2800692EDD /* HistorialCell.m */; };
 		6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */; };
 		6CB636891E184927005ECA7F /* AccessViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CB636881E184927005ECA7F /* AccessViewController.m */; };
 		6CDD65701E18027F00E59880 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD656F1E18027F00E59880 /* main.m */; };
@@ -28,6 +31,7 @@
 		6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD658D1E181E8600E59880 /* UIViewController+MMDrawerController.m */; };
 		6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65931E1820E200E59880 /* LeftViewController.m */; };
 		6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD659A1E182E8400E59880 /* MapViewController.m */; };
+		6CF46F3E1E1D4C3E00BBB19C /* DummyData.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF46F3D1E1D4C3E00BBB19C /* DummyData.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,8 +45,14 @@
 		6C180A281E1AAD37002DF27C /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
 		6C180A291E1AAD37002DF27C /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
 		6C180A2B1E1AAF21002DF27C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
-		6C98DCBB1E1BDBBA008CB4EB /* NextTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextTableViewController.h; sourceTree = "<group>"; };
-		6C98DCBC1E1BDBBA008CB4EB /* NextTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextTableViewController.m; sourceTree = "<group>"; };
+		6C30829A1E23CC3900692EDD /* UITableTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UITableTouch.h; sourceTree = "<group>"; };
+		6C30829B1E23CC3900692EDD /* UITableTouch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITableTouch.m; sourceTree = "<group>"; };
+		6C30829D1E23CD3100692EDD /* ChatCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCell.h; sourceTree = "<group>"; };
+		6C30829E1E23CD3100692EDD /* ChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatCell.m; sourceTree = "<group>"; };
+		6C3082A01E23CD4100692EDD /* LeftChatCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LeftChatCell.h; sourceTree = "<group>"; };
+		6C3082A11E23CD4100692EDD /* LeftChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftChatCell.m; sourceTree = "<group>"; };
+		6C3082A31E23DB2800692EDD /* HistorialCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistorialCell.h; sourceTree = "<group>"; };
+		6C3082A41E23DB2800692EDD /* HistorialCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistorialCell.m; sourceTree = "<group>"; };
 		6C98DCBF1E1BDD7B008CB4EB /* NextTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextTableViewCell.h; sourceTree = "<group>"; };
 		6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextTableViewCell.m; sourceTree = "<group>"; };
 		6CB636871E184927005ECA7F /* AccessViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessViewController.h; sourceTree = "<group>"; };
@@ -70,6 +80,8 @@
 		6CDD65931E1820E200E59880 /* LeftViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftViewController.m; sourceTree = "<group>"; };
 		6CDD65991E182E8400E59880 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		6CDD659A1E182E8400E59880 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
+		6CF46F3C1E1D4C3E00BBB19C /* DummyData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DummyData.h; sourceTree = "<group>"; };
+		6CF46F3D1E1D4C3E00BBB19C /* DummyData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DummyData.m; sourceTree = "<group>"; };
 		B25F0E7E1C53809ACC07A870 /* Pods-fa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.debug.xcconfig"; sourceTree = "<group>"; };
 		DAF55CEDD753CCEF2A38C353 /* Pods-fa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.release.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -105,13 +117,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		6C98DCBE1E1BDD56008CB4EB /* TableViewCells Controller */ = {
+		6C98DCBE1E1BDD56008CB4EB /* Tables Controller */ = {
 			isa = PBXGroup;
 			children = (
 				6C98DCBF1E1BDD7B008CB4EB /* NextTableViewCell.h */,
 				6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */,
+				6C30829A1E23CC3900692EDD /* UITableTouch.h */,
+				6C30829B1E23CC3900692EDD /* UITableTouch.m */,
+				6C30829D1E23CD3100692EDD /* ChatCell.h */,
+				6C30829E1E23CD3100692EDD /* ChatCell.m */,
+				6C3082A01E23CD4100692EDD /* LeftChatCell.h */,
+				6C3082A11E23CD4100692EDD /* LeftChatCell.m */,
+				6C3082A31E23DB2800692EDD /* HistorialCell.h */,
+				6C3082A41E23DB2800692EDD /* HistorialCell.m */,
 			);
-			name = "TableViewCells Controller";
+			name = "Tables Controller";
 			sourceTree = "<group>";
 		};
 		6CB636851E1842F3005ECA7F /* MMDrawer */ = {
@@ -137,15 +157,6 @@
 				6CDD657C1E18027F00E59880 /* LaunchScreen.storyboard */,
 			);
 			name = StoryBoard;
-			sourceTree = "<group>";
-		};
-		6CC90C161E1BD9B3000BC443 /* TableView Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				6C98DCBB1E1BDBBA008CB4EB /* NextTableViewController.h */,
-				6C98DCBC1E1BDBBA008CB4EB /* NextTableViewController.m */,
-			);
-			name = "TableView Controllers";
 			sourceTree = "<group>";
 		};
 		6CDD65621E18027F00E59880 = {
@@ -175,8 +186,9 @@
 				6CDD659C1E182EEB00E59880 /* Navigation Controllers */,
 				6CDD65981E182E5D00E59880 /* Sidebar Controllers */,
 				6CDD656E1E18027F00E59880 /* Supporting Files */,
-				6CC90C161E1BD9B3000BC443 /* TableView Controllers */,
-				6C98DCBE1E1BDD56008CB4EB /* TableViewCells Controller */,
+				6C98DCBE1E1BDD56008CB4EB /* Tables Controller */,
+				6CF46F3C1E1D4C3E00BBB19C /* DummyData.h */,
+				6CF46F3D1E1D4C3E00BBB19C /* DummyData.m */,
 			);
 			path = fa;
 			sourceTree = "<group>";
@@ -351,9 +363,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */,
+				6C3082A51E23DB2800692EDD /* HistorialCell.m in Sources */,
 				6CB636891E184927005ECA7F /* AccessViewController.m in Sources */,
 				6C180A241E1AAD08002DF27C /* NextViewController.m in Sources */,
+				6C30829F1E23CD3100692EDD /* ChatCell.m in Sources */,
 				6CDD65901E181E8600E59880 /* MMDrawerVisualState.m in Sources */,
+				6C30829C1E23CC3900692EDD /* UITableTouch.m in Sources */,
 				6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */,
 				6CDD65761E18027F00E59880 /* ViewController.m in Sources */,
 				6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */,
@@ -361,8 +376,9 @@
 				6CDD658E1E181E8600E59880 /* MMDrawerBarButtonItem.m in Sources */,
 				6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */,
 				6CDD65731E18027F00E59880 /* AppDelegate.m in Sources */,
+				6CF46F3E1E1D4C3E00BBB19C /* DummyData.m in Sources */,
+				6C3082A21E23CD4100692EDD /* LeftChatCell.m in Sources */,
 				6C180A211E1AAC0E002DF27C /* HistoricViewController.m in Sources */,
-				6C98DCBD1E1BDBBA008CB4EB /* NextTableViewController.m in Sources */,
 				6CDD65701E18027F00E59880 /* main.m in Sources */,
 				6C180A2A1E1AAD37002DF27C /* ChatViewController.m in Sources */,
 				6C180A271E1AAD21002DF27C /* SettingsViewController.m in Sources */,

@@ -7,7 +7,9 @@
 //
 
 #import "ViewController.h"
+#import "ChatCell.h"
+#import "LeftChatCell.h"
 
-@interface ChatViewController : ViewController
+@interface ChatViewController : ViewController<UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
 
 @end
