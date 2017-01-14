@@ -13,6 +13,7 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *userInput;
 @property (weak, nonatomic) IBOutlet UITextField *passwordInput;
+@property (weak, nonatomic) IBOutlet UITextField *vehicleInput;
 @property (weak, nonatomic) AppDelegate *app;
 @end
 
@@ -26,7 +27,8 @@
 - (IBAction)doVerifyCredentials:(id)sender {
     NSDictionary *parameters = @{
                                  @"user": [self.userInput text],
-                                 @"password": [self.passwordInput text]
+                                 @"password": [self.passwordInput text],
+                                 @"vehicle": [self.vehicleInput text]
                                 };
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"login"]
@@ -35,6 +37,8 @@
                 success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                     NSDictionary *response = responseObject;
                     NSLog(@"response: %@", response);
+                    
+                    [self.app initDrawerWindow];
                 }
                 failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                     NSLog(@"Error: %@", error);

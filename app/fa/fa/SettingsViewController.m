@@ -31,6 +31,7 @@
 }
 
 - (IBAction)doCloseSession:(id)sender {
+   [((AppDelegate *)[[UIApplication sharedApplication] delegate]) initLoginWindow];
 }
 
 - (IBAction)doCheckServerStatus:(id)sender {

@@ -17,5 +17,7 @@
 @property (strong, nonatomic) AFHTTPSessionManager *manager;
 @property (strong, nonatomic) NSString *serverUrl;
 
+- (void)initDrawerWindow;
+- (void)initLoginWindow;
 @end
 

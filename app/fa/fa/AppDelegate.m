@@ -19,7 +19,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    self.manager = [AFHTTPSessionManager manager];
+    self.serverUrl = @"http://192.168.15.100:8000/";
     
+    [Fabric with:@[[Crashlytics class]]];
+    return YES;
+}
+
+- (void)initDrawerWindow {
     UIStoryboard *mainStoryBoard             = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     UIViewController *leftViewController     = [mainStoryBoard instantiateViewControllerWithIdentifier:@"LeftViewController"];
     UIViewController *centerViewController   = [mainStoryBoard instantiateViewControllerWithIdentifier:@"CenterViewController"];
@@ -28,18 +35,19 @@
     
     self.drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerNavigation
                                                             leftDrawerViewController:leftNavigation];
-
+    
     self.drawerController.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningCenterView;
     self.drawerController.closeDrawerGestureModeMask = MMCloseDrawerGestureModePanningCenterView;
     
     _window.rootViewController = self.drawerController;
     [_window makeKeyAndVisible];
-    
-    self.manager = [AFHTTPSessionManager manager];
-    self.serverUrl = @"http://192.168.15.100:9997/";
-    
-    [Fabric with:@[[Crashlytics class]]];
-    return YES;
+}
+
+- (void)initLoginWindow {
+    UIStoryboard *mainStoryBoard           = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    UIViewController *accessViewController = [mainStoryBoard instantiateViewControllerWithIdentifier:@"AccessViewController"];
+    _window.rootViewController = accessViewController;
+    [_window makeKeyAndVisible];
 }
 
 
