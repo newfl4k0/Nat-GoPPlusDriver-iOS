@@ -25,21 +25,24 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (NSInteger)getInteger:(NSString *)stringForKey {
-    NSInteger savedValue = [[NSUserDefaults standardUserDefaults] integerForKey:stringForKey];
-    
-    return savedValue;
+- (BOOL)existsKey:(NSString *)key {
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:key] == nil) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
-- (NSString *)getString:(NSString *)stringForKey {
-    NSString *savedValue = [[NSUserDefaults standardUserDefaults] stringForKey:stringForKey];
-    
-    return savedValue;
+- (NSInteger)getInteger:(NSString *)key {
+    return [[NSUserDefaults standardUserDefaults] integerForKey:key];
 }
 
-- (NSDictionary *)getDictionary:(NSString *)stringForKey {
-    NSDictionary *savedDictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:stringForKey];
-    return savedDictionary;
+- (NSString *)getString:(NSString *)key {
+    return [[NSUserDefaults standardUserDefaults] stringForKey:key];
+}
+
+- (NSDictionary *)getDictionary:(NSString *)key {
+    return [[NSUserDefaults standardUserDefaults] dictionaryForKey:key];
 }
 
 - (void)deleteKey:(NSString *)key {

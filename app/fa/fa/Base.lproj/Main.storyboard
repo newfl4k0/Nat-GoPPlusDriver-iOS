@@ -814,6 +814,9 @@
                             <constraint firstItem="IUk-zV-QDO" firstAttribute="width" secondItem="hmG-Eh-PZE" secondAttribute="width" id="zKS-4Y-5gz"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="welcomeLabel" destination="ff6-Rk-8Y2" id="uyi-fd-RmF"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cx6-aR-YcJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

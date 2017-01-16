@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @interface DataLibrary : NSObject
+- (BOOL)existsKey:(NSString *)key;
 - (void)saveInteger:(NSInteger)value :(NSString *)key;
 - (void)saveString:(NSString *)value :(NSString *)key;
 - (void)saveDictionary:(NSDictionary *)value :(NSString *)key;

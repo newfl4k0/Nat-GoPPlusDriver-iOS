@@ -11,7 +11,7 @@
 #import <MapKit/MapKit.h>
 
 
-@interface MapViewController : ViewController<CLLocationManagerDelegate>
+@interface MapViewController : ViewController
 @property (strong, nonatomic) NSString *demoString;
-@property (strong, nonatomic) CLLocationManager *locationManager;
+
 @end
