@@ -53,6 +53,7 @@
                     }
                 }
                 failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    NSLog(@"%@", error);
                     [self showAlert:@"Error" :@"Verifica el estatus del servidor y datos ingresados"];
                 }];
 }

@@ -69,6 +69,8 @@
         self.app.locationManager.distanceFilter = kCLDistanceFilterNone;
         self.app.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
         
+        [self.app.locationManager setAllowsBackgroundLocationUpdates:YES];
+        
         if ([self.app.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             [self.app.locationManager requestAlwaysAuthorization];
         }
@@ -84,10 +86,10 @@
     
     if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 15.0) {
         self.currentDate = [NSDate date];
-        NSDictionary *parameters = @{@"connection": [NSNumber numberWithInt:[self.app.dataLibrary getInteger:@"connection_id"]],
+        NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
                                      @"lat": [NSNumber numberWithFloat:location.coordinate.latitude],
                                      @"lng": [NSNumber numberWithFloat:location.coordinate.longitude],
-                                     @"status": [NSNumber numberWithInt:[self.app.dataLibrary getInteger:@"status"]]};
+                                     @"status": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"status"]]};
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
