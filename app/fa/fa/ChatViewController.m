@@ -13,6 +13,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (weak, nonatomic) IBOutlet UITextField *messageInput;
 @property (strong, nonatomic) NSMutableArray *dataArray;
+@property (weak, nonatomic) AppDelegate *app;
+@property (strong, nonatomic) NSTimer *timer;
 @end
 
 @implementation ChatViewController
@@ -20,16 +22,33 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
+    self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
-    [self.dataArray addObjectsFromArray:@[@{ @"message": @"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.!", @"date": @"10:10 am", @"isMe": @YES },
-                                          @{ @"message": @"Everyone needs to look at this answer, because it works. Perhaps clearer documentation is needed for this method and attributed strings in general; it's not obvious where you need to look.", @"date": @"10:10 am", @"isMe": @NO },
-                                          @{ @"message": @"Hola 2", @"date": @"10:10 am", @"isMe": @YES }
-                                          ]];
     
     [self.table setDataSource:self];
     [self.table setDelegate:self];
     [self.messageInput setDelegate:self];
+    
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self updateChatArray];
+    }];
+}
+
+- (void)updateChatArray {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
+               parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      NSLog(@"responseObject %@", responseObject);
+                      NSDictionary *data = (NSDictionary *) responseObject;
+                      
+                      self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                      NSLog(@"responseObject %@", self.dataArray);
+                      [self.table reloadData];
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      NSLog(@"Error %@", error);
+                  }];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -50,6 +69,8 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [self.timer invalidate];
+    self.timer = nil;
 }
 
 #pragma mark - Keyboard
@@ -108,7 +129,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *data = [self.dataArray objectAtIndex:indexPath.row];
-    BOOL isMe = [[data objectForKey:@"isMe"] boolValue];
+    BOOL isMe = [[data objectForKey:@"es_conductor"] boolValue];
     
     if (isMe == YES) {
         ChatCell *cell = (ChatCell *) [self.table dequeueReusableCellWithIdentifier:@"ChatCell"];
@@ -116,8 +137,8 @@
         cell.message.lineBreakMode = NSLineBreakByWordWrapping;
         cell.message.numberOfLines = 0;
         
-        [cell.message setText:[data objectForKey:@"message"]];
-        [cell.date setText:[data objectForKey:@"date"]];
+        [cell.message setText:[data objectForKey:@"mensaje"]];
+        [cell.date setText:[data objectForKey:@"fecha"]];
         
         return cell;
     } else {
@@ -126,8 +147,8 @@
         cell.message.lineBreakMode = NSLineBreakByWordWrapping;
         cell.message.numberOfLines = 0;
         
-        [cell.message setText:[data objectForKey:@"message"]];
-        [cell.date setText:[data objectForKey:@"date"]];
+        [cell.message setText:[data objectForKey:@"mensaje"]];
+        [cell.date setText:[data objectForKey:@"fecha"]];
         
         return cell;
     }
@@ -136,8 +157,8 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *data = [self.dataArray objectAtIndex:indexPath.row];
     
-    NSString *text     = data[@"message"];
-    NSString *textDate = data[@"date"];
+    NSString *text     = data[@"mensaje"];
+    NSString *textDate = data[@"fecha"];
     
     // typical textLabel.frame = {{10, 30}, {260, 22}}
     const CGFloat TEXT_LABEL_WIDTH = 260;

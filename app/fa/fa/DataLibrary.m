@@ -25,6 +25,11 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (void)saveDouble:(double)value :(NSString *)key {
+    [[NSUserDefaults standardUserDefaults] setDouble:value forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 - (BOOL)existsKey:(NSString *)key {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:key] == nil) {
         return NO;
@@ -45,6 +50,10 @@
     return [[NSUserDefaults standardUserDefaults] dictionaryForKey:key];
 }
 
+- (double)getDouble:(NSString *)key {
+    return [[NSUserDefaults standardUserDefaults] doubleForKey:key];
+}
+
 - (void)deleteKey:(NSString *)key {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
 }
@@ -52,6 +61,20 @@
 - (void)deleteAll {
     NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
     [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+}
+
+- (NSInteger)getStatusIdForName:(NSString *)key {
+    NSDictionary *status = [self getDictionary:@"estatus"];
+    NSArray *statusArray = status[@"data"];
+    NSInteger statusId = 0;
+    
+    for (NSDictionary *dict in statusArray) {
+        if ([dict[@"nombre"] isEqualToString:key]) {
+            statusId = [[dict valueForKey:@"id"] integerValue];
+        }
+    }
+    
+    return statusId;
 }
 
 @end

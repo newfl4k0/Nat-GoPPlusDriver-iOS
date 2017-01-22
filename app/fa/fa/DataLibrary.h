@@ -13,9 +13,12 @@
 - (void)saveInteger:(NSInteger)value :(NSString *)key;
 - (void)saveString:(NSString *)value :(NSString *)key;
 - (void)saveDictionary:(NSDictionary *)value :(NSString *)key;
+- (void)saveDouble:(double)value :(NSString *)key;
 - (NSInteger)getInteger:(NSString *)stringForKey;
 - (NSString *)getString:(NSString *)stringForKey;
 - (NSDictionary *)getDictionary:(NSString *)stringForKey;
+- (double)getDouble:(NSString *)key;
 - (void)deleteKey:(NSString *)key;
 - (void)deleteAll;
+- (NSInteger)getStatusIdForName:(NSString *)key;
 @end
