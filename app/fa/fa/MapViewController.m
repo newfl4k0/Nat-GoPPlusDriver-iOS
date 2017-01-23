@@ -14,57 +14,207 @@
 @property (weak, nonatomic) IBOutlet UILabel *clientLabel;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *dataLabel;
+@property (weak, nonatomic) IBOutlet UIButton *endServiceButton;
+@property (weak, nonatomic) IBOutlet UIButton *cancelServiceButton;
+@property (weak, nonatomic) IBOutlet UIButton *chatButton;
+@property (weak, nonatomic) IBOutlet UIView *ServiceView;
 @property (weak, nonatomic) AppDelegate *app;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
-@property (strong, nonatomic) NSTimer *timer;
+@property (strong, nonatomic) NSTimer *timerMap;
+@property (strong, nonatomic) NSTimer *timerService;
+@property (nonatomic) BOOL isOnService;
+@property (strong, nonatomic) StartAnnotation *startAnnotation;
+@property (strong, nonatomic) EndAnnotation *endAnnotation;
+@property (nonatomic) int serviceStatus;
 @end
 
 @implementation MapViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.map.delegate = self;
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    self.isOnService = NO;
     self.status = 1;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
     [self initializeServiceData];
     [self initTimer];
 }
 
-- (void)initializeServiceData {
-    [self.clientLabel setText:@"Cliente: Juan Perez"];
-    [self.statusLabel setText:@"En curso"];
-    [self.dataLabel setText:@"De: Fresno #123 Colonia El Moral \nA: Plaza Mayor \nInicio del viaje: 09 Ene 2017 10:10am \nObservaciones: Esperar en cafetería"];
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.timerMap invalidate];
+    [self.timerService invalidate];
+    self.timerMap = nil;
+    self.timerService = nil;
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)initializeServiceData {
+    NSDictionary *parameters = @{@"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] };
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:parameters progress:nil
+    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        @try {
+            NSArray *responseArray = [responseObject objectForKey:@"data"];
+            
+            if (responseArray.count>0) {
+                NSDictionary *response =  [responseArray objectAtIndex:0];
+                self.serviceStatus = [[response objectForKey:@"estatus_reserva"] intValue];
+                
+                [self.app.dataLibrary saveDictionary:response :@"service"];
+                [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
+                [self.statusLabel setText:[response objectForKey:@"estatus_reserva_nombre"]];
+                
+                NSString *dataReserva = [NSString stringWithString:[response objectForKey:@"origen"]];
+                dataReserva = [dataReserva stringByAppendingString:@"\n"];
+                dataReserva = [dataReserva stringByAppendingString:[response objectForKey:@"destino"]];
+                dataReserva = [dataReserva stringByAppendingString:@"\n"];
+                dataReserva = [dataReserva stringByAppendingString:[response objectForKey:@"observaciones"]];
+                
+                if (self.serviceStatus == 4) {
+                    self.cancelServiceButton.enabled = YES;
+                    self.chatButton.enabled = YES;
+                    self.endServiceButton.titleLabel.text = [[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado";
+                    [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Asignado"] :@"status"];
+                } else if (self.serviceStatus == 5) {
+                    self.cancelServiceButton.enabled = NO;
+                    self.chatButton.enabled = NO;
+                    self.endServiceButton.titleLabel.text = @"Finalizar";
+                    [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Ocupado"] :@"status"];
+                }
+                
+                [self.dataLabel setText:dataReserva];
+                self.isOnService = YES;
+                self.ServiceView.hidden = NO;
+            } else {
+                [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
+                NSLog(@"El conductor no tiene servicio");
+                self.isOnService = NO;
+                self.ServiceView.hidden = YES;
+            }
+        } @catch (NSException *exception) {
+            NSLog(@"%@", exception);
+            self.ServiceView.hidden = YES;
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"%@", error);
+        self.ServiceView.hidden = YES;
+    }];
+}
+
+- (void)initTimer {
+    self.timerMap = [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self updateMapWithLatestLocation];
+    }];
+    
+    self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self initializeServiceData];
+    }];
+}
+
+- (void)updateMapWithLatestLocation {
+    if (self.isOnService) {
+        NSDictionary *serviceLocation = [self.app.dataLibrary getDictionary:@"service"];
+        
+        if (serviceLocation != nil) {
+            if (self.serviceStatus  == 4) {
+                if (self.startAnnotation == nil) {
+                    self.startAnnotation = [[StartAnnotation alloc] initWithTitle:[serviceLocation objectForKey:@"origen"]
+                                                                         Location:CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue])];
+                    
+                    [self.map addAnnotation:self.startAnnotation];
+                }
+                
+                if (self.endAnnotation != nil) {
+                    [self.map removeAnnotation:self.endAnnotation];
+                    self.endAnnotation = nil;
+                }
+                
+                [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
+            } else if (self.serviceStatus  == 5) {
+                if (self.endAnnotation == nil) {
+                    self.endAnnotation = [[EndAnnotation alloc] initWithTitle:[serviceLocation objectForKey:@"destino"]
+                                                                     Location:CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue])];
+                    
+                    [self.map addAnnotation:self.endAnnotation];
+                }
+                
+                if (self.startAnnotation != nil) {
+                    [self.map removeAnnotation:self.startAnnotation];
+                    self.startAnnotation = nil;
+                }
+                
+                [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
+            }
+        }
+    } else {
+        if (self.app.locationManager != nil) {
+            CLLocation* location = [self.app.locationManager location];
+            
+            if (location!=nil) {
+                [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude), MKCoordinateSpanMake(0.05, 0.05))];
+            }
+        }
+        
+        if (self.startAnnotation != nil) {
+            [self.map removeAnnotation:self.startAnnotation];
+            self.startAnnotation = nil;
+        }
+        
+        if (self.endAnnotation != nil) {
+            [self.map removeAnnotation:self.endAnnotation];
+            self.endAnnotation = nil;
+        }
+    }
+}
+
+- (void)showAlert:(NSString *)title :(NSString *)message {
+    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
+                                                                        message:message
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
+    
+    [errorAlert addAction:ok];
+    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
+    [self presentViewController:errorAlert animated:YES completion:nil];
+}
+
+- (void)dissmissAlert:(UIAlertController *) alert{
+    [alert dismissViewControllerAnimated:true completion:nil];
+}
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
+    if ([annotation isKindOfClass:[StartAnnotation class]]) {
+        StartAnnotation *customAnnotation = (StartAnnotation *)annotation;
+        MKAnnotationView *customAnnotationView = [self.map dequeueReusableAnnotationViewWithIdentifier:@"StartAnnotation"];
+        
+        if (customAnnotationView == nil) {
+            customAnnotationView = customAnnotation.annotationView;
+        } else {
+            customAnnotationView.annotation = annotation;
+        }
+        
+        return customAnnotationView;
+    } else if([annotation isKindOfClass:[EndAnnotation class]]) {
+        EndAnnotation *customAnnotation = (EndAnnotation *)annotation;
+        MKAnnotationView *customAnnotationView = [self.map dequeueReusableAnnotationViewWithIdentifier:@"EndAnnotation"];
+        
+        if (customAnnotationView == nil) {
+            customAnnotationView = customAnnotation.annotationView;
+        } else {
+            customAnnotationView.annotation = annotation;
+        }
+        
+        return customAnnotationView;
+    } else {
+        return nil;
+    }
 }
 
 - (IBAction)doToggleMenu:(id)sender {
     [self.app.drawerController
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-}
-
-- (void)initTimer {
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self updateMapWithLatestLocation];
-    }];
-}
-
--(void)updateMapWithLatestLocation {
-    if (self.app.locationManager != nil) {
-        CLLocation* location = [self.app.locationManager location];
-        
-        if (location!=nil) {
-            [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude), MKCoordinateSpanMake(0.05, 0.05))];
-        }
-    }
-}
-
--(void)dissmissAlert:(UIAlertController *) alert{
-    [alert dismissViewControllerAnimated:true completion:nil];
 }
 
 - (IBAction)openChat:(id)sender {
@@ -86,12 +236,102 @@
 }
 
 - (IBAction)doEnd:(id)sender {
-    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio" message:@"¿Seguro de finalizar el servicio?" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil];
+    NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
     
-    [errorAlert addAction:ok];
-    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
-    [self presentViewController:errorAlert animated:YES completion:nil];
+    if (service != nil) {
+        NSDictionary *parameters = @{
+                                     @"idr": [service objectForKey:@"id"],
+                                     @"idd": [service objectForKey:@"idd"]
+                                    };
+        
+        if (self.serviceStatus == 4 &&  [[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-alert"] parameters:parameters progress:nil
+                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                               self.endServiceButton.titleLabel.text = @"Ocupado";
+                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                               NSLog(@"%@", error);
+                           }];
+        } else if (self.serviceStatus == 4 && ![[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-occupy"] parameters:parameters progress:nil
+                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                               self.endServiceButton.titleLabel.text = @"Finalizar";
+                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                               NSLog(@"%@", error);
+                           }];
+        } else if (self.serviceStatus == 5) {
+            //Open
+            
+            UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio"
+                                                                              message:@"Ingresa el monto y observaciones"
+                                                                       preferredStyle:UIAlertControllerStyleAlert];
+            
+            [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                textField.keyboardType = UIKeyboardTypeNumberPad;
+                textField.placeholder = @"Monto del viaje, Ej. 0.00";
+                
+                if ([service objectForKey:@"monto"]!=nil) {
+                    textField.text = [[service objectForKey:@"monto"] stringValue];
+                }
+            }];
+            
+            [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                textField.keyboardType = UIKeyboardTypeDefault;
+                textField.placeholder = @"Observaciones del viaje";
+            }];
+            
+            UIAlertAction *sendEndAction = [UIAlertAction actionWithTitle:@"Finalizar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                NSString *price = endAlert.textFields[0].text;
+                NSString *obs   = endAlert.textFields[1].text;
+                
+                if ([price isEqualToString:@""] || [obs isEqualToString:@""]) {
+                    [self showAlert:@"Finalizar" :@"Ingresa monto y observaciones"];
+                } else {
+                    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-end"]
+                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs} progress:nil
+                                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                       NSLog(@"%@", responseObject);
+                                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                       NSLog(@"%@", error);
+                                   }];
+                }
+            }];
+            
+            UIAlertAction *cancelEndAction = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                [self dissmissAlert:endAlert];
+            }];
+            
+            [endAlert addAction:sendEndAction];
+            [endAlert addAction:cancelEndAction];
+            
+            [self presentViewController:endAlert animated:YES completion:nil];
+        }
+    }
+}
+
+- (IBAction)openMaps:(id)sender {
+    if (self.app.locationManager != nil) {
+        NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
+        
+        if (service != nil) {
+            CLLocation *location = [self.app.locationManager location];
+            float lat = [[service objectForKey:@"lat_origen"] floatValue];
+            float lng = [[service objectForKey:@"lng_origen"] floatValue];
+            
+            if (self.serviceStatus == 5) {
+                lat = [[service objectForKey:@"lat_destino"] floatValue];
+                lng = [[service objectForKey:@"lng_destino"] floatValue];
+            }
+            
+            NSString *urlString = @"http://maps.google.com/maps?saddr=";
+            urlString = [urlString stringByAppendingFormat:@"%f,%f&daddr=%f,%f",
+                         location.coordinate.latitude, location.coordinate.longitude,lat, lng];
+            
+            NSURL *URL = [NSURL URLWithString:urlString];
+            [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
+                NSLog(@"should open");
+            }];
+        }
+    }
 }
 
 

@@ -65,7 +65,7 @@
 
 - (void)initializeLocationManager {
     if (self.app.locationManager == nil) {
-        NSLog(@"Initialize locationManager");
+        //NSLog(@"Initialize locationManager");
         self.app.locationManager = [[CLLocationManager alloc] init];
         self.app.locationManager.delegate = self;
         self.app.locationManager.distanceFilter = kCLDistanceFilterNone;
@@ -94,7 +94,7 @@
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           NSLog(@"Location Saved!");
+                           //NSLog(@"Location Saved!");
                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                            NSLog(@"Error, not saved");
                        }];
@@ -122,7 +122,7 @@
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           NSLog(@"Track Saved!");
+                           //NSLog(@"Track Saved!");
                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                            NSLog(@"%@", error);
                        }];

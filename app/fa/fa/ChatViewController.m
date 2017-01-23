@@ -29,6 +29,7 @@
     [self.table setDelegate:self];
     [self.messageInput setDelegate:self];
     
+    [self updateChatArray];
     self.timer = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
         [self updateChatArray];
     }];
@@ -38,7 +39,7 @@
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
                parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      NSLog(@"responseObject %@", responseObject);
+                      //NSLog(@"responseObject %@", responseObject);
                       NSDictionary *data = (NSDictionary *) responseObject;
                       
                       self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
@@ -101,6 +102,7 @@
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     [self moveView:[notification userInfo] up:NO];
+    
 }
 
 //Touch table view and hide keyboard
@@ -114,6 +116,27 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.messageInput resignFirstResponder];
+    
+    if (self.messageInput.text.length >0) {
+        NSDictionary *parameters = @{
+                                     @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                                     @"message": self.messageInput.text
+                                     };
+        
+        NSLog(@"%@", parameters);
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
+                   parameters:parameters progress:nil
+                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                          NSLog(@"responseObject %@", responseObject);
+                          [self.table reloadData];
+                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                          NSLog(@"Error %@", error);
+                      }];
+        
+        self.messageInput.text = @"";
+    }
+    
     return NO;
 }
 
@@ -156,11 +179,9 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *data = [self.dataArray objectAtIndex:indexPath.row];
-    
     NSString *text     = data[@"mensaje"];
     NSString *textDate = data[@"fecha"];
-    
-    // typical textLabel.frame = {{10, 30}, {260, 22}}
+
     const CGFloat TEXT_LABEL_WIDTH = 260;
     CGSize constraint = CGSizeMake(TEXT_LABEL_WIDTH, CGFLOAT_MAX);
     

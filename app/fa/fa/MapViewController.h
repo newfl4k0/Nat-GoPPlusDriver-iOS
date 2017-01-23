@@ -9,9 +9,11 @@
 #import "ViewController.h"
 #import <CoreLocation/CoreLocation.h>
 #import <MapKit/MapKit.h>
+#import "StartAnnotation.h"
+#import "EndAnnotation.h"
 
 
-@interface MapViewController : ViewController
+@interface MapViewController : ViewController<MKMapViewDelegate>
 @property (strong, nonatomic) NSString *demoString;
 
 @end
