@@ -104,15 +104,6 @@
                                             <action selector="doEnd:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="Yjo-n0-fdz"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="30F-Fn-Z8Z">
-                                        <rect key="frame" x="185" y="188" width="61" height="30"/>
-                                        <state key="normal" title="Cancelar">
-                                            <color key="titleColor" red="1" green="0.0" blue="0.028078071964937834" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="doCancel:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="Q0T-At-q7X"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2eY-yH-dQq">
                                         <rect key="frame" x="8" y="182" width="47" height="43"/>
                                         <constraints>
@@ -154,12 +145,9 @@
                                     <constraint firstAttribute="trailing" secondItem="wam-GZ-snV" secondAttribute="trailing" constant="8" id="a1Q-bB-ifz"/>
                                     <constraint firstItem="zEr-qy-5Lm" firstAttribute="centerY" secondItem="2eY-yH-dQq" secondAttribute="centerY" id="hAC-Ni-3wj"/>
                                     <constraint firstItem="2eY-yH-dQq" firstAttribute="top" secondItem="jfN-Ap-ui6" secondAttribute="bottom" constant="8" id="hhn-Nv-mah"/>
-                                    <constraint firstItem="30F-Fn-Z8Z" firstAttribute="centerY" secondItem="zEr-qy-5Lm" secondAttribute="centerY" id="iIH-0y-QlD"/>
-                                    <constraint firstItem="30F-Fn-Z8Z" firstAttribute="height" secondItem="zEr-qy-5Lm" secondAttribute="height" id="llQ-CO-xkw"/>
                                     <constraint firstAttribute="trailing" secondItem="jfN-Ap-ui6" secondAttribute="trailing" constant="8" id="mK0-f3-1s1"/>
                                     <constraint firstAttribute="trailing" secondItem="zEr-qy-5Lm" secondAttribute="trailing" constant="8" id="mc0-vN-F7O"/>
                                     <constraint firstItem="rDF-zN-i2S" firstAttribute="bottom" secondItem="wam-GZ-snV" secondAttribute="bottom" id="oPA-gZ-dRb"/>
-                                    <constraint firstItem="zEr-qy-5Lm" firstAttribute="leading" secondItem="30F-Fn-Z8Z" secondAttribute="trailing" constant="64" id="qFV-an-PH5"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -180,7 +168,6 @@
                     </view>
                     <connections>
                         <outlet property="ServiceView" destination="xE4-R2-PdF" id="3Qo-6p-xFU"/>
-                        <outlet property="cancelServiceButton" destination="30F-Fn-Z8Z" id="TAL-kJ-cSB"/>
                         <outlet property="chatButton" destination="2eY-yH-dQq" id="uPf-kw-TdR"/>
                         <outlet property="clientLabel" destination="h0w-gD-UnI" id="qYh-eB-Ksh"/>
                         <outlet property="dataLabel" destination="jfN-Ap-ui6" id="MHG-VL-brV"/>

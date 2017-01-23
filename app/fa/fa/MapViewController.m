@@ -15,7 +15,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *dataLabel;
 @property (weak, nonatomic) IBOutlet UIButton *endServiceButton;
-@property (weak, nonatomic) IBOutlet UIButton *cancelServiceButton;
 @property (weak, nonatomic) IBOutlet UIButton *chatButton;
 @property (weak, nonatomic) IBOutlet UIView *ServiceView;
 @property (weak, nonatomic) AppDelegate *app;
@@ -72,12 +71,10 @@
                 dataReserva = [dataReserva stringByAppendingString:[response objectForKey:@"observaciones"]];
                 
                 if (self.serviceStatus == 4) {
-                    self.cancelServiceButton.enabled = YES;
                     self.chatButton.enabled = YES;
                     self.endServiceButton.titleLabel.text = [[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado";
                     [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Asignado"] :@"status"];
                 } else if (self.serviceStatus == 5) {
-                    self.cancelServiceButton.enabled = NO;
                     self.chatButton.enabled = NO;
                     self.endServiceButton.titleLabel.text = @"Finalizar";
                     [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Ocupado"] :@"status"];
@@ -226,14 +223,6 @@
     [self presentViewController:errorAlert animated:YES completion:nil];
 }
 
-- (IBAction)doCancel:(id)sender {
-    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:@"Cancelar Servicio" message:@"¿Seguro de cancelar el servicio?" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil];
-    
-    [errorAlert addAction:ok];
-    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
-    [self presentViewController:errorAlert animated:YES completion:nil];
-}
 
 - (IBAction)doEnd:(id)sender {
     NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
