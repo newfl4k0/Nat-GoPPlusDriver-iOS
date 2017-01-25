@@ -1,0 +1,24 @@
+Store Procedures de la app de chofer
+
+-IniciarSesion: Inicia sesion: valida turno, vehiculo_conductores, usuario, contraseña, vehiculo y genera un registro en la tabla Conexiones
+-CerrarSesion: Finaliza la conexion abierta (Tabla Conexiones)
+-GuardarUbicacion: Guarda el estatus actual y estatus
+-ActualizarSeguimiento: Actualiza la ubicacion y estatus en la tabla seguimientos
+-GetEstatus: listado de estatus validos para actualizar (Libre, Ocupado, Ausente, Desconectado)
+-GetChatBase: Regresa el arreglo de mensajes del chat con base
+-EnviarChatBase: Envia un mensaje a la tabla de chat tipo base
+-EnviarChatCliente: Envia un mensaje a la tabla de chat tipo cliente
+-GetServicioActivo: regresa el despacho que tenga como estatus 4 ó 5 (despachado u ocupado)
+-SetFechaDomicilio: guarda fecha_domicilio (el conductor ya se encuentra en el domicilio)
+-SetServicioOcupado: guarda estatus_ocupado y fecha_ocupado (el cliente abordó la unidad)
+-FinalizarServicio: guarda fecha_finalizacion, estatus finalizado, monto y observaciones
+-GetServicesByVCId : historial y próximos servicios
+-GetRazonesRechazo: listado de razones que la columna Activo=1
+
+
+
+Inciar sesion, GetEstatus, GetRazonesRechazo: AccessView
+GetServicioActivo, SetFechaDomicilio, SetServicioOcupado, FinalizarServicio: MapView
+GetChatBase, EnviarChatBase: ChatView
+CerrarSesion, GetServicesByVCId: Settings View
+GuardarUbicacion, ActualizarSeguimiento: LeftView

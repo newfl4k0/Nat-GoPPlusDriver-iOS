@@ -25,6 +25,11 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (void)saveArray:(NSArray *)value :(NSString *)key {
+    [[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 - (void)saveDouble:(double)value :(NSString *)key {
     [[NSUserDefaults standardUserDefaults] setDouble:value forKey:key];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -50,6 +55,10 @@
     return [[NSUserDefaults standardUserDefaults] dictionaryForKey:key];
 }
 
+- (NSArray *)getArray:(NSString *)key {
+    return [[NSUserDefaults standardUserDefaults] arrayForKey:key];
+}
+
 - (double)getDouble:(NSString *)key {
     return [[NSUserDefaults standardUserDefaults] doubleForKey:key];
 }
@@ -64,8 +73,7 @@
 }
 
 - (NSInteger)getStatusIdForName:(NSString *)key {
-    NSDictionary *status = [self getDictionary:@"estatus"];
-    NSArray *statusArray = status[@"data"];
+    NSArray *statusArray = [self getArray:@"estatus"];
     NSInteger statusId = 0;
     
     for (NSDictionary *dict in statusArray) {

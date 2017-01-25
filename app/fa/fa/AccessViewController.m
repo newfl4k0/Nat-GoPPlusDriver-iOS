@@ -35,40 +35,47 @@
         return;
     }
     
-    NSDictionary *parameters = @{
-                                 @"user": [self.userInput text],
-                                 @"password": [self.passwordInput text],
-                                 @"vehicle": [self.vehicleInput text]
-                                };
-    
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"status"] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSDictionary *response = responseObject;
-        
-        if ([response count] >0) {
-            [self.app.dataLibrary saveDictionary:response :@"estatus"];
-            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"login"]
-                        parameters:parameters
-                          progress:nil
-                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                               NSDictionary *response = responseObject;
-                               
-                               if ([[response valueForKey:@"status"] boolValue]) {
-                                   [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
-                                   [self.app.dataLibrary saveInteger:[[response valueForKey:@"id"] integerValue] :@"connection_id"];
-                                   [self.app.dataLibrary saveInteger:[[self.userInput text] integerValue] :@"driver_id"];
-                                   [self.app.dataLibrary saveInteger:[[self.vehicleInput text] integerValue] :@"vehicle_id"];
-                                   [self.app.dataLibrary saveString:[response valueForKey:@"nombre"] :@"driver_name"];
-                                   [self.app.dataLibrary saveString:[response valueForKey:@"afiliado"] :@"affiliate_id"];
-                                   [self.app.dataLibrary saveString:[response valueForKey:@"vehiculoconductor"] :@"vehicle_driver_id"];
-                                   [self.app initDrawerWindow];
-                               } else {
-                                   [self showAlert:@"Error al iniciar sesión" : [response valueForKey:@"message"]];
-                               }
-                           }
-                           failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                               NSLog(@"%@", error);
-                               [self showAlert:@"Error" :@"Verifica el estatus del servidor y datos ingresados"];
-                           }];
+        if ([[responseObject objectForKey:@"data"] count] >0) {
+            [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"estatus"];
+            [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"cancel"] parameters:@{} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                if ([[responseObject objectForKey:@"data"] count] > 0) {
+                    [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"canceloptions"];
+                    NSDictionary *parameters = @{
+                                                 @"user": [self.userInput text],
+                                                 @"password": [self.passwordInput text],
+                                                 @"vehicle": [self.vehicleInput text]
+                                                 };
+                    
+                     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"login"]
+                                parameters:parameters
+                                  progress:nil
+                                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                       NSDictionary *response = responseObject;
+                                       
+                                       if ([[response valueForKey:@"status"] boolValue]) {
+                                           [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
+                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"id"] integerValue] :@"connection_id"];
+                                           [self.app.dataLibrary saveInteger:[[self.userInput text] integerValue] :@"driver_id"];
+                                           [self.app.dataLibrary saveInteger:[[self.vehicleInput text] integerValue] :@"vehicle_id"];
+                                           [self.app.dataLibrary saveString:[response valueForKey:@"nombre"] :@"driver_name"];
+                                           [self.app.dataLibrary saveString:[response valueForKey:@"afiliado"] :@"affiliate_id"];
+                                           [self.app.dataLibrary saveString:[response valueForKey:@"vehiculoconductor"] :@"vehicle_driver_id"];
+                                           [self.app initDrawerWindow];
+                                       } else {
+                                           [self showAlert:@"Error al iniciar sesión" : [response valueForKey:@"message"]];
+                                       }
+                                   }
+                                   failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                       NSLog(@"%@", error);
+                                       [self showAlert:@"Error" :@"Verifica el estatus del servidor y datos ingresados"];
+                                   }];
+                } else {
+                    [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Rechazos no enviado correctamente"];
+                }
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+               [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Rechazos no enviado correctamente"];
+            }];
         } else {
             [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Estatus no enviado correctamente"];
 

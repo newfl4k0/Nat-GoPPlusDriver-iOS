@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		52E55F4308C9BAE20A177A17 /* libPods-fa.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A49A1930B0C37A1CF74B19B /* libPods-fa.a */; };
+		6C14A7291E38F97E00E82958 /* sound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6C14A7281E38F97E00E82958 /* sound.mp3 */; };
 		6C180A211E1AAC0E002DF27C /* HistoricViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A201E1AAC0E002DF27C /* HistoricViewController.m */; };
 		6C180A241E1AAD08002DF27C /* NextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A231E1AAD08002DF27C /* NextViewController.m */; };
 		6C180A271E1AAD21002DF27C /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A261E1AAD21002DF27C /* SettingsViewController.m */; };
@@ -38,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		4A49A1930B0C37A1CF74B19B /* libPods-fa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-fa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C14A7281E38F97E00E82958 /* sound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound.mp3; sourceTree = "<group>"; };
 		6C180A1F1E1AAC0E002DF27C /* HistoricViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistoricViewController.h; sourceTree = "<group>"; };
 		6C180A201E1AAC0E002DF27C /* HistoricViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistoricViewController.m; sourceTree = "<group>"; };
 		6C180A221E1AAD08002DF27C /* NextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextViewController.h; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 		6CDD656D1E18027F00E59880 /* fa */ = {
 			isa = PBXGroup;
 			children = (
+				6C14A7281E38F97E00E82958 /* sound.mp3 */,
 				6CDD65711E18027F00E59880 /* AppDelegate.h */,
 				6CEAE3BA1E2D1A38005AE2ED /* DataLibrary.h */,
 				6CDD65721E18027F00E59880 /* AppDelegate.m */,
@@ -320,6 +323,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C14A7291E38F97E00E82958 /* sound.mp3 in Resources */,
 				6CDD657E1E18027F00E59880 /* LaunchScreen.storyboard in Resources */,
 				6CDD657B1E18027F00E59880 /* Assets.xcassets in Resources */,
 				6CDD65791E18027F00E59880 /* Main.storyboard in Resources */,

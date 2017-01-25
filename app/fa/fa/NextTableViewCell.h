@@ -7,10 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MapKit/MapKit.h>
 
 @interface NextTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *mapImage;
 @property (weak, nonatomic) IBOutlet UILabel *dataLabel;
 @property (weak, nonatomic) IBOutlet UIButton *cancelButton;
+
+
+- (void)createMapImage:(MKMapView *)map;
 
 @end

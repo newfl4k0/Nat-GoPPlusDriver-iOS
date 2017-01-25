@@ -8,6 +8,8 @@
 
 #import "MapViewController.h"
 #import "AppDelegate.h"
+#import <AVFoundation/AVFoundation.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 @interface MapViewController ()
 @property (weak, nonatomic) IBOutlet MKMapView *map;
@@ -17,12 +19,14 @@
 @property (weak, nonatomic) IBOutlet UIButton *endServiceButton;
 @property (weak, nonatomic) IBOutlet UIButton *chatButton;
 @property (weak, nonatomic) IBOutlet UIView *ServiceView;
+@property (weak, nonatomic) IBOutlet UIButton *statusButton;
 @property (weak, nonatomic) AppDelegate *app;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
 @property (strong, nonatomic) NSTimer *timerMap;
 @property (strong, nonatomic) NSTimer *timerService;
 @property (nonatomic) BOOL isOnService;
+@property (nonatomic) BOOL isNotified;
 @property (strong, nonatomic) StartAnnotation *startAnnotation;
 @property (strong, nonatomic) EndAnnotation *endAnnotation;
 @property (nonatomic) int serviceStatus;
@@ -35,10 +39,13 @@
     self.map.delegate = self;
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.isOnService = NO;
+    self.isNotified = NO;
     self.status = 1;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
+    [self changeStatus];
     [self initializeServiceData];
     [self initTimer];
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -46,6 +53,13 @@
     [self.timerService invalidate];
     self.timerMap = nil;
     self.timerService = nil;
+}
+
+- (void)playSound {
+    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"sound" ofType:@"mp3"];
+    SystemSoundID soundID;
+    AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:soundPath], &soundID);
+    AudioServicesPlaySystemSound(soundID);
 }
 
 - (void)initializeServiceData {
@@ -83,19 +97,25 @@
                 [self.dataLabel setText:dataReserva];
                 self.isOnService = YES;
                 self.ServiceView.hidden = NO;
+                self.statusButton.hidden = YES;
+                self.statusButton.enabled = NO;
+                
+                if (self.isNotified == NO) {
+                    [self playSound];
+                    self.isNotified = YES;
+                }
             } else {
-                [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
-                NSLog(@"El conductor no tiene servicio");
                 self.isOnService = NO;
                 self.ServiceView.hidden = YES;
+                self.statusButton.enabled = YES;
+                self.statusButton.hidden = NO;
+                self.isNotified = NO;
             }
         } @catch (NSException *exception) {
             NSLog(@"%@", exception);
-            self.ServiceView.hidden = YES;
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"%@", error);
-        self.ServiceView.hidden = YES;
     }];
 }
 
@@ -209,6 +229,16 @@
     }
 }
 
+- (void)changeStatus {
+    if ([self.app.dataLibrary getInteger:@"status"] == [self.app.dataLibrary getStatusIdForName:@"Libre"]) {
+        [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Ausente (Comida)"] :@"status"];
+        [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
+    } else {
+        [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
+        [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
+    }
+}
+
 - (IBAction)doToggleMenu:(id)sender {
     [self.app.drawerController
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
@@ -279,6 +309,7 @@
                                 parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs} progress:nil
                                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                                        NSLog(@"%@", responseObject);
+                                       [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
                                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                        NSLog(@"%@", error);
                                    }];
@@ -323,6 +354,9 @@
     }
 }
 
+- (IBAction)doChangeStatus:(id)sender {
+    [self changeStatus];
+}
 
 
 /*

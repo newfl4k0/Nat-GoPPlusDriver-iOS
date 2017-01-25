@@ -31,7 +31,7 @@
 }
 
 - (IBAction)doCloseSession:(id)sender {
-    NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInt:[self.app.dataLibrary getInteger:@"connection_id"]] };
+    NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] };
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"logout"]
                 parameters:parameters
@@ -52,6 +52,17 @@
 }
 
 - (IBAction)doInitManualSync:(id)sender {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      if ([[responseObject objectForKey:@"data"] count]>0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
+                          [self showAlert:@"Sincronización Manual" :@"Servicios Actualizados"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"vc-services"];
+                      }
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+                  }];
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {

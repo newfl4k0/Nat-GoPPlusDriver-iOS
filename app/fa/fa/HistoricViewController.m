@@ -7,24 +7,39 @@
 //
 
 #import "HistoricViewController.h"
-#import "AppDelegate.h"
-#import "HistorialCell.h"
+
 
 @interface HistoricViewController ()
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (strong, nonatomic) NSMutableArray *dataArray;
+@property (weak, nonatomic) AppDelegate *app;
+@property (strong, nonatomic) MKMapView *mapView;
+@property (strong, nonatomic) StartAnnotation *annotationOrigin;
+@property (strong, nonatomic) EndAnnotation *annotationDestiny;
 @end
 
 @implementation HistoricViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
+    self.mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 800, 200)];
     
-    [self.dataArray addObjectsFromArray:@[@{ @"lat": @"0", @"lng": @"0", @"status": @"Finalizado", @"start": @"De: Calle Fresno #123 Colonia Centro", @"end": @"A: Plaza Mayor", @"time": @"09 Dic 2017 10:10 am"},
-                                          @{ @"lat": @"0", @"lng": @"0", @"status": @"Finalizado", @"start": @"De: Calle Fresno #123 Colonia Centro", @"end": @"A: Plaza Mayor", @"time": @"09 Dic 2017 10:10 am"},
-                                          @{ @"lat": @"0", @"lng": @"0", @"status": @"Rechazado", @"start": @"De: Calle Fresno #123 Colonia Centro", @"end": @"A: Plaza Mayor", @"time": @"09 Dic 2017 10:10 am"}]];
+    @try {
+        NSArray *services = [self.app.dataLibrary getArray:@"vc-services"];
+        
+        if ([services count] > 0) {
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(es_historial == %@)", @"SI"];
+            NSArray *filterArray = [services filteredArrayUsingPredicate:predicate];
+            self.dataArray = [NSMutableArray arrayWithArray:filterArray];
+        } else {
+            [self showAlert:@"Historial" :@"Actualmente no tienes ningún servicio en historial. Para actualizar ve a Configuración>Iniciar sincronización manual"];
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"%@", exception);
+        [self showAlert:@"Historial" :@"Ocurrió un error al mostrar los servicios. Intenta nuevamente"];
+    }
     
     [self.table setDelegate:self];
     [self.table setDataSource:self];
@@ -54,19 +69,86 @@
     NSDictionary *data = (NSDictionary *)[_dataArray objectAtIndex:indexPath.row];
     
     NSMutableString *dataString = [NSMutableString stringWithCapacity:1000];
-    [dataString appendString:data[@"start"]];
-    [dataString appendString:@"\n"];
-    [dataString appendString:data[@"end"]];
-    [dataString appendString:@"\n"];
-    [dataString appendString:data[@"time"]];
     
     [cell.data setText: dataString];
     [cell.status setText:data[@"status"]];
+    
+    
+    [self setMapRegion:21.119894 :-101.674890];
+    
+    [dataString appendString:data[@"origen"]];
+    [dataString appendString:@"\n"];
+    [dataString appendString:data[@"destino"]];
+    [dataString appendString:@"\n"];
+    [dataString appendString:data[@"fecha_despacho"]];
+    
+    [cell.data setText: dataString];
+    [cell.status setText:data[@"estatus"]];
+ 
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 350.0;
+}
+
+- (void)showAlert:(NSString *)title :(NSString *)message {
+    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
+                                                                        message:message
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
+    
+    [errorAlert addAction:ok];
+    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
+    [self presentViewController:errorAlert animated:YES completion:nil];
+}
+
+- (void)dissmissAlert:(UIAlertController *) alert{
+    [alert dismissViewControllerAnimated:true completion:nil];
+}
+
+- (void)setMapRegion:(float)lat :(float)lng {
+    MKCoordinateRegion region;
+    MKCoordinateSpan span;
+    
+    span.latitudeDelta  = 0.05;
+    span.longitudeDelta = 0.05;
+    
+    CLLocationCoordinate2D location =  CLLocationCoordinate2DMake(21.119894, -101.674890);
+    
+    region.span   = span;
+    region.center = location;
+    
+    [self.mapView setRegion:region animated:TRUE];
+    [self.mapView regionThatFits:region];
+    [self removePin];
+    [self setPin:21.2222 :-101.674890];
+    [self setPin2:21.3333 :-101.674890];
+}
+
+- (void)setPin:(float)lat :(float)lng {
+    if (self.annotationOrigin == nil) {
+        self.annotationOrigin = [[StartAnnotation alloc] initWithTitle:@"Origen" Location:CLLocationCoordinate2DMake(lat, lng)];
+        [self.mapView addAnnotation:self.annotationOrigin];
+    }
+}
+
+- (void)setPin2:(float)lat :(float)lng {
+    if (self.annotationDestiny == nil) {
+        self.annotationDestiny = [[EndAnnotation alloc] initWithTitle:@"Destino" Location:CLLocationCoordinate2DMake(lat, lng)];
+        [self.mapView addAnnotation:self.annotationDestiny];
+    }
+}
+
+- (void)removePin {
+    if (self.annotationOrigin != nil) {
+        [self.mapView removeAnnotation:self.annotationOrigin];
+    }
+    
+    if (self.annotationDestiny != nil) {
+        [self.mapView removeAnnotation:self.annotationDestiny];
+    }
 }
 
 /*

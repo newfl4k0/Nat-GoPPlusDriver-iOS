@@ -21,4 +21,6 @@
 - (void)deleteKey:(NSString *)key;
 - (void)deleteAll;
 - (NSInteger)getStatusIdForName:(NSString *)key;
+- (NSArray *)getArray:(NSString *)key;
+- (void)saveArray:(NSArray *)value :(NSString *)key;
 @end

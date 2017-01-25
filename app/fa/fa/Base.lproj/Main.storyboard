@@ -150,6 +150,14 @@
                                     <constraint firstItem="rDF-zN-i2S" firstAttribute="bottom" secondItem="wam-GZ-snV" secondAttribute="bottom" id="oPA-gZ-dRb"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NBJ-LQ-56e">
+                                <rect key="frame" x="0.0" y="443" width="375" height="36"/>
+                                <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
+                                <state key="normal" title="Cambiar a Ausente"/>
+                                <connections>
+                                    <action selector="doChangeStatus:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="QeL-aM-5Yd"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -160,7 +168,10 @@
                             <constraint firstItem="TC8-jQ-EG8" firstAttribute="top" secondItem="xf7-BS-ijw" secondAttribute="bottom" id="OtY-cJ-jdd"/>
                             <constraint firstItem="xf7-BS-ijw" firstAttribute="width" secondItem="WKF-lY-48f" secondAttribute="width" id="Pvu-i0-snd"/>
                             <constraint firstItem="xf7-BS-ijw" firstAttribute="centerX" secondItem="WKF-lY-48f" secondAttribute="centerX" id="bw2-hc-nZp"/>
+                            <constraint firstItem="NBJ-LQ-56e" firstAttribute="centerX" secondItem="WKF-lY-48f" secondAttribute="centerX" id="c8z-Nz-gbb"/>
                             <constraint firstItem="Jfe-CF-YHV" firstAttribute="top" secondItem="xE4-R2-PdF" secondAttribute="bottom" id="dP0-pI-YCG"/>
+                            <constraint firstItem="NBJ-LQ-56e" firstAttribute="width" secondItem="TC8-jQ-EG8" secondAttribute="width" id="ep6-Oy-VUQ"/>
+                            <constraint firstItem="NBJ-LQ-56e" firstAttribute="top" secondItem="TC8-jQ-EG8" secondAttribute="bottom" constant="10" id="jNU-5r-sId"/>
                             <constraint firstItem="xE4-R2-PdF" firstAttribute="leading" secondItem="WKF-lY-48f" secondAttribute="leading" id="jwC-iu-4VE"/>
                             <constraint firstItem="xE4-R2-PdF" firstAttribute="top" secondItem="TC8-jQ-EG8" secondAttribute="bottom" id="n9g-vr-fZ6"/>
                             <constraint firstAttribute="trailing" secondItem="TC8-jQ-EG8" secondAttribute="trailing" id="umv-uR-WoD"/>
@@ -173,6 +184,7 @@
                         <outlet property="dataLabel" destination="jfN-Ap-ui6" id="MHG-VL-brV"/>
                         <outlet property="endServiceButton" destination="zEr-qy-5Lm" id="CSZ-SD-TAf"/>
                         <outlet property="map" destination="TC8-jQ-EG8" id="iH5-iZ-TIn"/>
+                        <outlet property="statusButton" destination="NBJ-LQ-56e" id="hJ4-PI-nb8"/>
                         <outlet property="statusLabel" destination="rDF-zN-i2S" id="ZYe-Cu-GYu"/>
                     </connections>
                 </viewController>
@@ -225,7 +237,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="350"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ufk-ul-r9C" id="sUW-YB-wwk">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="350"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="349"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estatus" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xkh-37-xPI">
@@ -334,7 +346,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="350"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Hat-xl-CbU" id="kuT-Cz-2x6">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="350"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="349"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="map" translatesAutoresizingMaskIntoConstraints="NO" id="cYM-o2-Ra3">

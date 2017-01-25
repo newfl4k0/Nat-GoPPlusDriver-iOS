@@ -7,6 +7,11 @@
 //
 
 #import "ViewController.h"
+#import <MapKit/MapKit.h>
+#import "AppDelegate.h"
+#import "HistorialCell.h"
+#import "StartAnnotation.h"
+#import "EndAnnotation.h"
 
 @interface HistoricViewController : ViewController<UITableViewDelegate, UITableViewDataSource>
 

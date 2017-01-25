@@ -28,6 +28,7 @@
         self.currentDate = [NSDate date];
         self.trackDate   = [NSDate date];
         [self initializeLocationManager];
+        [self getVehicleDriverServices];
     }
     
     self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido, %@", [self.app.dataLibrary getString:@"driver_name"]];
@@ -130,9 +131,39 @@
     }
 }
 
+
+- (void)getVehicleDriverServices {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      if ([[responseObject objectForKey:@"data"] count]>0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"vc-services"];
+                      }
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      NSLog(@"%@", error);
+                      [self showAlert:@"Sincronización" :@"Error: servicio no disponible. Intenta nuevamente."];
+                  }];
+}
+
 -(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog(@"%@", error);
 }
 
+- (void)showAlert:(NSString *)title :(NSString *)message {
+    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
+                                                                        message:message
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
+    
+    [errorAlert addAction:ok];
+    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
+    [self presentViewController:errorAlert animated:YES completion:nil];
+}
+
+-(void)dissmissAlert:(UIAlertController *) alert{
+    [alert dismissViewControllerAnimated:true completion:nil];
+}
 
 @end

@@ -7,9 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MapKit/MapKit.h>
 
 @interface HistorialCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *status;
 @property (weak, nonatomic) IBOutlet UIImageView *map;
 @property (weak, nonatomic) IBOutlet UILabel *data;
+
+- (void)createMapImage:(MKMapView *)map;
 @end
