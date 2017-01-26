@@ -86,7 +86,7 @@
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     
-    if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 60.0) {
+    if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 300.0) {
         self.currentDate = [NSDate date];
         NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
                                      @"lat": [NSNumber numberWithFloat:location.coordinate.latitude],
@@ -101,7 +101,7 @@
                        }];
     }
     
-    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
+    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 60.0) {
         self.trackDate = [NSDate date];
         
         NSDictionary *currentService = [self.app.dataLibrary getDictionary:@"service"];

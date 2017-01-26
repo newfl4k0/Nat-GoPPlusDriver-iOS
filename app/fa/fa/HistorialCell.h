@@ -8,11 +8,20 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "StartAnnotation.h"
+#import "EndAnnotation.h"
+#import "AppDelegate.h"
 
 @interface HistorialCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *status;
-@property (weak, nonatomic) IBOutlet UIImageView *map;
-@property (weak, nonatomic) IBOutlet UILabel *data;
+@property (weak, nonatomic) IBOutlet UILabel *startLabel;
+@property (weak, nonatomic) IBOutlet UILabel *endLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+@property (nonatomic) float lat_o;
+@property (nonatomic) float lng_o;
+@property (nonatomic) float lat_d;
+@property (nonatomic) float lng_d;
+@property (weak, nonatomic) AppDelegate *app;
 
-- (void)createMapImage:(MKMapView *)map;
+- (void)initWithCoords:(float)lat_o :(float)lng_o :(float)lat_d :(float)lng_d :(AppDelegate *)app;
 @end

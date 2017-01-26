@@ -13,9 +13,6 @@
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) AppDelegate *app;
-@property (strong, nonatomic) MKMapView *mapView;
-@property (strong, nonatomic) StartAnnotation *annotationOrigin;
-@property (strong, nonatomic) EndAnnotation *annotationDestiny;
 @end
 
 @implementation HistoricViewController
@@ -24,8 +21,7 @@
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
-    self.mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 800, 200)];
-    
+
     @try {
         NSArray *services = [self.app.dataLibrary getArray:@"vc-services"];
         
@@ -45,11 +41,6 @@
     [self.table setDataSource:self];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 - (IBAction)doToggleMenu:(id)sender {
     [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
@@ -65,31 +56,19 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     HistorialCell *cell = (HistorialCell *) [self.table dequeueReusableCellWithIdentifier:@"HistorialCell" forIndexPath:indexPath];
-    
     NSDictionary *data = (NSDictionary *)[_dataArray objectAtIndex:indexPath.row];
     
-    NSMutableString *dataString = [NSMutableString stringWithCapacity:1000];
-    
-    [cell.data setText: dataString];
-    [cell.status setText:data[@"status"]];
-    
-    
-    [self setMapRegion:21.119894 :-101.674890];
-    
-    [dataString appendString:data[@"origen"]];
-    [dataString appendString:@"\n"];
-    [dataString appendString:data[@"destino"]];
-    [dataString appendString:@"\n"];
-    [dataString appendString:data[@"fecha_despacho"]];
-    
-    [cell.data setText: dataString];
+    [cell initWithCoords:[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_des"] floatValue] :[data[@"lng_des"] floatValue]:self.app];
+    [cell.startLabel setText: data[@"origen"]];
+    [cell.endLabel setText:data[@"destino"]];
+    [cell.dateLabel setText:data[@"fecha_despacho"]];
     [cell.status setText:data[@"estatus"]];
- 
+    
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 350.0;
+    return 200.0;
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {
@@ -106,49 +85,6 @@
 
 - (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
-}
-
-- (void)setMapRegion:(float)lat :(float)lng {
-    MKCoordinateRegion region;
-    MKCoordinateSpan span;
-    
-    span.latitudeDelta  = 0.05;
-    span.longitudeDelta = 0.05;
-    
-    CLLocationCoordinate2D location =  CLLocationCoordinate2DMake(21.119894, -101.674890);
-    
-    region.span   = span;
-    region.center = location;
-    
-    [self.mapView setRegion:region animated:TRUE];
-    [self.mapView regionThatFits:region];
-    [self removePin];
-    [self setPin:21.2222 :-101.674890];
-    [self setPin2:21.3333 :-101.674890];
-}
-
-- (void)setPin:(float)lat :(float)lng {
-    if (self.annotationOrigin == nil) {
-        self.annotationOrigin = [[StartAnnotation alloc] initWithTitle:@"Origen" Location:CLLocationCoordinate2DMake(lat, lng)];
-        [self.mapView addAnnotation:self.annotationOrigin];
-    }
-}
-
-- (void)setPin2:(float)lat :(float)lng {
-    if (self.annotationDestiny == nil) {
-        self.annotationDestiny = [[EndAnnotation alloc] initWithTitle:@"Destino" Location:CLLocationCoordinate2DMake(lat, lng)];
-        [self.mapView addAnnotation:self.annotationDestiny];
-    }
-}
-
-- (void)removePin {
-    if (self.annotationOrigin != nil) {
-        [self.mapView removeAnnotation:self.annotationOrigin];
-    }
-    
-    if (self.annotationDestiny != nil) {
-        [self.mapView removeAnnotation:self.annotationDestiny];
-    }
 }
 
 /*

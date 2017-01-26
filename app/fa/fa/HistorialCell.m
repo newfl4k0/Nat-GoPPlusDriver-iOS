@@ -7,70 +7,61 @@
 //
 
 #import "HistorialCell.h"
-#import "StartAnnotation.h"
-#import "EndAnnotation.h"
 
 @implementation HistorialCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
+}
+
+- (void)initWithCoords:(float)lat_o :(float)lng_o :(float)lat_d :(float)lng_d :(AppDelegate*)app{
+    self.lat_o = lat_o;
+    self.lng_o = lng_o;
+    self.lat_d = lat_d;
+    self.lng_d = lng_d;
+    self.app   = app;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
 }
 
-- (void)createMapImage:(MKMapView *)map {
-    //Create image from map
-    MKMapSnapshotOptions *options = [[MKMapSnapshotOptions alloc] init];
-    options.region = map.region;
-    options.scale = [UIScreen mainScreen].scale;
-    options.size = map.frame.size;
+- (IBAction)doOpenMap:(id)sender {
+    UIViewController *controller = [[UIViewController alloc]init];
+    CGRect rect = CGRectMake(0, 0, 272, 250);
+    [controller setPreferredContentSize:rect.size];
+    MKMapView *mapView = [[MKMapView alloc] initWithFrame:rect];
+    StartAnnotation *annotationOrigin = [[StartAnnotation alloc] initWithTitle:self.startLabel.text Location:CLLocationCoordinate2DMake(self.lat_o, self.lng_o)];
+    EndAnnotation *annotationDestiny = [[EndAnnotation alloc] initWithTitle:self.endLabel.text Location:CLLocationCoordinate2DMake(self.lat_d, self.lng_d)];
     
-    MKMapSnapshotter *snapshotter = [[MKMapSnapshotter alloc] initWithOptions:options];
+    MKCoordinateRegion region;
+    MKCoordinateSpan span;
     
-    [snapshotter startWithQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completionHandler:^(MKMapSnapshot * _Nullable snapshot, NSError * _Nullable error) {
-        UIImage *image = snapshot.image;
-        CGRect finalImageRect = CGRectMake(0, 0, image.size.width, image.size.height);
-        UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
-        MKAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:@""];
-        pin.image = [UIImage imageNamed:@"pinstart"];
-        UIImage *pinImage = pin.image;
-        
-        [image drawAtPoint:CGPointMake(0, 0)];
-        
-        for (id<MKAnnotation>annotation in map.annotations) {
-            @try {
-                if ([annotation isKindOfClass:[StartAnnotation class]]) {
-                    pinImage = [UIImage imageNamed:@"pinstart"];
-                } else if ([annotation isKindOfClass:[EndAnnotation class]]) {
-                    pinImage = [UIImage imageNamed:@"pinend"];
-                }
-                
-                CGPoint point = [snapshot pointForCoordinate:annotation.coordinate];
-                
-                if (CGRectContainsPoint(finalImageRect, point)) {
-                    CGPoint pinCenterOffset = pin.centerOffset;
-                    point.x -= pin.bounds.size.width / 2.0;
-                    point.y -= pin.bounds.size.height / 2.0;
-                    point.x += pinCenterOffset.x;
-                    point.y += pinCenterOffset.y;
-                    
-                    [pinImage drawAtPoint:point];
-                }
-            }@catch(NSException *exception) {
-                NSLog(@"%@", exception);
-            }
-        }
-        
-        UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        
-        [self.map setImage:finalImage];
+    span.latitudeDelta  = 0.05;
+    span.longitudeDelta = 0.05;
+    
+    CLLocationCoordinate2D location =  CLLocationCoordinate2DMake(21.119894, -101.674890);
+    
+    region.span   = span;
+    region.center = location;
+    
+    [mapView setRegion:region animated:TRUE];
+    [mapView regionThatFits:region];
+    [mapView addAnnotation:annotationOrigin];
+    [mapView addAnnotation:annotationDestiny];
+    
+    [controller.view addSubview:mapView];
+    [controller.view bringSubviewToFront:mapView];
+    [controller.view setUserInteractionEnabled:YES];
+    UIAlertController *alertMap = [UIAlertController
+                                   alertControllerWithTitle:@"Historial"
+                                   message:@"Mapa del servicio"
+                                   preferredStyle:UIAlertControllerStyleAlert];
+    [alertMap setValue:controller forKey:@"contentViewController"];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cerrar" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     }];
+    [alertMap addAction:cancelAction];
+    [self.app.drawerController.centerViewController presentViewController:alertMap animated:YES completion:nil];
 }
 
 @end

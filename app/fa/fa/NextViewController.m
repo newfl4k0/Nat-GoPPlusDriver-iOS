@@ -8,15 +8,10 @@
 
 #import "NextViewController.h"
 
-
-
-@interface NextViewController () <UITableViewDataSource, UITableViewDelegate>
+@interface NextViewController () 
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (weak, nonatomic) AppDelegate *app;
-@property (strong, nonatomic) MKMapView *mapView;
-@property (strong, nonatomic) StartAnnotation *annotationOrigin;
-@property (strong, nonatomic) EndAnnotation *annotationDestiny;
 @end
 
 @implementation NextViewController
@@ -25,7 +20,6 @@
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
-    self.mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 800, 200)];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventHandler:) name:@"eventReload" object:nil];
     
@@ -58,6 +52,10 @@
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"%@", indexPath);
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
@@ -69,26 +67,17 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NextTableViewCell *cell = (NextTableViewCell *) [self.table dequeueReusableCellWithIdentifier:@"nextCell" forIndexPath:indexPath];
     NSDictionary *data = (NSDictionary *)[_dataArray objectAtIndex:indexPath.row];
-    NSMutableString *dataString = [NSMutableString stringWithCapacity:1000];
     
-    [self setMapRegion:21.119894 :-101.674890];
-    
-    [cell initAppAndService:self.app :[data[@"id"] intValue]];
-    [dataString appendString:data[@"origen"]];
-    [dataString appendString:@"\n"];
-    [dataString appendString:data[@"destino"]];
-    [dataString appendString:@"\n"];
-    [dataString appendString:data[@"fecha_despacho"]];
-    
-    [cell.dataLabel setText: dataString];
-    [cell.cancelButton setEnabled:YES];
-    [cell createMapImage:self.mapView];
+    [cell initAppAndService:self.app :[data[@"id"] intValue] :[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_des"] floatValue] :[data[@"lng_des"] floatValue]];
+    [cell.startLabel setText: data[@"origen"]];
+    [cell.endLabel setText:data[@"destino"]];
+    [cell.dateLabel setText:data[@"fecha_despacho"]];
     
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 350.0;
+    return 150.0;
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {
@@ -107,51 +96,7 @@
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
-- (void)setMapRegion:(float)lat :(float)lng {
-    MKCoordinateRegion region;
-    MKCoordinateSpan span;
-    
-    span.latitudeDelta  = 0.05;
-    span.longitudeDelta = 0.05;
-    
-    CLLocationCoordinate2D location =  CLLocationCoordinate2DMake(21.119894, -101.674890);
-    
-    region.span   = span;
-    region.center = location;
-    
-    [self.mapView setRegion:region animated:TRUE];
-    [self.mapView regionThatFits:region];
-    [self removePin];
-    [self setPin:21.2222 :-101.674890];
-    [self setPin2:21.3333 :-101.674890];
-}
-
-- (void)setPin:(float)lat :(float)lng {
-    if (self.annotationOrigin == nil) {
-        self.annotationOrigin = [[StartAnnotation alloc] initWithTitle:@"Origen" Location:CLLocationCoordinate2DMake(lat, lng)];
-        [self.mapView addAnnotation:self.annotationOrigin];
-    }
-}
-
-- (void)setPin2:(float)lat :(float)lng {
-    if (self.annotationDestiny == nil) {
-        self.annotationDestiny = [[EndAnnotation alloc] initWithTitle:@"Destino" Location:CLLocationCoordinate2DMake(lat, lng)];
-        [self.mapView addAnnotation:self.annotationDestiny];
-    }
-}
-
-- (void)removePin {
-    if (self.annotationOrigin != nil) {
-        [self.mapView removeAnnotation:self.annotationOrigin];
-    }
-    
-    if (self.annotationDestiny != nil) {
-        [self.mapView removeAnnotation:self.annotationDestiny];
-    }
-}
-
 - (void)eventHandler: (NSNotification *) notification {
-    NSLog(@"eventReload!!!");
     [self.table reloadData];
 }
 

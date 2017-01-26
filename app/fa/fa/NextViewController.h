@@ -7,12 +7,9 @@
 //
 
 #import "ViewController.h"
-#import <MapKit/MapKit.h>
 #import "AppDelegate.h"
 #import "NextTableViewCell.h"
-#import "StartAnnotation.h"
-#import "EndAnnotation.h"
 
-@interface NextViewController : ViewController
+@interface NextViewController : ViewController <UITableViewDataSource, UITableViewDelegate>
 
 @end
