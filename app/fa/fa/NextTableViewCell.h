@@ -16,7 +16,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *cancelButton;
 @property (nonatomic) int serviceId;
 @property (weak, nonatomic) AppDelegate *app;
-@property (weak, nonatomic) UIAlertController *alertController;
+@property (strong, nonatomic) UIAlertController *alertController;
 
 - (void)initAppAndService:(AppDelegate *)app :(int)service_id;
 - (void)createMapImage:(MKMapView *)map;

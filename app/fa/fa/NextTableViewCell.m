@@ -25,8 +25,6 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
 }
 
 - (void)createMapImage:(MKMapView *)map {
@@ -50,12 +48,6 @@
         
         for (id<MKAnnotation>annotation in map.annotations) {
             @try {
-                if ([annotation isKindOfClass:[StartAnnotation class]]) {
-                    pinImage = [UIImage imageNamed:@"pinstart"];
-                } else if ([annotation isKindOfClass:[EndAnnotation class]]) {
-                    pinImage = [UIImage imageNamed:@"pinend"];
-                }
-                
                 CGPoint point = [snapshot pointForCoordinate:annotation.coordinate];
                 
                 if (CGRectContainsPoint(finalImageRect, point)) {
@@ -94,17 +86,14 @@
         rect = CGRectMake(0, 0, 272, 100);
         [controller setPreferredContentSize:rect.size];
         
-    }
-    else if (rowsCount < 6){
+    } else if (rowsCount < 6){
         rect = CGRectMake(0, 0, 272, 150);
         [controller setPreferredContentSize:rect.size];
-    }
-    else if (rowsCount < 8){
+    } else if (rowsCount < 8){
         rect = CGRectMake(0, 0, 272, 200);
         [controller setPreferredContentSize:rect.size];
         
-    }
-    else {
+    } else {
         rect = CGRectMake(0, 0, 272, 250);
         [controller setPreferredContentSize:rect.size];
     }
@@ -119,6 +108,7 @@
     [controller.view setUserInteractionEnabled:YES];
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
+    
     self.alertController = [UIAlertController
                                           alertControllerWithTitle:@"Cancelar Servicio"
                                           message:@"Selecciona una opción"
@@ -132,29 +122,27 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSArray *array = [self.app.dataLibrary getArray:@"canceloptions"];
-    NSDictionary *dict = [array objectAtIndex:indexPath.row];
-    NSDictionary *parameters = @{@"reserva_id": [NSNumber numberWithInteger:self.serviceId],
-                                 @"razon_id": [NSNumber numberWithInteger:[dict[@"id"] integerValue]]
+    NSDictionary *dict = [[self.app.dataLibrary getArray:@"canceloptions"] objectAtIndex:indexPath.row];
+    NSDictionary *parameters = @{
+                                 @"idr": [NSNumber numberWithInteger:self.serviceId],
+                                 @"idc": [NSNumber numberWithInteger:[dict[@"id"] integerValue]]
                                 };
     
+    [self dissmissAlert:self.alertController];
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-cancel"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        [self dissmissAlert:self.alertController];
-        
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"]
-                   parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]}
-                   progress:nil
-                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                          if ([[responseObject objectForKey:@"data"] count]>0) {
-                              [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
-                          } else {
-                              [self.app.dataLibrary deleteKey:@"vc-services"];
-                          }
-                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                          
-                      }];
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            if ([[responseObject objectForKey:@"data"] count]>0) {
+                [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
+            } else {
+                [self.app.dataLibrary deleteKey:@"vc-services"];
+            }
+            
+            [self triggerNotification];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self showAlert:@"Próximos Servicios" :@"Error al sincronizar servicios, vuelve a intentarlo."];
+        }];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        [self showAlert:@"Cancelar Servicio" :@"Servicio no cancelado, intenta nuevamente"];
+        [self showAlert:@"Próximos Servicios" :@"Error al rechazar servicio, vuelve a intentarlo."];
     }];
 }
 
@@ -190,6 +178,13 @@
 
 - (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
+    alert = nil;
+}
+
+- (void)triggerNotification {
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"eventReload"
+     object:nil ];
 }
 
 @end

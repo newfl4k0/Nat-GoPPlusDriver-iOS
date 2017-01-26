@@ -27,6 +27,8 @@
     self.dataArray = [[NSMutableArray alloc] init];
     self.mapView = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 800, 200)];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventHandler:) name:@"eventReload" object:nil];
+    
     @try {
         NSArray *services = [self.app.dataLibrary getArray:@"vc-services"];
         
@@ -46,9 +48,9 @@
     [self.table setDataSource:self];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:YES];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"eventReload" object:nil];
 }
 
 - (IBAction)doToggleMenu:(id)sender {
@@ -148,7 +150,8 @@
     }
 }
 
-- (void)reloadTable {
+- (void)eventHandler: (NSNotification *) notification {
+    NSLog(@"eventReload!!!");
     [self.table reloadData];
 }
 
