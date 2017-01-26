@@ -8,13 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "AppDelegate.h"
 
-@interface NextTableViewCell : UITableViewCell
+@interface NextTableViewCell : UITableViewCell<UITableViewDelegate, UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UIImageView *mapImage;
 @property (weak, nonatomic) IBOutlet UILabel *dataLabel;
 @property (weak, nonatomic) IBOutlet UIButton *cancelButton;
+@property (nonatomic) int serviceId;
+@property (weak, nonatomic) AppDelegate *app;
+@property (weak, nonatomic) UIAlertController *alertController;
 
-
+- (void)initAppAndService:(AppDelegate *)app :(int)service_id;
 - (void)createMapImage:(MKMapView *)map;
-
 @end

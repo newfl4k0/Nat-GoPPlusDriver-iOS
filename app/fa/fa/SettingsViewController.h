@@ -9,5 +9,5 @@
 #import "ViewController.h"
 
 @interface SettingsViewController : ViewController
-
+- (void)SyncData;
 @end

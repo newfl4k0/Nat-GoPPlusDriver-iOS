@@ -71,6 +71,7 @@
     
     [self setMapRegion:21.119894 :-101.674890];
     
+    [cell initAppAndService:self.app :[data[@"id"] intValue]];
     [dataString appendString:data[@"origen"]];
     [dataString appendString:@"\n"];
     [dataString appendString:data[@"destino"]];
@@ -145,6 +146,10 @@
     if (self.annotationDestiny != nil) {
         [self.mapView removeAnnotation:self.annotationDestiny];
     }
+}
+
+- (void)reloadTable {
+    [self.table reloadData];
 }
 
 @end

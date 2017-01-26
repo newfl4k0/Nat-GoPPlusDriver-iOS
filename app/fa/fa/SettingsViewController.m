@@ -51,7 +51,7 @@
 - (IBAction)doCheckServerStatus:(id)sender {
 }
 
-- (IBAction)doInitManualSync:(id)sender {
+- (void)SyncData {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                       if ([[responseObject objectForKey:@"data"] count]>0) {
@@ -63,6 +63,19 @@
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
                   }];
+    
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"cancel"] parameters:@{} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if ([[responseObject objectForKey:@"data"] count] > 0) {
+            [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"canceloptions"];
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+    }];
+}
+
+- (IBAction)doInitManualSync:(id)sender {
+    [self SyncData];
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {

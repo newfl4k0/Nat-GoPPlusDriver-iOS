@@ -14,5 +14,5 @@
 #import "EndAnnotation.h"
 
 @interface NextViewController : ViewController
-
+- (void)reloadTable;
 @end
