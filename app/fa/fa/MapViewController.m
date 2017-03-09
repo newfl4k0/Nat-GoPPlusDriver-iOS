@@ -27,9 +27,11 @@
 @property (strong, nonatomic) NSTimer *timerService;
 @property (nonatomic) BOOL isOnService;
 @property (nonatomic) BOOL isNotified;
+@property (nonatomic) BOOL needsConfirm;
 @property (strong, nonatomic) StartAnnotation *startAnnotation;
 @property (strong, nonatomic) EndAnnotation *endAnnotation;
 @property (nonatomic) int serviceStatus;
+@property (strong, nonatomic) NSDictionary *currentService;
 @end
 
 @implementation MapViewController
@@ -40,12 +42,12 @@
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.isOnService = NO;
     self.isNotified = NO;
+    self.needsConfirm = YES;
     self.status = 1;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
     [self changeStatus];
     [self initializeServiceData];
     [self initTimer];
-    
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -68,12 +70,14 @@
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:parameters progress:nil
     success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         @try {
+            
             NSArray *responseArray = [responseObject objectForKey:@"data"];
             
             if (responseArray.count>0) {
                 NSDictionary *response =  [responseArray objectAtIndex:0];
-                self.serviceStatus = [[response objectForKey:@"estatus_reserva"] intValue];
                 
+                self.currentService = response;
+                self.serviceStatus = [[response objectForKey:@"estatus_reserva"] intValue];
                 [self.app.dataLibrary saveDictionary:response :@"service"];
                 [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
                 [self.statusLabel setText:[response objectForKey:@"estatus_reserva_nombre"]];
@@ -104,12 +108,23 @@
                     [self playSound];
                     self.isNotified = YES;
                 }
+                
+                
+                if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
+                    if (self.needsConfirm) {
+                        [self showConfirmAlert];
+                        self.needsConfirm = NO;
+                    }
+                }
+                
             } else {
+                self.currentService = nil;
                 self.isOnService = NO;
                 self.ServiceView.hidden = YES;
                 self.statusButton.enabled = YES;
                 self.statusButton.hidden = NO;
                 self.isNotified = NO;
+                self.needsConfirm = YES;
             }
         } @catch (NSException *exception) {
             NSLog(@"%@", exception);
@@ -117,6 +132,69 @@
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"%@", error);
     }];
+}
+
+
+- (void)showConfirmAlert {
+    UIAlertController *confirmAlert = [UIAlertController alertControllerWithTitle:@"GoPS"
+                                                                          message:@"Confirmar el servicio"
+                                                                   preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self acceptService];
+        [confirmAlert dismissViewControllerAnimated:true completion:nil];
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Rechazar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self cancelService];
+        [confirmAlert dismissViewControllerAnimated:true completion:nil];
+    }];
+    
+    [confirmAlert addAction:ok];
+    [confirmAlert addAction:cancel];
+    [self performSelector:@selector(automaticallyCancelService:) withObject:confirmAlert afterDelay:90.0];
+    [self presentViewController:confirmAlert animated:YES completion:nil];
+}
+
+- (void)cancelService {
+    if (self.currentService != nil) {
+        NSDictionary *parameters = @{
+                                     @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
+                                     @"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]],
+                                     @"c": @5,
+                                     @"confirm": @1 };
+
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"%@", responseObject);
+            [self showAlert:@"Confirmar" :@"Actualizado"];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
+            NSLog(@"%@", error);
+        }];
+    }
+}
+
+- (void)acceptService {
+    if (self.currentService != nil) {
+        NSDictionary *parameters = @{
+                                     @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
+                                     @"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]],
+                                     @"c": @0,
+                                     @"confirm": @0 };
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"%@", responseObject);
+            [self showAlert:@"Confirmar" :@"Actualizado"];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
+            NSLog(@"%@", error);
+        }];
+    }
+}
+
+- (void)automaticallyCancelService:(UIAlertController *) alert{
+    [self cancelService];
+    [alert dismissViewControllerAnimated:true completion:nil];
 }
 
 - (void)initTimer {

@@ -95,13 +95,13 @@
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           //NSLog(@"Location Saved!");
+                           NSLog(@"Location Saved!");
                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                            NSLog(@"Error, not saved");
                        }];
     }
     
-    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 60.0) {
+    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 20.0) {
         self.trackDate = [NSDate date];
         
         NSDictionary *currentService = [self.app.dataLibrary getDictionary:@"service"];
@@ -123,7 +123,7 @@
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           //NSLog(@"Track Saved!");
+                           NSLog(@"Should update track");
                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                            NSLog(@"%@", error);
                        }];

@@ -13,7 +13,7 @@
     self = [super init];
     
     if (self) {
-        self.title    = title;
+        self.title = title;
         self.coordinate = location;
     }
     

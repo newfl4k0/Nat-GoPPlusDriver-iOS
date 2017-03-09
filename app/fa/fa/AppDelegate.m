@@ -20,7 +20,7 @@
     // Override point for customization after application launch.
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
-    self.serverUrl = @"http://gogps.azurewebsites.net/";
+    self.serverUrl =  @"http://gogps.azurewebsites.net/";
     
     [Fabric with:@[[Crashlytics class]]];
     return YES;
