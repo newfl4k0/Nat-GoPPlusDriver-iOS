@@ -13,8 +13,8 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *userInput;
 @property (weak, nonatomic) IBOutlet UITextField *passwordInput;
-@property (weak, nonatomic) IBOutlet UITextField *vehicleInput;
 @property (weak, nonatomic) AppDelegate *app;
+@property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @end
 
 @implementation AccessViewController
@@ -25,39 +25,53 @@
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
         [self.app initDrawerWindow];
+    } else {
+        self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        [self.spinner setBackgroundColor:[UIColor blackColor]];
+        self.spinner.center = CGPointMake(160, 240);
+        self.spinner.tag = 12;
     }
 }
 
+- (void)stopSpinner {
+    [[self.view viewWithTag:12] stopAnimating];
+}
+
 - (IBAction)doVerifyCredentials:(id)sender {
-    
-    if (self.userInput.text.length == 0 || self.vehicleInput.text.length == 0 || self.passwordInput.text.length == 0) {
+    if (self.userInput.text.length == 0 || self.passwordInput.text.length == 0) {
         [self showAlert:@"Acceder" :@"Todos los campos son necesarios"];
         return;
     }
+    
+    [self.view addSubview:self.spinner];
+    [self.spinner startAnimating];
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"status"] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if ([[responseObject objectForKey:@"data"] count] >0) {
             [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"estatus"];
             [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"cancel"] parameters:@{} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                
+                
                 if ([[responseObject objectForKey:@"data"] count] > 0) {
                     [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"canceloptions"];
                     NSDictionary *parameters = @{
                                                  @"user": [self.userInput text],
-                                                 @"password": [self.passwordInput text],
-                                                 @"vehicle": [self.vehicleInput text]
+                                                 @"password": [self.passwordInput text]
                                                  };
                     
                      [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"login"]
                                 parameters:parameters
                                   progress:nil
                                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                       [self stopSpinner];
+                                       
                                        NSDictionary *response = responseObject;
                                        
                                        if ([[response valueForKey:@"status"] boolValue]) {
                                            [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
                                            [self.app.dataLibrary saveInteger:[[response valueForKey:@"id"] integerValue] :@"connection_id"];
-                                           [self.app.dataLibrary saveInteger:[[self.userInput text] integerValue] :@"driver_id"];
-                                           [self.app.dataLibrary saveInteger:[[self.vehicleInput text] integerValue] :@"vehicle_id"];
+                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"driver_id"] integerValue] :@"driver_id"];
+                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"vehicle_id"] integerValue] :@"vehicle_id"];
                                            [self.app.dataLibrary saveString:[response valueForKey:@"nombre"] :@"driver_name"];
                                            [self.app.dataLibrary saveString:[response valueForKey:@"afiliado"] :@"affiliate_id"];
                                            [self.app.dataLibrary saveString:[response valueForKey:@"vehiculoconductor"] :@"vehicle_driver_id"];
@@ -68,20 +82,23 @@
                                    }
                                    failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                        NSLog(@"%@", error);
+                                       [self stopSpinner];
                                        [self showAlert:@"Error" :@"Verifica el estatus del servidor y datos ingresados"];
                                    }];
                 } else {
+                    [self stopSpinner];
                     [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Rechazos no enviado correctamente"];
                 }
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self stopSpinner];
                [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Rechazos no enviado correctamente"];
             }];
         } else {
+            [self stopSpinner];
             [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Estatus no enviado correctamente"];
-
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"%@", error);
+        [self stopSpinner];
         [self showAlert:@"Error" :@"Verifica el estatus del servidor. Diccionario de Estatus no enviado correctamente"];
     }];
 }

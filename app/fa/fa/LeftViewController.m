@@ -14,6 +14,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *welcomeLabel;
 @property (strong, nonatomic) NSDate *currentDate;
 @property (strong, nonatomic) NSDate *trackDate;
+@property (nonatomic) BOOL firstUpdate;
 @end
 
 @implementation LeftViewController
@@ -22,7 +23,7 @@
     [super viewDidLoad];
     
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    
+    self.firstUpdate = NO;
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
         self.currentDate = [NSDate date];
@@ -86,55 +87,67 @@
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     
+    if (self.firstUpdate == NO) {
+        self.firstUpdate = YES;
+        [self sendLocation:location];
+        [self sendTrack:location];
+    }
+    
     if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 300.0) {
         self.currentDate = [NSDate date];
-        NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
-                                     @"lat": [NSNumber numberWithFloat:location.coordinate.latitude],
-                                     @"lng": [NSNumber numberWithFloat:location.coordinate.longitude],
-                                     @"status": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"status"]]};
-        
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
-                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           NSLog(@"Location Saved!");
-                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                           NSLog(@"Error, not saved");
-                       }];
+        [self sendLocation:location];
     }
     
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 20.0) {
         self.trackDate = [NSDate date];
-        
-        NSDictionary *currentService = [self.app.dataLibrary getDictionary:@"service"];
-        NSMutableDictionary *parameters = [NSMutableDictionary
-                                           dictionaryWithDictionary:@{
-                                                                      @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]],
-                                                                      @"af_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"affiliate_id"]],
-                                                                      @"status_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"status"]],
-                                                                      @"lat": [NSNumber numberWithFloat:location.coordinate.latitude],
-                                                                      @"lng": [NSNumber numberWithFloat:location.coordinate.longitude]}];
-        
-        if (currentService != nil) {
-            [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_o"] floatValue]] forKey:@"lat_o"];
-            [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_o"] floatValue]] forKey:@"lng_o"];
-            [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_d"] floatValue]] forKey:@"lat_d"];
-            [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_d"] floatValue]] forKey:@"lng_d"];
-        }
-        
-        
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
-                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           NSLog(@"Should update track");
-                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                           NSLog(@"%@", error);
-                       }];
-
+        [self sendTrack:location];
     }
+}
+
+-(void)sendTrack:(CLLocation* )location {
+    NSDictionary *currentService = [self.app.dataLibrary getDictionary:@"service"];
+    NSMutableDictionary *parameters = [NSMutableDictionary
+                                       dictionaryWithDictionary:@{
+                                                                  @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]],
+                                                                  @"af_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"affiliate_id"]],
+                                                                  @"status_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"status"]],
+                                                                  @"lat": [NSNumber numberWithFloat:location.coordinate.latitude],
+                                                                  @"lng": [NSNumber numberWithFloat:location.coordinate.longitude]}];
+    
+    if (currentService != nil) {
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_o"] floatValue]] forKey:@"lat_o"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_o"] floatValue]] forKey:@"lng_o"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_d"] floatValue]] forKey:@"lat_d"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_d"] floatValue]] forKey:@"lng_d"];
+    }
+    
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
+                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       NSLog(@"Should update track");
+                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                       NSLog(@"%@", error);
+                   }];
+}
+
+- (void)sendLocation:(CLLocation *)location {
+    NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
+                                 @"lat": [NSNumber numberWithFloat:location.coordinate.latitude],
+                                 @"lng": [NSNumber numberWithFloat:location.coordinate.longitude],
+                                 @"status": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"status"]]};
+    
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
+                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       NSLog(@"Location Saved!");
+                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                       NSLog(@"Error, not saved");
+                   }];
 }
 
 
 - (void)getVehicleDriverServices {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      NSLog(@"%@", responseObject);
                       if ([[responseObject objectForKey:@"data"] count]>0) {
                           [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
                       } else {

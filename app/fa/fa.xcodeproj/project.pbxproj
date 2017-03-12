@@ -182,9 +182,9 @@
 			isa = PBXGroup;
 			children = (
 				6CDD656D1E18027F00E59880 /* fa */,
-				6CDD656C1E18027F00E59880 /* Products */,
-				22C81568E082C99310BB4A07 /* Pods */,
 				6145859E1FF134FF324962A1 /* Frameworks */,
+				22C81568E082C99310BB4A07 /* Pods */,
+				6CDD656C1E18027F00E59880 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -199,13 +199,13 @@
 		6CDD656D1E18027F00E59880 /* fa */ = {
 			isa = PBXGroup;
 			children = (
-				6C14A7281E38F97E00E82958 /* sound.mp3 */,
+				6CC42FFD1E35245B008FDF93 /* Annotations */,
 				6CDD65711E18027F00E59880 /* AppDelegate.h */,
-				6CEAE3BA1E2D1A38005AE2ED /* DataLibrary.h */,
 				6CDD65721E18027F00E59880 /* AppDelegate.m */,
+				6CEAE3BA1E2D1A38005AE2ED /* DataLibrary.h */,
 				6CEAE3BB1E2D1A38005AE2ED /* DataLibrary.m */,
 				6CDD657F1E18027F00E59880 /* Info.plist */,
-				6CC42FFD1E35245B008FDF93 /* Annotations */,
+				6C14A7281E38F97E00E82958 /* sound.mp3 */,
 				6CDD659C1E182EEB00E59880 /* Navigation Controllers */,
 				6CDD65981E182E5D00E59880 /* Sidebar Controllers */,
 				6CDD656E1E18027F00E59880 /* Supporting Files */,

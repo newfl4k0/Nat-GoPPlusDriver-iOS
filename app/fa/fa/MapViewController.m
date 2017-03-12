@@ -162,7 +162,8 @@
                                      @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
                                      @"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]],
                                      @"c": @5,
-                                     @"confirm": @1 };
+                                     @"confirm": @1,
+                                     @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]};
 
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSLog(@"%@", responseObject);
@@ -179,7 +180,7 @@
         NSDictionary *parameters = @{
                                      @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
                                      @"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]],
-                                     @"c": @0,
+                                     @"c": @5,
                                      @"confirm": @0 };
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
