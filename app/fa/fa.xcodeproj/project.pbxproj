@@ -35,6 +35,7 @@
 		6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD65931E1820E200E59880 /* LeftViewController.m */; };
 		6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD659A1E182E8400E59880 /* MapViewController.m */; };
 		6CEAE3BC1E2D1A38005AE2ED /* DataLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CEAE3BB1E2D1A38005AE2ED /* DataLibrary.m */; };
+		E2BA5C281E760C0500C7EEA3 /* ChatClientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BA5C271E760C0500C7EEA3 /* ChatClientViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +93,8 @@
 		6CEAE3BB1E2D1A38005AE2ED /* DataLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataLibrary.m; sourceTree = "<group>"; };
 		B25F0E7E1C53809ACC07A870 /* Pods-fa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.debug.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.debug.xcconfig"; sourceTree = "<group>"; };
 		DAF55CEDD753CCEF2A38C353 /* Pods-fa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.release.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.release.xcconfig"; sourceTree = "<group>"; };
+		E2BA5C261E760C0500C7EEA3 /* ChatClientViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatClientViewController.h; sourceTree = "<group>"; };
+		E2BA5C271E760C0500C7EEA3 /* ChatClientViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatClientViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,6 +235,8 @@
 				6CB636881E184927005ECA7F /* AccessViewController.m */,
 				6C180A281E1AAD37002DF27C /* ChatViewController.h */,
 				6C180A291E1AAD37002DF27C /* ChatViewController.m */,
+				E2BA5C261E760C0500C7EEA3 /* ChatClientViewController.h */,
+				E2BA5C271E760C0500C7EEA3 /* ChatClientViewController.m */,
 				6C180A1F1E1AAC0E002DF27C /* HistoricViewController.h */,
 				6C180A201E1AAC0E002DF27C /* HistoricViewController.m */,
 				6CDD65991E182E8400E59880 /* MapViewController.h */,
@@ -409,6 +414,7 @@
 				6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */,
 				6CDD65761E18027F00E59880 /* ViewController.m in Sources */,
 				6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */,
+				E2BA5C281E760C0500C7EEA3 /* ChatClientViewController.m in Sources */,
 				6CDD658F1E181E8600E59880 /* MMDrawerController.m in Sources */,
 				6CDD658E1E181E8600E59880 /* MMDrawerBarButtonItem.m in Sources */,
 				6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */,

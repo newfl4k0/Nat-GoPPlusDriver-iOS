@@ -28,10 +28,12 @@
 @property (nonatomic) BOOL isOnService;
 @property (nonatomic) BOOL isNotified;
 @property (nonatomic) BOOL needsConfirm;
+@property (nonatomic) BOOL accepted;
 @property (strong, nonatomic) StartAnnotation *startAnnotation;
 @property (strong, nonatomic) EndAnnotation *endAnnotation;
 @property (nonatomic) int serviceStatus;
 @property (strong, nonatomic) NSDictionary *currentService;
+@property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @end
 
 @implementation MapViewController
@@ -42,12 +44,15 @@
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.isOnService = NO;
     self.isNotified = NO;
+    self.accepted = NO;
     self.needsConfirm = YES;
     self.status = 1;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
     [self changeStatus];
     [self initializeServiceData];
     [self initTimer];
+    
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -98,6 +103,8 @@
                     [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Ocupado"] :@"status"];
                 }
                 
+                //Save despacho_id
+                [self.app.dataLibrary saveInteger:[[response objectForKey:@"idd"] intValue] :@"despacho_id"];
                 [self.dataLabel setText:dataReserva];
                 self.isOnService = YES;
                 self.ServiceView.hidden = NO;
@@ -109,22 +116,24 @@
                     self.isNotified = YES;
                 }
                 
-                
                 if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
                     if (self.needsConfirm) {
                         [self showConfirmAlert];
                         self.needsConfirm = NO;
                     }
+                } else {
+                    self.accepted = YES;
                 }
-                
             } else {
                 self.currentService = nil;
                 self.isOnService = NO;
+                self.accepted = NO;
                 self.ServiceView.hidden = YES;
                 self.statusButton.enabled = YES;
                 self.statusButton.hidden = NO;
                 self.isNotified = NO;
                 self.needsConfirm = YES;
+                [self.app.dataLibrary deleteKey:@"despacho_id"];
             }
         } @catch (NSException *exception) {
             NSLog(@"%@", exception);
@@ -185,6 +194,7 @@
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSLog(@"%@", responseObject);
+            self.accepted = YES;
             [self showAlert:@"Confirmar" :@"Actualizado"];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
@@ -194,7 +204,10 @@
 }
 
 - (void)automaticallyCancelService:(UIAlertController *) alert{
-    [self cancelService];
+    if (self.accepted == NO) {
+        [self cancelService];
+    }
+    
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
