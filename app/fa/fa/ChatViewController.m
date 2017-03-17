@@ -15,6 +15,7 @@
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSTimer *timer;
+@property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @end
 
 @implementation ChatViewController
@@ -33,23 +34,45 @@
     self.timer = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
         [self updateChatArray];
     }];
+        [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 }
 
 - (void)updateChatArray {
-    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
-               parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
-                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      //NSLog(@"responseObject %@", responseObject);
-                      NSDictionary *data = (NSDictionary *) responseObject;
-                      
-                      self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
-                      NSLog(@"responseObject %@", self.dataArray);
-                      [self.table reloadData];
-                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                      NSLog(@"Error %@", error);
-                  }];
-    
-    
+    if (self.isClient == YES) {
+        /*[self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-client"]
+                   parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], 
+                             @"did": self.did} progress:nil
+                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                          NSDictionary *data = (NSDictionary *) responseObject;
+                          self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                          NSLog(@"responseObject %@", self.dataArray);
+                          [self.table reloadData];
+                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                          NSLog(@"Error %@", error);
+                      }];*/
+        
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
+                   parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
+                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                          NSDictionary *data = (NSDictionary *) responseObject;
+                          self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                          NSLog(@"responseObject %@", self.dataArray);
+                          [self.table reloadData];
+                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                          NSLog(@"Error %@", error);
+                      }];
+    } else {
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
+                   parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
+                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                          NSDictionary *data = (NSDictionary *) responseObject;
+                          self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                          NSLog(@"responseObject %@", self.dataArray);
+                          [self.table reloadData];
+                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                          NSLog(@"Error %@", error);
+                      }];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,8 +81,12 @@
 }
 
 - (IBAction)doToggleMenu:(id)sender {
-    [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
-     toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+    if (self.isClient) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    } else  {
+        [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
+         toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -118,21 +145,36 @@
     [self.messageInput resignFirstResponder];
     
     if (self.messageInput.text.length >0) {
-        NSDictionary *parameters = @{
-                                     @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
-                                     @"message": self.messageInput.text
-                                     };
-        
-        NSLog(@"%@", parameters);
-        
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
-                   parameters:parameters progress:nil
-                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                          NSLog(@"responseObject %@", responseObject);
-                          [self.table reloadData];
-                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                          NSLog(@"Error %@", error);
-                      }];
+        if (self.isClient == YES) {
+            NSDictionary *parameters = @{
+                                         @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                                         @"message": self.messageInput.text,
+                                         @"did": self.did
+                                         };
+            
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-client"]
+                        parameters:parameters progress:nil
+                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                               NSLog(@"responseObject %@", responseObject);
+                               [self.table reloadData];
+                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                               NSLog(@"Error %@", error);
+                           }];
+        } else {
+            NSDictionary *parameters = @{
+                                         @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                                         @"message": self.messageInput.text
+                                         };
+            
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
+                        parameters:parameters progress:nil
+                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                               NSLog(@"responseObject %@", responseObject);
+                               [self.table reloadData];
+                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                               NSLog(@"Error %@", error);
+                           }];
+        }
         
         self.messageInput.text = @"";
     }

@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import "ChatViewController.h"
 
 @interface MapViewController ()
 @property (weak, nonatomic) IBOutlet MKMapView *map;
@@ -23,6 +24,7 @@
 @property (weak, nonatomic) AppDelegate *app;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
+@property (nonatomic) NSInteger newStatus;
 @property (strong, nonatomic) NSTimer *timerMap;
 @property (strong, nonatomic) NSTimer *timerService;
 @property (nonatomic) BOOL isOnService;
@@ -46,13 +48,17 @@
     self.isNotified = NO;
     self.accepted = NO;
     self.needsConfirm = YES;
-    self.status = 1;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
+    self.status = 1;
+    self.newStatus = 1;
     [self changeStatus];
     [self initializeServiceData];
     [self initTimer];
     
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"]
+                                            resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
+                                            resizingMode:UIImageResizingModeStretch]
+                             forBarMetrics:UIBarMetricsDefault];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -70,7 +76,7 @@
 }
 
 - (void)initializeServiceData {
-    NSDictionary *parameters = @{@"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] };
+    NSDictionary *parameters = @{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] };
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:parameters progress:nil
     success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -95,12 +101,14 @@
                 
                 if (self.serviceStatus == 4) {
                     self.chatButton.enabled = YES;
-                    self.endServiceButton.titleLabel.text = [[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado";
-                    [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Asignado"] :@"status"];
+                    [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
+                    [self.app.dataLibrary saveInteger:3 :@"status"];
+                    self.newStatus = 3;
                 } else if (self.serviceStatus == 5) {
                     self.chatButton.enabled = NO;
-                    self.endServiceButton.titleLabel.text = @"Finalizar";
-                    [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Ocupado"] :@"status"];
+                    [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
+                    [self.app.dataLibrary saveInteger:11 :@"status"];
+                    self.newStatus = 11;
                 }
                 
                 //Save despacho_id
@@ -134,6 +142,16 @@
                 self.isNotified = NO;
                 self.needsConfirm = YES;
                 [self.app.dataLibrary deleteKey:@"despacho_id"];
+                
+                if ([self.app.dataLibrary getInteger:@"status"] != 1 || [self.app.dataLibrary getInteger:@"status"] != 4) {
+                    [self.app.dataLibrary saveInteger:1 :@"status"];
+                    self.newStatus = 1;
+                }
+            }
+            
+            if (self.status != self.newStatus) {
+                self.status = self.newStatus;
+                [self changeStatus];
             }
         } @catch (NSException *exception) {
             NSLog(@"%@", exception);
@@ -169,14 +187,12 @@
     if (self.currentService != nil) {
         NSDictionary *parameters = @{
                                      @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
-                                     @"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]],
-                                     @"c": @5,
-                                     @"confirm": @1,
                                      @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]};
 
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"reject-service"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSLog(@"%@", responseObject);
-            [self showAlert:@"Confirmar" :@"Actualizado"];
+            self.accepted = YES;
+            [self showAlert:@"Confirmar" :@"Servicio Rechazado"];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
             NSLog(@"%@", error);
@@ -186,16 +202,12 @@
 
 - (void)acceptService {
     if (self.currentService != nil) {
-        NSDictionary *parameters = @{
-                                     @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
-                                     @"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]],
-                                     @"c": @5,
-                                     @"confirm": @0 };
+        NSDictionary *parameters = @{@"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]] };
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSLog(@"%@", responseObject);
             self.accepted = YES;
-            [self showAlert:@"Confirmar" :@"Actualizado"];
+            [self showAlert:@"Confirmar" :@"Servicio aceptado"];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
             NSLog(@"%@", error);
@@ -204,8 +216,10 @@
 }
 
 - (void)automaticallyCancelService:(UIAlertController *) alert{
-    if (self.accepted == NO) {
-        [self cancelService];
+    if (self.currentService != nil) {
+        if (self.accepted == NO) {
+            [self cancelService];
+        }
     }
     
     [alert dismissViewControllerAnimated:true completion:nil];
@@ -322,13 +336,17 @@
 }
 
 - (void)changeStatus {
-    if ([self.app.dataLibrary getInteger:@"status"] == [self.app.dataLibrary getStatusIdForName:@"Libre"]) {
-        [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Ausente (Comida)"] :@"status"];
+    if ([self.app.dataLibrary getInteger:@"status"] == 1) {
+        [self.app.dataLibrary saveInteger:4 :@"status"];
         [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
+        self.status = 4;
     } else {
-        [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
+        [self.app.dataLibrary saveInteger:1 :@"status"];
         [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
+        self.status = 1;
     }
+    
+    [self forceEstatusUpdate];
 }
 
 - (IBAction)doToggleMenu:(id)sender {
@@ -337,14 +355,8 @@
 }
 
 - (IBAction)openChat:(id)sender {
-    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:@"Abrir chat" message:@"Preparar link a chat" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil];
-    
-    [errorAlert addAction:ok];
-    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
-    [self presentViewController:errorAlert animated:YES completion:nil];
+    //[self performSegueWithIdentifier:@"segueChat" sender:self];
 }
-
 
 - (IBAction)doEnd:(id)sender {
     NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
@@ -446,19 +458,50 @@
     }
 }
 
+- (void) forceEstatusUpdate {
+    NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
+                                 @"lat": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude],
+                                 @"lng": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude],
+                                 @"status": [NSNumber numberWithInteger:self.status]};
+    
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
+                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       NSLog(@"Location Saved!");
+                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                       NSLog(@"Error, not saved");
+                   }];
+}
+
 - (IBAction)doChangeStatus:(id)sender {
     [self changeStatus];
 }
 
 
-/*
 #pragma mark - Navigation
+
+- (BOOL)shouldPerformSegueWithIdentifier:(NSString *)identifier sender:(id)sender {
+    if ([identifier isEqualToString:@"segueChat"]) {
+        NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
+        
+        if (service != nil) {
+            if ([service objectForKey:@"idd"]!=nil && self.serviceStatus == 4) {
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"segueChat"]) {
+        ((ChatViewController *)segue.destinationViewController).providesPresentationContextTransitionStyle = YES;
+        ((ChatViewController *)segue.destinationViewController).definesPresentationContext = YES;
+        ((ChatViewController *)segue.destinationViewController).modalPresentationStyle = UIModalPresentationOverFullScreen;
+        ((ChatViewController *)segue.destinationViewController).did = [[self.app.dataLibrary getDictionary:@"service"] objectForKey:@"did"];
+        ((ChatViewController *)segue.destinationViewController).isClient = YES;
+    }
 }
-*/
 
 @end

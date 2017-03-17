@@ -73,11 +73,12 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zEr-qy-5Lm">
-                                        <rect key="frame" x="310" y="188.5" width="57" height="30"/>
+                                        <rect key="frame" x="267" y="188.5" width="100" height="30"/>
                                         <constraints>
+                                            <constraint firstAttribute="width" constant="100" id="2cc-6E-eYV"/>
                                             <constraint firstAttribute="height" constant="30" id="nOt-ma-xjA"/>
                                         </constraints>
-                                        <state key="normal" title="Finalizar"/>
+                                        <state key="normal" title="..."/>
                                         <connections>
                                             <action selector="doEnd:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="Yjo-n0-fdz"/>
                                         </connections>
@@ -90,7 +91,8 @@
                                         </constraints>
                                         <state key="normal" image="chat"/>
                                         <connections>
-                                            <action selector="openChat:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="h1F-IA-oeI"/>
+                                            <action selector="openChat:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="jow-LM-M7Q"/>
+                                            <segue destination="Uby-Hl-0pQ" kind="presentation" identifier="segueChat" id="kkA-5M-N7D"/>
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jfN-Ap-ui6">
@@ -131,7 +133,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NBJ-LQ-56e">
                                 <rect key="frame" x="0.0" y="443" width="375" height="36"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
-                                <state key="normal" title="Cambiar a Ausente"/>
+                                <state key="normal" title="..."/>
                                 <connections>
                                     <action selector="doChangeStatus:" destination="R6p-Z5-sXJ" eventType="touchUpInside" id="QeL-aM-5Yd"/>
                                 </connections>
@@ -210,30 +212,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t87-MX-Bn1">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                <color key="barTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <textAttributes key="titleTextAttributes">
-                                    <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
-                                    <color key="textColor" red="0.42081892490386963" green="0.41945803165435791" blue="0.46132457256317139" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </textAttributes>
-                                <items>
-                                    <navigationItem title="Historial" id="H1H-Jp-k2z">
-                                        <barButtonItem key="leftBarButtonItem" style="done" id="dC9-zs-n4m">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="VhH-R1-kit">
-                                                <rect key="frame" x="16" y="11" width="77" height="22"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" image="menu"/>
-                                                <connections>
-                                                    <action selector="doToggleMenu:" destination="MbH-nm-ron" eventType="touchUpInside" id="Wyz-G5-sk0"/>
-                                                </connections>
-                                            </button>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="bJj-su-Zqi">
-                                <rect key="frame" x="0.0" y="72" width="375" height="595"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -242,7 +222,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="200"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ufk-ul-r9C" id="sUW-YB-wwk">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="199"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estatus" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xkh-37-xPI">
@@ -321,12 +301,37 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t87-MX-Bn1">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="64" id="BDZ-ka-VZ1"/>
+                                </constraints>
+                                <color key="barTintColor" red="1" green="0.26267599019999999" blue="0.35768169420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <textAttributes key="titleTextAttributes">
+                                    <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </textAttributes>
+                                <items>
+                                    <navigationItem title="Historial" id="H1H-Jp-k2z">
+                                        <barButtonItem key="leftBarButtonItem" width="25" style="done" id="dC9-zs-n4m">
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="VhH-R1-kit">
+                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" image="menu"/>
+                                                <connections>
+                                                    <action selector="doToggleMenu:" destination="MbH-nm-ron" eventType="touchUpInside" id="Wyz-G5-sk0"/>
+                                                </connections>
+                                            </button>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="rqV-XI-6wI" firstAttribute="top" secondItem="bJj-su-Zqi" secondAttribute="bottom" id="8Vd-at-gHb"/>
-                            <constraint firstItem="t87-MX-Bn1" firstAttribute="top" secondItem="mfG-Qp-iN5" secondAttribute="bottom" constant="8" id="8yV-Mf-6Du"/>
                             <constraint firstItem="bJj-su-Zqi" firstAttribute="leading" secondItem="va6-1R-pyQ" secondAttribute="leading" id="KFH-Gg-OSo"/>
+                            <constraint firstItem="t87-MX-Bn1" firstAttribute="top" secondItem="mfG-Qp-iN5" secondAttribute="bottom" constant="-20" id="NHz-R8-VKw"/>
                             <constraint firstItem="t87-MX-Bn1" firstAttribute="width" secondItem="va6-1R-pyQ" secondAttribute="width" id="Scb-JL-cqA"/>
                             <constraint firstItem="bJj-su-Zqi" firstAttribute="top" secondItem="t87-MX-Bn1" secondAttribute="bottom" id="dRj-wT-IB5"/>
                             <constraint firstItem="t87-MX-Bn1" firstAttribute="centerX" secondItem="va6-1R-pyQ" secondAttribute="centerX" id="fGQ-UY-Ucn"/>
@@ -334,6 +339,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="navigationBar" destination="t87-MX-Bn1" id="KtG-o6-nQL"/>
                         <outlet property="table" destination="bJj-su-Zqi" id="Sga-WP-MqT"/>
                     </connections>
                 </viewController>
@@ -353,30 +359,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Zi-kt-4G8">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                <color key="barTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <textAttributes key="titleTextAttributes">
-                                    <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
-                                    <color key="textColor" red="0.4208189249" green="0.41945803170000001" blue="0.46132457259999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </textAttributes>
-                                <items>
-                                    <navigationItem title="Próximos Servicios" id="6Qm-Rc-YNn">
-                                        <barButtonItem key="leftBarButtonItem" style="done" id="0de-Af-8aH">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="71c-e8-uaN">
-                                                <rect key="frame" x="16" y="11" width="23" height="22"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" image="menu"/>
-                                                <connections>
-                                                    <action selector="doToggleMenu:" destination="CjK-bK-yXa" eventType="touchUpInside" id="Zdv-u3-1Tx"/>
-                                                </connections>
-                                            </button>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="7tl-6T-iAl">
-                                <rect key="frame" x="0.0" y="72" width="375" height="595"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -385,7 +369,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="150"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Hat-xl-CbU" id="kuT-Cz-2x6">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="149"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pinstart" translatesAutoresizingMaskIntoConstraints="NO" id="dzq-3v-dRc">
@@ -472,10 +456,34 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Zi-kt-4G8">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="64" id="8wK-Dk-TDT"/>
+                                </constraints>
+                                <color key="barTintColor" red="1" green="0.26267599019999999" blue="0.35768169420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <textAttributes key="titleTextAttributes">
+                                    <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </textAttributes>
+                                <items>
+                                    <navigationItem title="Próximos Servicios" id="6Qm-Rc-YNn">
+                                        <barButtonItem key="leftBarButtonItem" style="done" id="0de-Af-8aH">
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="71c-e8-uaN">
+                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" image="menu"/>
+                                                <connections>
+                                                    <action selector="doToggleMenu:" destination="CjK-bK-yXa" eventType="touchUpInside" id="Zdv-u3-1Tx"/>
+                                                </connections>
+                                            </button>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="9Zi-kt-4G8" firstAttribute="top" secondItem="S9W-NN-hlC" secondAttribute="bottom" constant="8" id="097-AT-nu0"/>
                             <constraint firstItem="7tl-6T-iAl" firstAttribute="top" secondItem="9Zi-kt-4G8" secondAttribute="bottom" id="2bc-Od-jbs"/>
                             <constraint firstItem="7tl-6T-iAl" firstAttribute="width" secondItem="Jsc-od-4Kb" secondAttribute="width" id="8KX-id-Hce"/>
                             <constraint firstItem="9Zi-kt-4G8" firstAttribute="width" secondItem="Jsc-od-4Kb" secondAttribute="width" id="ANl-AP-dgn"/>
@@ -483,9 +491,11 @@
                             <constraint firstAttribute="trailing" secondItem="7tl-6T-iAl" secondAttribute="trailing" id="T1j-Gh-qsd"/>
                             <constraint firstItem="7tl-6T-iAl" firstAttribute="leading" secondItem="Jsc-od-4Kb" secondAttribute="leading" id="bcF-5O-EBs"/>
                             <constraint firstItem="9Zi-kt-4G8" firstAttribute="centerX" secondItem="Jsc-od-4Kb" secondAttribute="centerX" id="fB0-Mz-0do"/>
+                            <constraint firstItem="9Zi-kt-4G8" firstAttribute="top" secondItem="S9W-NN-hlC" secondAttribute="bottom" constant="-20" id="qhW-oT-gBC"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="navigationBar" destination="9Zi-kt-4G8" id="1zB-6B-fxR"/>
                         <outlet property="table" destination="7tl-6T-iAl" id="ml2-g9-7JY"/>
                     </connections>
                 </viewController>
@@ -505,18 +515,54 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cuenta" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u0O-e6-iDI">
+                                <rect key="frame" x="16" y="88" width="55" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Utilidades" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2tD-Kb-WG0">
+                                <rect key="frame" x="16" y="171" width="77" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hbP-cF-kYK">
+                                <rect key="frame" x="16" y="200" width="188" height="30"/>
+                                <state key="normal" title="Verificar status del servidor"/>
+                                <connections>
+                                    <action selector="doCheckServerStatus:" destination="UhZ-Hq-n05" eventType="touchUpInside" id="5mK-v8-o0C"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bKk-A8-Q80">
+                                <rect key="frame" x="16" y="238" width="197" height="30"/>
+                                <state key="normal" title="Iniciar sincronización manual"/>
+                                <connections>
+                                    <action selector="doInitManualSync:" destination="UhZ-Hq-n05" eventType="touchUpInside" id="lwD-Ut-y0Z"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="geF-I4-K3T">
+                                <rect key="frame" x="16" y="117" width="94" height="30"/>
+                                <state key="normal" title="Cerrar Sesión"/>
+                                <connections>
+                                    <action selector="doCloseSession:" destination="UhZ-Hq-n05" eventType="touchUpInside" id="TdO-Na-zE0"/>
+                                </connections>
+                            </button>
                             <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gkW-po-aGH">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                <color key="barTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="64" id="LvB-fo-ctt"/>
+                                </constraints>
+                                <color key="barTintColor" red="1" green="0.26267599019999999" blue="0.35768169420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <textAttributes key="titleTextAttributes">
                                     <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
-                                    <color key="textColor" red="0.4208189249" green="0.41945803170000001" blue="0.46132457259999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </textAttributes>
                                 <items>
                                     <navigationItem title="Configuración" id="JRr-N7-xlG">
                                         <barButtonItem key="leftBarButtonItem" style="done" id="4TU-6g-Cgz">
                                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="tOX-HS-hRW">
-                                                <rect key="frame" x="16" y="11" width="23" height="22"/>
+                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="menu"/>
                                                 <connections>
@@ -527,44 +573,11 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cuenta" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u0O-e6-iDI">
-                                <rect key="frame" x="16" y="96" width="55" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Utilidades" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2tD-Kb-WG0">
-                                <rect key="frame" x="16" y="179" width="77" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hbP-cF-kYK">
-                                <rect key="frame" x="16" y="208" width="188" height="30"/>
-                                <state key="normal" title="Verificar status del servidor"/>
-                                <connections>
-                                    <action selector="doCheckServerStatus:" destination="UhZ-Hq-n05" eventType="touchUpInside" id="5mK-v8-o0C"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bKk-A8-Q80">
-                                <rect key="frame" x="16" y="246" width="197" height="30"/>
-                                <state key="normal" title="Iniciar sincronización manual"/>
-                                <connections>
-                                    <action selector="doInitManualSync:" destination="UhZ-Hq-n05" eventType="touchUpInside" id="lwD-Ut-y0Z"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="geF-I4-K3T">
-                                <rect key="frame" x="16" y="125" width="94" height="30"/>
-                                <state key="normal" title="Cerrar Sesión"/>
-                                <connections>
-                                    <action selector="doCloseSession:" destination="UhZ-Hq-n05" eventType="touchUpInside" id="TdO-Na-zE0"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="gkW-po-aGH" firstAttribute="top" secondItem="4S9-sO-rKe" secondAttribute="bottom" constant="-20" id="EUN-Sd-hH2"/>
                             <constraint firstItem="bKk-A8-Q80" firstAttribute="leading" secondItem="hbP-cF-kYK" secondAttribute="leading" id="FGn-7d-hqP"/>
-                            <constraint firstItem="gkW-po-aGH" firstAttribute="top" secondItem="4S9-sO-rKe" secondAttribute="bottom" constant="8" id="IcD-Bw-Lz9"/>
                             <constraint firstItem="bKk-A8-Q80" firstAttribute="top" secondItem="hbP-cF-kYK" secondAttribute="bottom" constant="8" id="JkN-6e-kqK"/>
                             <constraint firstItem="hbP-cF-kYK" firstAttribute="top" secondItem="2tD-Kb-WG0" secondAttribute="bottom" constant="8" id="Wg4-bR-GM7"/>
                             <constraint firstItem="gkW-po-aGH" firstAttribute="centerX" secondItem="Suy-ZL-iKg" secondAttribute="centerX" id="Y8M-ac-AUI"/>
@@ -578,6 +591,9 @@
                             <constraint firstItem="u0O-e6-iDI" firstAttribute="top" secondItem="gkW-po-aGH" secondAttribute="bottom" constant="24" id="ybN-J6-1iC"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="navigationBar" destination="gkW-po-aGH" id="dpS-xq-oA4"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AXG-yf-nYx" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -595,30 +611,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Tq-mx-eQm">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                <color key="barTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <textAttributes key="titleTextAttributes">
-                                    <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
-                                    <color key="textColor" red="0.4208189249" green="0.41945803170000001" blue="0.46132457259999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </textAttributes>
-                                <items>
-                                    <navigationItem title="Chat" id="7a8-hY-96q">
-                                        <barButtonItem key="leftBarButtonItem" style="done" id="F4J-i5-A8U">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="ty3-sX-jh5">
-                                                <rect key="frame" x="16" y="11" width="23" height="22"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <state key="normal" image="menu"/>
-                                                <connections>
-                                                    <action selector="doToggleMenu:" destination="Uby-Hl-0pQ" eventType="touchUpInside" id="omz-gq-Ex6"/>
-                                                </connections>
-                                            </button>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="CTN-Yl-VPE" customClass="UITableTouch">
-                                <rect key="frame" x="0.0" y="72" width="375" height="549"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="557"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatCell" rowHeight="70" id="JYv-6J-jx1" customClass="ChatCell">
@@ -703,29 +697,55 @@
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="go"/>
                             </textField>
+                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Tq-mx-eQm">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="64" id="E4v-eL-UAW"/>
+                                </constraints>
+                                <color key="barTintColor" red="1" green="0.26267599019999999" blue="0.35768169420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <textAttributes key="titleTextAttributes">
+                                    <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="18"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </textAttributes>
+                                <items>
+                                    <navigationItem title="Chat" id="7a8-hY-96q">
+                                        <barButtonItem key="leftBarButtonItem" style="done" id="F4J-i5-A8U">
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="ty3-sX-jh5">
+                                                <rect key="frame" x="16" y="31" width="23" height="22"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" image="menu"/>
+                                                <connections>
+                                                    <action selector="doToggleMenu:" destination="Uby-Hl-0pQ" eventType="touchUpInside" id="omz-gq-Ex6"/>
+                                                </connections>
+                                            </button>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="leadingMargin" secondItem="8va-ec-5Yz" secondAttribute="leading" id="392-oL-9mK"/>
                             <constraint firstItem="0Tq-mx-eQm" firstAttribute="width" secondItem="cdp-zq-h6U" secondAttribute="width" id="9Lg-0c-gY9"/>
                             <constraint firstItem="CTN-Yl-VPE" firstAttribute="width" secondItem="cdp-zq-h6U" secondAttribute="width" id="EqV-we-lS2"/>
-                            <constraint firstItem="0Tq-mx-eQm" firstAttribute="top" secondItem="Hln-cu-Ota" secondAttribute="bottom" constant="8" id="LA5-3N-48h"/>
                             <constraint firstAttribute="trailingMargin" secondItem="8va-ec-5Yz" secondAttribute="trailing" id="Pfr-d0-whS"/>
                             <constraint firstItem="CTN-Yl-VPE" firstAttribute="centerX" secondItem="cdp-zq-h6U" secondAttribute="centerX" id="X7c-x6-uhp"/>
                             <constraint firstItem="8va-ec-5Yz" firstAttribute="top" secondItem="CTN-Yl-VPE" secondAttribute="bottom" constant="8" id="eQA-Ur-aHq"/>
                             <constraint firstItem="CTN-Yl-VPE" firstAttribute="top" secondItem="0Tq-mx-eQm" secondAttribute="bottom" id="i8Q-qh-5a6"/>
                             <constraint firstItem="0Tq-mx-eQm" firstAttribute="centerX" secondItem="cdp-zq-h6U" secondAttribute="centerX" id="vQU-YH-Esa"/>
                             <constraint firstItem="VW1-AI-mZP" firstAttribute="top" secondItem="8va-ec-5Yz" secondAttribute="bottom" constant="8" id="vol-qL-C2r"/>
+                            <constraint firstItem="0Tq-mx-eQm" firstAttribute="top" secondItem="Hln-cu-Ota" secondAttribute="bottom" constant="-20" id="z0S-3S-Erk"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="messageInput" destination="8va-ec-5Yz" id="ALN-ai-SUf"/>
+                        <outlet property="navigationBar" destination="0Tq-mx-eQm" id="QxI-0M-jRH"/>
                         <outlet property="table" destination="CTN-Yl-VPE" id="GmR-3N-Sz0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="whL-tJ-gAi" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4972" y="15"/>
+            <point key="canvasLocation" x="2542" y="-665"/>
         </scene>
         <!--Chat Client View Controller-->
         <scene sceneID="WH7-2t-sDQ">

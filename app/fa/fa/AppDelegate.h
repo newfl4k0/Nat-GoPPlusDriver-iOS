@@ -21,6 +21,7 @@
 @property (strong, nonatomic) AFHTTPSessionManager *manager;
 @property (strong, nonatomic) NSString *serverUrl;
 @property (strong, nonatomic) DataLibrary *dataLibrary;
+@property (strong, nonatomic) CLLocation *selfLocation;
 
 - (void)initDrawerWindow;
 - (void)initLoginWindow;

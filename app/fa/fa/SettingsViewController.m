@@ -11,6 +11,7 @@
 
 @interface SettingsViewController ()
 @property (weak, nonatomic) AppDelegate *app;
+@property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @end
 
 @implementation SettingsViewController
@@ -18,6 +19,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -46,6 +48,7 @@
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
                    }];
+    
 }
 
 - (IBAction)doCheckServerStatus:(id)sender {

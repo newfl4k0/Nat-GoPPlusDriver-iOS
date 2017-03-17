@@ -11,5 +11,6 @@
 #import "LeftChatCell.h"
 
 @interface ChatViewController : ViewController<UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
-
+@property (nonatomic) BOOL isClient;
+@property (strong, nonatomic) NSNumber *did;
 @end

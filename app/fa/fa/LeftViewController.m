@@ -86,6 +86,7 @@
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations{
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
+    self.app.selfLocation = location;
     
     if (self.firstUpdate == NO) {
         self.firstUpdate = YES;
@@ -98,6 +99,7 @@
         [self sendLocation:location];
     }
     
+
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 20.0) {
         self.trackDate = [NSDate date];
         [self sendTrack:location];
