@@ -29,12 +29,12 @@
         self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         [self.spinner setBackgroundColor:[UIColor blackColor]];
         self.spinner.center = CGPointMake(160, 240);
-        self.spinner.tag = 12;
+        self.spinner.tag = 1;
     }
 }
 
 - (void)stopSpinner {
-    [[self.view viewWithTag:12] stopAnimating];
+    [[self.view viewWithTag:1] stopAnimating];
 }
 
 - (IBAction)doVerifyCredentials:(id)sender {
@@ -70,8 +70,8 @@
                                        if ([[response valueForKey:@"status"] boolValue]) {
                                            [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
                                            [self.app.dataLibrary saveInteger:[[response valueForKey:@"id"] integerValue] :@"connection_id"];
-                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"driver_id"] integerValue] :@"driver_id"];
-                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"vehicle_id"] integerValue] :@"vehicle_id"];
+                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"conductor_id"] integerValue] :@"driver_id"];
+                                           [self.app.dataLibrary saveInteger:[[response valueForKey:@"vehiculo_id"] integerValue] :@"vehicle_id"];
                                            [self.app.dataLibrary saveString:[response valueForKey:@"nombre"] :@"driver_name"];
                                            [self.app.dataLibrary saveString:[response valueForKey:@"afiliado"] :@"affiliate_id"];
                                            [self.app.dataLibrary saveString:[response valueForKey:@"vehiculoconductor"] :@"vehicle_driver_id"];

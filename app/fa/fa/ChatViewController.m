@@ -39,35 +39,31 @@
 
 - (void)updateChatArray {
     if (self.isClient == YES) {
-        /*[self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-client"]
-                   parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], 
-                             @"did": self.did} progress:nil
-                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                          NSDictionary *data = (NSDictionary *) responseObject;
-                          self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
-                          NSLog(@"responseObject %@", self.dataArray);
-                          [self.table reloadData];
-                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                          NSLog(@"Error %@", error);
-                      }];*/
+        NSDictionary *parameters = @{
+                                     @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                                     @"did": self.did
+                                     };
         
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
-                   parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
+        NSLog(@"GET chat cliente %@", parameters);
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-client"]
+                   parameters: parameters
+                      progress:nil
                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                           NSDictionary *data = (NSDictionary *) responseObject;
                           self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
-                          NSLog(@"responseObject %@", self.dataArray);
                           [self.table reloadData];
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                           NSLog(@"Error %@", error);
                       }];
     } else {
+        NSDictionary *parameters = @{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]};
+        NSLog(@"GET chat base %@", parameters);
         [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
-                   parameters:@{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]} progress:nil
+                   parameters: parameters
+                     progress:nil
                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                           NSDictionary *data = (NSDictionary *) responseObject;
                           self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
-                          NSLog(@"responseObject %@", self.dataArray);
                           [self.table reloadData];
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                           NSLog(@"Error %@", error);
@@ -146,16 +142,18 @@
     
     if (self.messageInput.text.length >0) {
         if (self.isClient == YES) {
+            
             NSDictionary *parameters = @{
                                          @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
                                          @"message": self.messageInput.text,
                                          @"did": self.did
                                          };
             
+            NSLog(@"Debe enviar chat cliente %@", parameters);
+            
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-client"]
                         parameters:parameters progress:nil
                            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                               NSLog(@"responseObject %@", responseObject);
                                [self.table reloadData];
                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                NSLog(@"Error %@", error);
@@ -166,10 +164,11 @@
                                          @"message": self.messageInput.text
                                          };
             
+            NSLog(@"Debe enviar chat base %@", parameters);
+            
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
                         parameters:parameters progress:nil
                            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                               NSLog(@"responseObject %@", responseObject);
                                [self.table reloadData];
                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                NSLog(@"Error %@", error);
