@@ -5,7 +5,7 @@
 //  Created by Cristina Avila on 31/12/16.
 //  Copyright © 2016 Cristina Avila. All rights reserved.
 //
-
+#import "AFNetworking.h"
 #import "LeftViewController.h"
 
 
@@ -14,7 +14,9 @@
 @property (weak, nonatomic) IBOutlet UILabel *welcomeLabel;
 @property (strong, nonatomic) NSDate *currentDate;
 @property (strong, nonatomic) NSDate *trackDate;
+@property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (nonatomic) BOOL firstUpdate;
+@property (weak, nonatomic) IBOutlet UIImageView *imageDriver;
 @end
 
 @implementation LeftViewController
@@ -34,6 +36,20 @@
     
     self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido, %@", [self.app.dataLibrary getString:@"driver_name"]];
     [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
+    
+    
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapDetected)];
+    singleTap.numberOfTapsRequired = 1;
+    [self.imageDriver setUserInteractionEnabled:YES];
+    [self.imageDriver addGestureRecognizer:singleTap];
+    
+    
+    self.imagePickerController = [[UIImagePickerController alloc] init];
+    self.imagePickerController.delegate = self;
+    self.imagePickerController.allowsEditing = YES;
+    self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    
+    [self getImage];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -179,6 +195,55 @@
 
 -(void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
+}
+
+
+-(void)tapDetected {
+    [self presentViewController:self.imagePickerController animated:YES completion:NULL];
+}
+
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    UIImage *chosenImage = info[UIImagePickerControllerEditedImage];
+    NSData *imageData = UIImageJPEGRepresentation(chosenImage, 0.5);
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+    
+    
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"upload"] parameters:@{ @"id": [self.app.dataLibrary getString:@"driver_id"]  }
+        constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+            [formData appendPartWithFileData:imageData name:@"theImage" fileName:@"image.jpg" mimeType:@"image/jpeg"];
+        }
+        progress:nil
+        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"upload: %@", responseObject);
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self showAlert:@"GoPS" :@"Error al subir imagen"];
+    }];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+    
+}
+
+
+- (void) getImage {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"imagen"] parameters:@{@"id": [self.app.dataLibrary getString:@"driver_id"]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      NSLog(@"%@", responseObject);
+                      
+                      if (![[responseObject objectForKey:@"image"] isEqualToString:@""]) {
+                          NSString *urlImage = [[self.app.serverUrl stringByAppendingString:@"images/?id="] stringByAppendingString:[responseObject objectForKey:@"image"]];
+                          NSURL *url = [NSURL URLWithString:urlImage];
+                          NSData *data = [NSData dataWithContentsOfURL:url];
+                          UIImage *image = [UIImage imageWithData:data];
+                          [self.imageDriver setImage:image];
+                          self.imageDriver.layer.cornerRadius = self.imageDriver.frame.size.width / 2;
+                          self.imageDriver.clipsToBounds = YES;
+                      }
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      NSLog(@"%@", error);
+                  }];
 }
 
 @end
