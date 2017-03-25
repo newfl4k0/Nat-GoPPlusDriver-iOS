@@ -37,17 +37,20 @@
     self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido, %@", [self.app.dataLibrary getString:@"driver_name"]];
     [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
     
-    
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapDetected)];
     singleTap.numberOfTapsRequired = 1;
     [self.imageDriver setUserInteractionEnabled:YES];
     [self.imageDriver addGestureRecognizer:singleTap];
     
     
-    self.imagePickerController = [[UIImagePickerController alloc] init];
-    self.imagePickerController.delegate = self;
-    self.imagePickerController.allowsEditing = YES;
-    self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    #if TARGET_IPHONE_SIMULATOR
+        NSLog(@"This is simulator mode....");
+    #else
+        self.imagePickerController = [[UIImagePickerController alloc] init];
+        self.imagePickerController.delegate = self;
+        self.imagePickerController.allowsEditing = YES;
+        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    #endif
     
     [self getImage];
 }
@@ -99,7 +102,7 @@
     }
 }
 
--(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations{
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations{
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     self.app.selfLocation = location;
@@ -122,7 +125,7 @@
     }
 }
 
--(void)sendTrack:(CLLocation* )location {
+- (void)sendTrack:(CLLocation* )location {
     NSDictionary *currentService = [self.app.dataLibrary getDictionary:@"service"];
     NSMutableDictionary *parameters = [NSMutableDictionary
                                        dictionaryWithDictionary:@{
@@ -133,17 +136,16 @@
                                                                   @"lng": [NSNumber numberWithFloat:location.coordinate.longitude]}];
     
     if (currentService != nil) {
-        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_o"] floatValue]] forKey:@"lat_o"];
-        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_o"] floatValue]] forKey:@"lng_o"];
-        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_d"] floatValue]] forKey:@"lat_d"];
-        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_d"] floatValue]] forKey:@"lng_d"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_origen"] floatValue]] forKey:@"lat_o"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_origen"] floatValue]] forKey:@"lng_o"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lat_destino"] floatValue]] forKey:@"lat_d"];
+        [parameters setObject:[NSNumber numberWithFloat:[currentService[@"lng_destino"] floatValue]] forKey:@"lng_d"];
     }
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       NSLog(@"Should update track");
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       NSLog(@"%@", error);
+                       NSLog(@"Error, track not saved: %@", error);
                    }];
 }
 
@@ -155,12 +157,10 @@
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       NSLog(@"Location Saved!");
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       NSLog(@"Error, not saved");
+                       NSLog(@"Error, location not saved: %@", error);
                    }];
 }
-
 
 - (void)getVehicleDriverServices {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
@@ -177,8 +177,8 @@
                   }];
 }
 
--(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-    NSLog(@"%@", error);
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    NSLog(@"locationManager didFailWithError %@", error);
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {
@@ -193,21 +193,23 @@
     [self presentViewController:errorAlert animated:YES completion:nil];
 }
 
--(void)dissmissAlert:(UIAlertController *) alert{
+- (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
-
--(void)tapDetected {
-    [self presentViewController:self.imagePickerController animated:YES completion:NULL];
+- (void)tapDetected {
+    #if TARGET_IPHONE_SIMULATOR
+        NSLog(@"Simulator, prevent ");
+    #else
+        [self presentViewController:self.imagePickerController animated:YES completion:NULL];
+    #endif
 }
-
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     UIImage *chosenImage = info[UIImagePickerControllerEditedImage];
     NSData *imageData = UIImageJPEGRepresentation(chosenImage, 0.5);
     [picker dismissViewControllerAnimated:YES completion:NULL];
-    
+    [self.imageDriver setImage:chosenImage];
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"upload"] parameters:@{ @"id": [self.app.dataLibrary getString:@"driver_id"]  }
         constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
@@ -223,27 +225,20 @@
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     [picker dismissViewControllerAnimated:YES completion:NULL];
-    
 }
 
-
 - (void) getImage {
-    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"imagen"] parameters:@{@"id": [self.app.dataLibrary getString:@"driver_id"]} progress:nil
-                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      NSLog(@"%@", responseObject);
-                      
-                      if (![[responseObject objectForKey:@"image"] isEqualToString:@""]) {
-                          NSString *urlImage = [[self.app.serverUrl stringByAppendingString:@"images/?id="] stringByAppendingString:[responseObject objectForKey:@"image"]];
-                          NSURL *url = [NSURL URLWithString:urlImage];
-                          NSData *data = [NSData dataWithContentsOfURL:url];
-                          UIImage *image = [UIImage imageWithData:data];
-                          [self.imageDriver setImage:image];
-                          self.imageDriver.layer.cornerRadius = self.imageDriver.frame.size.width / 2;
-                          self.imageDriver.clipsToBounds = YES;
-                      }
-                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                      NSLog(@"%@", error);
-                  }];
+    @try {
+        NSString *urlImage = [[[self.app.serverUrl stringByAppendingString:@"images/?id="] stringByAppendingString:[self.app.dataLibrary getString:@"driver_id"]] stringByAppendingString:@".jpg"];
+        NSURL *url = [NSURL URLWithString:urlImage];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        UIImage *image = [UIImage imageWithData:data];
+        [self.imageDriver setImage:image];
+        self.imageDriver.layer.cornerRadius = self.imageDriver.frame.size.width / 2;
+        self.imageDriver.clipsToBounds = YES;
+    } @catch (NSException *exception) {
+        NSLog(@"[getImage] exception: %@", exception);
+    }
 }
 
 @end

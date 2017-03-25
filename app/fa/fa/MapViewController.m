@@ -50,7 +50,7 @@
     self.accepted = NO;
     self.needsConfirm = YES;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
-    self.status = 1;
+    self.status = 0;
     self.newStatus = 1;
     [self changeStatus];
     [self initializeServiceData];
@@ -109,12 +109,10 @@
                               if (self.serviceStatus == 4) {
                                   self.chatButton.enabled = YES;
                                   [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
-                                  [self.app.dataLibrary saveInteger:3 :@"status"];
                                   self.newStatus = 3; //Asignado
                               } else if (self.serviceStatus == 5) {
                                   self.chatButton.enabled = NO;
                                   [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
-                                  [self.app.dataLibrary saveInteger:11 :@"status"];
                                   self.newStatus = 11; //Ocupado
                               }
                 
@@ -148,19 +146,33 @@
                               self.isNotified = NO;
                               self.needsConfirm = YES;
                               [self.app.dataLibrary deleteKey:@"despacho_id"];
+                              [self.app.dataLibrary deleteKey:@"service"];
                               
-                              if ([self.app.dataLibrary getInteger:@"status"] != 1 || [self.app.dataLibrary getInteger:@"status"] != 4) {
-                                  [self.app.dataLibrary saveInteger:1 :@"status"]; //Libre
+                              if (self.status != 1 && self.status != 4) {
                                   self.newStatus = 1;
                               }
                           }
                           
                           [self changeStatus];
                       } @catch (NSException *exception) {
-                          NSLog(@"%@", exception);
+                          NSLog(@"exception: %@", exception);
+                          [self.app.dataLibrary deleteKey:@"service"];
+                          
+                          if (self.status != 1 && self.status != 4) {
+                              self.newStatus = 1;
+                          }
+                          
+                          [self changeStatus];
                       }
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                      NSLog(@"%@", error);
+                      NSLog(@"failure: %@", error);
+                      [self.app.dataLibrary deleteKey:@"service"];
+                      
+                      if (self.status != 1 && self.status != 4) {
+                          self.newStatus = 1;
+                      }
+                      
+                      [self changeStatus];
                   }];
 }
 
@@ -169,6 +181,22 @@
         self.status = self.newStatus;
         [self forceEstatusUpdate];
     }
+    
+    [self.app.dataLibrary saveInteger:self.status :@"status"];
+}
+
+- (void)forceEstatusUpdate {
+    NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
+                                 @"lat": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude],
+                                 @"lng": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude],
+                                 @"status": [NSNumber numberWithInteger:self.status]};
+    [self showSpinner];
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
+                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       [self hideSpinner];
+                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                       [self hideSpinner];
+                   }];
 }
 
 - (void)showConfirmAlert {
@@ -350,7 +378,6 @@
 }
 
 - (IBAction)openChat:(id)sender {
-    //[self performSegueWithIdentifier:@"segueChat" sender:self];
 }
 
 - (IBAction)doEnd:(id)sender {
@@ -416,7 +443,8 @@
                                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                                         [self hideSpinner];
                                        NSLog(@"%@", responseObject);
-                                       [self.app.dataLibrary saveInteger:[self.app.dataLibrary getStatusIdForName:@"Libre"] :@"status"];
+                                       self.newStatus = 1;
+                                       [self changeStatus];
                                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                        [self hideSpinner];
                                        NSLog(@"%@", error);
@@ -430,7 +458,6 @@
             
             [endAlert addAction:sendEndAction];
             [endAlert addAction:cancelEndAction];
-            
             [self presentViewController:endAlert animated:YES completion:nil];
         }
     }
@@ -462,32 +489,16 @@
     }
 }
 
-- (void) forceEstatusUpdate {
-    NSDictionary *parameters = @{@"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]],
-                                 @"lat": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude],
-                                 @"lng": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude],
-                                 @"status": [NSNumber numberWithInteger:self.status]};
-    [self showSpinner];
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
-                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       [self hideSpinner];
-                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       [self hideSpinner];
-                   }];
-}
-
 - (IBAction)doChangeStatus:(id)sender {
     if (self.status == 1) {
-        [self.app.dataLibrary saveInteger:4 :@"status"];
         [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
-        self.status = 4;
+        self.newStatus = 4;
     } else {
-        [self.app.dataLibrary saveInteger:1 :@"status"];
         [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
-        self.status = 1;
+        self.newStatus = 1;
     }
     
-    [self forceEstatusUpdate];
+    [self changeStatus];
 }
 
 //spinner - Methods

@@ -70,7 +70,7 @@
     NextTableViewCell *cell = (NextTableViewCell *) [self.table dequeueReusableCellWithIdentifier:@"nextCell" forIndexPath:indexPath];
     NSDictionary *data = (NSDictionary *)[_dataArray objectAtIndex:indexPath.row];
     
-    [cell initAppAndService:self.app :[data[@"id"] intValue] :[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_des"] floatValue] :[data[@"lng_des"] floatValue]];
+    [cell initAppAndService:self.app :[data[@"id"] intValue] :[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_destino"] floatValue] :[data[@"lng_destino"] floatValue]];
     [cell.startLabel setText: data[@"origen"]];
     [cell.endLabel setText:data[@"destino"]];
     [cell.dateLabel setText:data[@"fecha_despacho"]];

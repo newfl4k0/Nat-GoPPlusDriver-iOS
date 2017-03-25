@@ -22,6 +22,7 @@
 @property (strong, nonatomic) NSString *serverUrl;
 @property (strong, nonatomic) DataLibrary *dataLibrary;
 @property (strong, nonatomic) CLLocation *selfLocation;
+@property (nonatomic) NSInteger currentStatus;
 
 - (void)initDrawerWindow;
 - (void)initLoginWindow;

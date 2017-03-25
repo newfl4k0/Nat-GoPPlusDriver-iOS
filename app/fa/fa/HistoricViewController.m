@@ -60,7 +60,7 @@
     HistorialCell *cell = (HistorialCell *) [self.table dequeueReusableCellWithIdentifier:@"HistorialCell" forIndexPath:indexPath];
     NSDictionary *data = (NSDictionary *)[_dataArray objectAtIndex:indexPath.row];
     
-    [cell initWithCoords:[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_des"] floatValue] :[data[@"lng_des"] floatValue]:self.app];
+    [cell initWithCoords:[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_destino"] floatValue] :[data[@"lng_destino"] floatValue]:self.app];
     [cell.startLabel setText: data[@"origen"]];
     [cell.endLabel setText:data[@"destino"]];
     [cell.dateLabel setText:data[@"fecha_despacho"]];

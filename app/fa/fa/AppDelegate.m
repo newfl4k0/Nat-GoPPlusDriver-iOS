@@ -20,7 +20,8 @@
     // Override point for customization after application launch.
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
-    self.serverUrl = @"http://192.168.15.100:8000/"; //@"http://gogps.azurewebsites.net/";
+    self.currentStatus = 0;
+    self.serverUrl = @"http://godriver.azurewebsites.net/";
     [Fabric with:@[[Crashlytics class]]];
     return YES;
 }
