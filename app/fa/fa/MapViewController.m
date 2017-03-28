@@ -36,6 +36,7 @@
 @property (nonatomic) BOOL isNotified;
 @property (nonatomic) BOOL needsConfirm;
 @property (nonatomic) BOOL accepted;
+@property (nonatomic) BOOL locationUpdated;
 @property (nonatomic) int serviceStatus;
 @end
 
@@ -46,6 +47,7 @@
     self.map.delegate = self;
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.isOnService = NO;
+    self.locationUpdated = NO;
     self.isNotified = NO;
     self.accepted = NO;
     self.needsConfirm = YES;
@@ -57,12 +59,11 @@
     [self initTimer];
     [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
     
-    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [self.spinner setBackgroundColor:[UIColor blackColor]];
     self.spinner.center = CGPointMake(160, 240);
     self.spinner.hidesWhenStopped = YES;
     [self.view addSubview:self.spinner];
-    
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"]
                                             resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                             resizingMode:UIImageResizingModeStretch]
@@ -126,6 +127,7 @@
                               if (self.isNotified == NO) {
                                   [self playSound];
                                   self.isNotified = YES;
+                                  self.locationUpdated = NO;
                               }
                 
                               if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
@@ -149,6 +151,7 @@
                               [self.app.dataLibrary deleteKey:@"service"];
                               
                               if (self.status != 1 && self.status != 4) {
+                                  self.locationUpdated = NO;
                                   self.newStatus = 1;
                               }
                           }
@@ -290,7 +293,10 @@
                     self.endAnnotation = nil;
                 }
                 
-                [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
+                if (self.locationUpdated == NO) {
+                    [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
+                    self.locationUpdated = YES;
+                }
             } else if (self.serviceStatus  == 5) {
                 if (self.endAnnotation == nil) {
                     self.endAnnotation = [[EndAnnotation alloc] initWithTitle:[serviceLocation objectForKey:@"destino"]
@@ -304,15 +310,19 @@
                     self.startAnnotation = nil;
                 }
                 
-                [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
+                if (self.locationUpdated == NO) {
+                    [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
+                    self.locationUpdated = YES;
+                }
             }
         }
     } else {
         if (self.app.locationManager != nil) {
             CLLocation* location = [self.app.locationManager location];
             
-            if (location!=nil) {
+            if (location!=nil && self.locationUpdated==NO) {
                 [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude), MKCoordinateSpanMake(0.05, 0.05))];
+                self.locationUpdated = YES;
             }
         }
         
