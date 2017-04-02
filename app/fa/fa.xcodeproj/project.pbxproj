@@ -58,6 +58,7 @@
 		6C3082A11E23CD4100692EDD /* LeftChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftChatCell.m; sourceTree = "<group>"; };
 		6C3082A31E23DB2800692EDD /* HistorialCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistorialCell.h; sourceTree = "<group>"; };
 		6C3082A41E23DB2800692EDD /* HistorialCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistorialCell.m; sourceTree = "<group>"; };
+		6C7381071E90645E00B48214 /* fa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = fa.entitlements; sourceTree = "<group>"; };
 		6C98DCBF1E1BDD7B008CB4EB /* NextTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextTableViewCell.h; sourceTree = "<group>"; };
 		6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextTableViewCell.m; sourceTree = "<group>"; };
 		6CB636871E184927005ECA7F /* AccessViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessViewController.h; sourceTree = "<group>"; };
@@ -202,6 +203,7 @@
 		6CDD656D1E18027F00E59880 /* fa */ = {
 			isa = PBXGroup;
 			children = (
+				6C7381071E90645E00B48214 /* fa.entitlements */,
 				6CC42FFD1E35245B008FDF93 /* Annotations */,
 				6CDD65711E18027F00E59880 /* AppDelegate.h */,
 				6CDD65721E18027F00E59880 /* AppDelegate.m */,
@@ -299,6 +301,9 @@
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Maps.iOS = {
+								enabled = 1;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -544,6 +549,7 @@
 			baseConfigurationReference = B25F0E7E1C53809ACC07A870 /* Pods-fa.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = fa/fa.entitlements;
 				DEVELOPMENT_TEAM = HBYGLC63T8;
 				INFOPLIST_FILE = fa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -557,6 +563,7 @@
 			baseConfigurationReference = DAF55CEDD753CCEF2A38C353 /* Pods-fa.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = fa/fa.entitlements;
 				DEVELOPMENT_TEAM = HBYGLC63T8;
 				INFOPLIST_FILE = fa/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

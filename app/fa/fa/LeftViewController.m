@@ -53,10 +53,29 @@
     #endif
     
     [self getImage];
+    [self updateToken];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:YES animated:animated];
+}
+
+- (void)updateToken {
+    NSInteger iddriver = [self.app.dataLibrary getInteger:@"driver_id"];
+    NSString *token = [self.app.dataLibrary getString:@"token"];
+    
+    if (token != nil) {
+        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:iddriver] ,
+                                      @"token": token };
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"set-token"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"token updated");
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"Error: token not updated: %@", error);
+        }];
+    } else {
+        NSLog(@"Error: token is null");
+    }
 }
 
 - (void) updateCenterView:(NSString*)newCenterWindowName {
@@ -86,7 +105,6 @@
 
 - (void)initializeLocationManager {
     if (self.app.locationManager == nil) {
-        //NSLog(@"Initialize locationManager");
         self.app.locationManager = [[CLLocationManager alloc] init];
         self.app.locationManager.delegate = self;
         self.app.locationManager.distanceFilter = kCLDistanceFilterNone;
@@ -165,7 +183,6 @@
 - (void)getVehicleDriverServices {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      NSLog(@"%@", responseObject);
                       if ([[responseObject objectForKey:@"data"] count]>0) {
                           [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
                       } else {

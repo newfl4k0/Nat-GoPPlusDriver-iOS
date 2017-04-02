@@ -48,7 +48,6 @@
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
                    }];
-    
 }
 
 - (IBAction)doCheckServerStatus:(id)sender {

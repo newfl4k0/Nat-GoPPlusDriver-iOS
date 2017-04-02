@@ -30,7 +30,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>17</string>
+	<string>18</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -45,6 +45,11 @@
 			</dict>
 		</array>
 	</dict>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlechromes</string>
+		<string>comgooglemaps</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MKDirectionsApplicationSupportedModes</key>

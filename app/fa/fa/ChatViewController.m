@@ -16,6 +16,8 @@
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSTimer *timer;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
+@property (weak, nonatomic) IBOutlet UIButton *navBackButton;
+
 @end
 
 @implementation ChatViewController
@@ -34,7 +36,12 @@
     self.timer = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
         [self updateChatArray];
     }];
-        [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
+                                                                                            resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    
+    if (self.isClient == YES) {
+        [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
+    }
 }
 
 - (void)updateChatArray {

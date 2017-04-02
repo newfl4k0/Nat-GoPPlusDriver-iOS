@@ -7,23 +7,15 @@
 //
 
 #import "MapViewController.h"
-#import "AppDelegate.h"
-#import <AVFoundation/AVFoundation.h>
-#import <AudioToolbox/AudioToolbox.h>
-#import "ChatViewController.h"
 
 @interface MapViewController ()
-@property (weak, nonatomic) IBOutlet MKMapView *map;
 @property (weak, nonatomic) IBOutlet UILabel *clientLabel;
-@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *dataLabel;
 @property (weak, nonatomic) IBOutlet UIButton *endServiceButton;
 @property (weak, nonatomic) IBOutlet UIButton *chatButton;
 @property (weak, nonatomic) IBOutlet UIView *ServiceView;
 @property (weak, nonatomic) IBOutlet UIButton *statusButton;
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
-@property (strong, nonatomic) StartAnnotation *startAnnotation;
-@property (strong, nonatomic) EndAnnotation *endAnnotation;
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSDictionary *currentService;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
@@ -38,13 +30,20 @@
 @property (nonatomic) BOOL accepted;
 @property (nonatomic) BOOL locationUpdated;
 @property (nonatomic) int serviceStatus;
+@property (weak, nonatomic) IBOutlet GMSMapView *gmap;
+@property (strong, nonatomic) GMSMarker *startServiceMarker;
+@property (strong, nonatomic) GMSMarker *endServiceMarker;
+@property (weak, nonatomic) IBOutlet UILabel *driverStatusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *startAddressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
+
 @end
 
 @implementation MapViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.map.delegate = self;
+    
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.isOnService = NO;
     self.locationUpdated = NO;
@@ -58,7 +57,7 @@
     [self initializeServiceData];
     [self initTimer];
     [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
-    
+    self.driverStatusLabel.text = @"Libre";
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [self.spinner setBackgroundColor:[UIColor blackColor]];
     self.spinner.center = CGPointMake(160, 240);
@@ -68,6 +67,7 @@
                                             resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                             resizingMode:UIImageResizingModeStretch]
                              forBarMetrics:UIBarMetricsDefault];
+    [self initGoogleMap];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -75,6 +75,89 @@
     [self.timerService invalidate];
     self.timerMap = nil;
     self.timerService = nil;
+}
+
+//Handle Timers
+- (void)initTimer {
+    self.timerMap = [NSTimer scheduledTimerWithTimeInterval:3.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self setGoogleMapLatestLocation];
+    }];
+    
+    self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self initializeServiceData];
+    }];
+}
+
+- (void)initGoogleMap {
+    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
+                                                            longitude:0
+                                                                 zoom:17];
+    self.gmap.camera = camera;
+    self.gmap.myLocationEnabled = YES;
+    self.gmap.mapType = kGMSTypeNormal;
+}
+
+- (void)setGoogleMapCenter:(CLLocation *)location {
+    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:location.coordinate.latitude longitude:location.coordinate.longitude zoom:17];
+    self.gmap.camera = camera;
+}
+
+- (void)removeStartServiceMarker {
+    if (self.startServiceMarker != nil) {
+        self.startServiceMarker.map = nil;
+        self.startServiceMarker = nil;
+    }
+}
+
+- (void)removeEndServiceMarker {
+    if (self.endServiceMarker != nil) {
+        self.endServiceMarker.map = nil;
+        self.endServiceMarker = nil;
+    }
+}
+
+- (void)setGoogleMapLatestLocation {
+    if (self.app.locationManager != nil) {
+        CLLocation* location = [self.app.locationManager location];
+
+        if (location != nil && self.locationUpdated == NO) {
+            [self setGoogleMapCenter:location];
+            self.locationUpdated = YES;
+        }
+    }
+    
+    if (self.isOnService) {
+        NSDictionary *serviceLocation = [self.app.dataLibrary getDictionary:@"service"];
+        
+        if (serviceLocation != nil) {
+            if (self.serviceStatus == 4) {
+                if (self.startServiceMarker == nil) {
+                    self.startServiceMarker = [[GMSMarker alloc] init];
+                    self.startServiceMarker.title = [serviceLocation objectForKey:@"origen"];
+                    self.startServiceMarker.position = CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue]);
+                    self.startServiceMarker.icon = [UIImage imageNamed:@"pinstart.png"];
+                    self.startServiceMarker.map = self.gmap;
+                }
+            }
+            
+            if (self.serviceStatus == 5) {
+                [self removeStartServiceMarker];
+                
+                if (self.endServiceMarker == nil) {
+                    self.endServiceMarker = [[GMSMarker alloc] init];
+                    self.endServiceMarker.title = [serviceLocation objectForKey:@"destino"];
+                    self.endServiceMarker.position = CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue]);
+                    self.endServiceMarker.icon = [UIImage imageNamed:@"pinend.png"];
+                    self.endServiceMarker.map = self.gmap;
+                }
+            }
+        } else {
+            NSLog(@"Error. The app is on service and there's no service dictionary");
+        }
+    } else {
+        [self removeStartServiceMarker];
+        [self removeEndServiceMarker];
+    }
 }
 
 - (void)playSound {
@@ -99,13 +182,6 @@
                               self.serviceStatus = [[self.currentService objectForKey:@"estatus_reserva"] intValue];
                               [self.app.dataLibrary saveDictionary:response :@"service"];
                               [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
-                              [self.statusLabel setText:[response objectForKey:@"estatus_reserva_nombre"]];
-                
-                              NSString *dataReserva = [NSString stringWithString:[response objectForKey:@"origen"]];
-                              dataReserva = [dataReserva stringByAppendingString:@"\n"];
-                              dataReserva = [dataReserva stringByAppendingString:[response objectForKey:@"destino"]];
-                              dataReserva = [dataReserva stringByAppendingString:@"\n"];
-                              dataReserva = [dataReserva stringByAppendingString:[response objectForKey:@"observaciones"]];
                 
                               if (self.serviceStatus == 4) {
                                   self.chatButton.enabled = YES;
@@ -118,7 +194,11 @@
                               }
                 
                               [self.app.dataLibrary saveInteger:[[response objectForKey:@"idd"] intValue] :@"despacho_id"];
-                              [self.dataLabel setText:dataReserva];
+                              //Set Address Labels
+                              self.startAddressLabel.text = [response objectForKey:@"origen"];
+                              self.endAddressLabel.text   = [response objectForKey:@"destino"];
+                              self.dataLabel.text         = [response objectForKey:@"observaciones"];
+                              
                               self.isOnService = YES;
                               self.ServiceView.hidden = NO;
                               self.statusButton.hidden = YES;
@@ -185,6 +265,16 @@
         [self forceEstatusUpdate];
     }
     
+    if (self.status == 1) {
+        self.driverStatusLabel.text = @"Libre";
+    } else if (self.status == 4) {
+        self.driverStatusLabel.text = @"Ausente";
+    } else if (self.status == 3) {
+        self.driverStatusLabel.text = @"Asignado";
+    } else if (self.status == 11) {
+        self.driverStatusLabel.text = @"Ocupado";
+    }
+    
     [self.app.dataLibrary saveInteger:self.status :@"status"];
 }
 
@@ -199,6 +289,31 @@
                        [self hideSpinner];
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        [self hideSpinner];
+                   }];
+    
+    [self forceTrackUpdate];
+}
+
+- (void)forceTrackUpdate {
+    NSMutableDictionary *parameters = [NSMutableDictionary
+                                       dictionaryWithDictionary:@{
+                                                                  @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]],
+                                                                  @"af_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"affiliate_id"]],
+                                                                  @"status_id": [NSNumber numberWithInteger:self.status],
+                                                                  @"lat": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude],
+                                                                  @"lng": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude]}];
+    
+    if (self.currentService != nil) {
+        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lat_origen"] floatValue]] forKey:@"lat_o"];
+        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lng_origen"] floatValue]] forKey:@"lng_o"];
+        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lat_destino"] floatValue]] forKey:@"lat_d"];
+        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lng_destino"] floatValue]] forKey:@"lng_d"];
+    }
+    
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
+                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                       NSLog(@"Error, track not saved: %@", error);
                    }];
 }
 
@@ -265,79 +380,6 @@
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
-- (void)initTimer {
-    self.timerMap = [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self updateMapWithLatestLocation];
-    }];
-    
-    self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self initializeServiceData];
-    }];
-}
-
-- (void)updateMapWithLatestLocation {
-    if (self.isOnService) {
-        NSDictionary *serviceLocation = [self.app.dataLibrary getDictionary:@"service"];
-        
-        if (serviceLocation != nil) {
-            if (self.serviceStatus  == 4) {
-                if (self.startAnnotation == nil) {
-                    self.startAnnotation = [[StartAnnotation alloc] initWithTitle:[serviceLocation objectForKey:@"origen"]
-                                                                         Location:CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue])];
-                    
-                    [self.map addAnnotation:self.startAnnotation];
-                }
-                
-                if (self.endAnnotation != nil) {
-                    [self.map removeAnnotation:self.endAnnotation];
-                    self.endAnnotation = nil;
-                }
-                
-                if (self.locationUpdated == NO) {
-                    [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
-                    self.locationUpdated = YES;
-                }
-            } else if (self.serviceStatus  == 5) {
-                if (self.endAnnotation == nil) {
-                    self.endAnnotation = [[EndAnnotation alloc] initWithTitle:[serviceLocation objectForKey:@"destino"]
-                                                                     Location:CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue])];
-                    
-                    [self.map addAnnotation:self.endAnnotation];
-                }
-                
-                if (self.startAnnotation != nil) {
-                    [self.map removeAnnotation:self.startAnnotation];
-                    self.startAnnotation = nil;
-                }
-                
-                if (self.locationUpdated == NO) {
-                    [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue]), MKCoordinateSpanMake(0.05, 0.05))];
-                    self.locationUpdated = YES;
-                }
-            }
-        }
-    } else {
-        if (self.app.locationManager != nil) {
-            CLLocation* location = [self.app.locationManager location];
-            
-            if (location!=nil && self.locationUpdated==NO) {
-                [self.map setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude), MKCoordinateSpanMake(0.05, 0.05))];
-                self.locationUpdated = YES;
-            }
-        }
-        
-        if (self.startAnnotation != nil) {
-            [self.map removeAnnotation:self.startAnnotation];
-            self.startAnnotation = nil;
-        }
-        
-        if (self.endAnnotation != nil) {
-            [self.map removeAnnotation:self.endAnnotation];
-            self.endAnnotation = nil;
-        }
-    }
-}
-
 - (void)showAlert:(NSString *)title :(NSString *)message {
     UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
                                                                         message:message
@@ -352,34 +394,6 @@
 
 - (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
-}
-
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
-    if ([annotation isKindOfClass:[StartAnnotation class]]) {
-        StartAnnotation *customAnnotation = (StartAnnotation *)annotation;
-        MKAnnotationView *customAnnotationView = [self.map dequeueReusableAnnotationViewWithIdentifier:@"StartAnnotation"];
-        
-        if (customAnnotationView == nil) {
-            customAnnotationView = customAnnotation.annotationView;
-        } else {
-            customAnnotationView.annotation = annotation;
-        }
-        
-        return customAnnotationView;
-    } else if([annotation isKindOfClass:[EndAnnotation class]]) {
-        EndAnnotation *customAnnotation = (EndAnnotation *)annotation;
-        MKAnnotationView *customAnnotationView = [self.map dequeueReusableAnnotationViewWithIdentifier:@"EndAnnotation"];
-        
-        if (customAnnotationView == nil) {
-            customAnnotationView = customAnnotation.annotationView;
-        } else {
-            customAnnotationView.annotation = annotation;
-        }
-        
-        return customAnnotationView;
-    } else {
-        return nil;
-    }
 }
 
 - (IBAction)doToggleMenu:(id)sender {
@@ -515,11 +529,9 @@
 - (void)showSpinner {
     [self.spinner startAnimating];
 }
-
 - (void)hideSpinner {
     [self.spinner stopAnimating];
 }
-
 
 #pragma mark - Navigation
 
