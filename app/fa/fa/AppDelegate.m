@@ -95,18 +95,38 @@
     NSLog(@"Error = %@",error);
 }
 
+- (void)handleNotification:(NSDictionary *)notification {
+    @try {
+        NSLog(@"New notification: %@", notification);
+        
+        if ([notification objectForKey:@"id"] != nil) {
+            NSString *id_notif = [notification objectForKey:@"id"];
+            
+            if ([id_notif isEqualToString:@"close-connection"]) {
+                if (self.locationManager!=nil) {
+                    [self.locationManager stopUpdatingLocation];
+                }
+                
+                [self.dataLibrary deleteAll];
+                [self initLoginWindow];
+            }
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"Error: %@", exception);
+    }
+}
+
 // UNUserNotificationCenter Delegate // >= iOS 10
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    NSLog(@"userNotificationCenter willPresentNotification Info 1 : %@", notification.request.content.userInfo);
     completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
-    
-    //Here!!
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [self handleNotification:notification.request.content.userInfo];
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
-    NSLog(@"userNotificationCenter didReceiveNotificationResponse Info 2 : %@", response.notification.request.content.userInfo);
     completionHandler();
-    //Maybe here too
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [self handleNotification: response.notification.request.content.userInfo];
 }
 
 
