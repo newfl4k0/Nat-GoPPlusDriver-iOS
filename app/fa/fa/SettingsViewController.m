@@ -12,6 +12,10 @@
 @interface SettingsViewController ()
 @property (weak, nonatomic) AppDelegate *app;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
+@property (weak, nonatomic) IBOutlet UITextField *nameText;
+@property (weak, nonatomic) IBOutlet UITextField *passText;
+@property (weak, nonatomic) IBOutlet UITextField *confirmPassText;
+
 @end
 
 @implementation SettingsViewController
@@ -22,35 +26,52 @@
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 - (IBAction)doToggleMenu:(id)sender {
     [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
 - (IBAction)doCloseSession:(id)sender {
-    NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] };
+    UIAlertController *confirmController = [UIAlertController
+                                            alertControllerWithTitle:@"GoPplus Driver"
+                                            message:@"Cerrar Sesión"
+                                            preferredStyle:UIAlertControllerStyleAlert];
     
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"logout"]
-                parameters:parameters
-                  progress:nil
-                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       if (self.app.locationManager!=nil) {
-                           [self.app.locationManager stopUpdatingLocation];
-                       }
-                       
-                       [self.app.dataLibrary deleteAll];
-                       [self.app initLoginWindow];
-                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
-                   }];
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [confirmController dismissViewControllerAnimated:YES completion:nil];
+    }];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] };
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"logout"]
+                    parameters:parameters
+                      progress:nil
+                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                           if (self.app.locationManager!=nil) {
+                               [self.app.locationManager stopUpdatingLocation];
+                           }
+                           
+                           [self.app.dataLibrary deleteAll];
+                           [self.app initLoginWindow];
+                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                           [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
+                       }];
+    }];
+    
+    [confirmController addAction:cancel];
+    [confirmController addAction:ok];
+    [self presentViewController:confirmController animated:YES completion:nil];
 }
 
-- (IBAction)doCheckServerStatus:(id)sender {
+- (IBAction)doUpdateAccount:(id)sender {
+}
+
+- (IBAction)doInitManualSync:(id)sender {
+    [self SyncData];
+}
+
+- (IBAction)doShowVehicleData:(id)sender {
 }
 
 - (void)SyncData {
@@ -76,10 +97,6 @@
     }];
 }
 
-- (IBAction)doInitManualSync:(id)sender {
-    [self SyncData];
-}
-
 - (void)showAlert:(NSString *)title :(NSString *)message {
     UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
                                                                         message:message
@@ -92,7 +109,7 @@
     [self presentViewController:errorAlert animated:YES completion:nil];
 }
 
--(void)dissmissAlert:(UIAlertController *) alert{
+- (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 

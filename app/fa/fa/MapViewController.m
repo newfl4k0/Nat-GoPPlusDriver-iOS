@@ -24,10 +24,12 @@
 @property (nonatomic) NSInteger newStatus;
 @property (strong, nonatomic) NSTimer *timerMap;
 @property (strong, nonatomic) NSTimer *timerService;
+@property (strong, nonatomic) NSTimer *timerServicesAndVehicles;
 @property (nonatomic) BOOL isOnService;
 @property (nonatomic) BOOL isNotified;
 @property (nonatomic) BOOL needsConfirm;
 @property (nonatomic) BOOL accepted;
+@property (nonatomic) BOOL shouldCleanMap;
 @property (nonatomic) BOOL locationUpdated;
 @property (nonatomic) int serviceStatus;
 @property (weak, nonatomic) IBOutlet GMSMapView *gmap;
@@ -36,6 +38,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *driverStatusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *startAddressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
+@property (strong, nonatomic) NSMutableArray *gmsmarkerArray;
 
 @end
 
@@ -49,12 +52,13 @@
     self.locationUpdated = NO;
     self.isNotified = NO;
     self.accepted = NO;
+    self.shouldCleanMap = YES;
     self.needsConfirm = YES;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
     self.status = 0;
     self.newStatus = 1;
+    self.gmsmarkerArray = [[NSMutableArray alloc] init];
     [self changeStatus];
-    [self initializeServiceData];
     [self initTimer];
     [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
     self.driverStatusLabel.text = @"Libre";
@@ -77,6 +81,12 @@
     self.timerService = nil;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [self setGoogleMapLatestLocation];
+    [self initializeServiceData];
+    
+}
+
 //Handle Timers
 - (void)initTimer {
     self.timerMap = [NSTimer scheduledTimerWithTimeInterval:3.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
@@ -85,6 +95,10 @@
     
     self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
         [self initializeServiceData];
+    }];
+    
+    self.timerServicesAndVehicles = [NSTimer scheduledTimerWithTimeInterval:30.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        [self getServicesAndVehicles];
     }];
 }
 
@@ -95,6 +109,7 @@
     self.gmap.camera = camera;
     self.gmap.myLocationEnabled = YES;
     self.gmap.mapType = kGMSTypeNormal;
+    [self getServicesAndVehicles];
 }
 
 - (void)setGoogleMapCenter:(CLLocation *)location {
@@ -167,6 +182,55 @@
     AudioServicesPlaySystemSound(soundID);
 }
 
+- (void)getServicesAndVehicles {
+    if (self.currentService == nil && self.gmap!= nil) {
+        [self clearServicesAndVehicles];
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            
+            NSDictionary *response = responseObject;
+            
+            if ([[response objectForKey:@"status"] boolValue] == YES) {
+                self.shouldCleanMap = YES;
+                NSArray *services = [response objectForKey:@"services"];
+                NSArray *vehicles = [response objectForKey:@"vehicles"];
+                
+                for (NSDictionary *service in services) {
+                    GMSMarker *marker = [[GMSMarker alloc] init];
+                    marker.position = CLLocationCoordinate2DMake([[service objectForKey:@"Latitud_Origen"] doubleValue], [[service objectForKey:@"Longitud_Origen"] doubleValue]);
+                    marker.icon = [UIImage imageNamed:@"dot.png"];
+                    marker.map = self.gmap;
+                    
+                    [self.gmsmarkerArray addObject: marker];
+                }
+                
+                for (NSDictionary *vehicle in vehicles) {
+                    GMSMarker *marker = [[GMSMarker alloc] init];
+                    marker.position = CLLocationCoordinate2DMake([[vehicle objectForKey:@"lat"] doubleValue], [[vehicle objectForKey:@"lng"] doubleValue]);
+                    marker.icon = [UIImage imageNamed:@"car.png"];
+                    marker.map = self.gmap;
+                    
+                    [self.gmsmarkerArray addObject: marker];
+                }
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self clearServicesAndVehicles];
+        }];
+    } else {
+        [self clearServicesAndVehicles];
+    }
+}
+
+- (void)clearServicesAndVehicles {
+    if (self.shouldCleanMap == YES) {
+        for (int x=0; x < [self.gmsmarkerArray count]; x++) {
+            [[self.gmsmarkerArray objectAtIndex:x] setMap:nil];
+        }
+        
+        [self.gmsmarkerArray removeAllObjects];
+        self.shouldCleanMap = NO;
+    }
+}
+
 - (void)initializeServiceData {
     NSDictionary *parameters = @{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] };
     
@@ -176,6 +240,7 @@
                           NSArray *responseArray = [responseObject objectForKey:@"data"];
             
                           if (responseArray.count>0) {
+                              [self clearServicesAndVehicles];
                               NSDictionary *response =  [responseArray objectAtIndex:0];
                 
                               self.currentService = response;
