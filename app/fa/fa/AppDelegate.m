@@ -104,6 +104,7 @@
             if ([id_notif isEqualToString:@"close-connection"]) {
                 if (self.locationManager!=nil) {
                     [self.locationManager stopUpdatingLocation];
+                    self.locationManager = nil;
                 }
                 
                 [self.dataLibrary deleteAll];

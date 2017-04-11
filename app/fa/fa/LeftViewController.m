@@ -117,10 +117,18 @@
         }
         
         [self.app.locationManager startUpdatingLocation];
+    } else {
+        [self.app.locationManager setAllowsBackgroundLocationUpdates:YES];
+        
+        if ([self.app.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+            [self.app.locationManager requestAlwaysAuthorization];
+        }
+        
+        [self.app.locationManager startUpdatingLocation];
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations{
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     self.app.selfLocation = location;
@@ -137,7 +145,7 @@
     }
     
 
-    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 20.0) {
+    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 10.0) {
         self.trackDate = [NSDate date];
         [self sendTrack:location];
     }
@@ -196,6 +204,7 @@
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog(@"locationManager didFailWithError %@", error);
+    [self showAlert:@"GoPplus Driver" :@"Error with Location Manager. Restart App."];
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {
