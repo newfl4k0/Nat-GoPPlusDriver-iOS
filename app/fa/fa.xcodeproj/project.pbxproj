@@ -36,6 +36,7 @@
 		6CDD659B1E182E8400E59880 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CDD659A1E182E8400E59880 /* MapViewController.m */; };
 		6CEAE3BC1E2D1A38005AE2ED /* DataLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CEAE3BB1E2D1A38005AE2ED /* DataLibrary.m */; };
 		E2BA5C281E760C0500C7EEA3 /* ChatClientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BA5C271E760C0500C7EEA3 /* ChatClientViewController.m */; };
+		E2F71FB21E9DD16300DFDE79 /* ProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2F71FB11E9DD16300DFDE79 /* ProfileViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -96,6 +97,8 @@
 		DAF55CEDD753CCEF2A38C353 /* Pods-fa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fa.release.xcconfig"; path = "Pods/Target Support Files/Pods-fa/Pods-fa.release.xcconfig"; sourceTree = "<group>"; };
 		E2BA5C261E760C0500C7EEA3 /* ChatClientViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatClientViewController.h; sourceTree = "<group>"; };
 		E2BA5C271E760C0500C7EEA3 /* ChatClientViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatClientViewController.m; sourceTree = "<group>"; };
+		E2F71FB01E9DD16300DFDE79 /* ProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfileViewController.h; sourceTree = "<group>"; };
+		E2F71FB11E9DD16300DFDE79 /* ProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfileViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -247,6 +250,8 @@
 				6C180A231E1AAD08002DF27C /* NextViewController.m */,
 				6C180A251E1AAD21002DF27C /* SettingsViewController.h */,
 				6C180A261E1AAD21002DF27C /* SettingsViewController.m */,
+				E2F71FB01E9DD16300DFDE79 /* ProfileViewController.h */,
+				E2F71FB11E9DD16300DFDE79 /* ProfileViewController.m */,
 			);
 			name = "Sidebar Controllers";
 			sourceTree = "<group>";
@@ -418,6 +423,7 @@
 				6C30829C1E23CC3900692EDD /* UITableTouch.m in Sources */,
 				6CDD65941E1820E200E59880 /* LeftViewController.m in Sources */,
 				6CDD65761E18027F00E59880 /* ViewController.m in Sources */,
+				E2F71FB21E9DD16300DFDE79 /* ProfileViewController.m in Sources */,
 				6CDD65911E181E8600E59880 /* UIViewController+MMDrawerController.m in Sources */,
 				E2BA5C281E760C0500C7EEA3 /* ChatClientViewController.m in Sources */,
 				6CDD658F1E181E8600E59880 /* MMDrawerController.m in Sources */,

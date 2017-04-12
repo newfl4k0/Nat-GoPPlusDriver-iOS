@@ -12,9 +12,14 @@
 @interface SettingsViewController ()
 @property (weak, nonatomic) AppDelegate *app;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
-@property (weak, nonatomic) IBOutlet UITextField *nameText;
-@property (weak, nonatomic) IBOutlet UITextField *passText;
-@property (weak, nonatomic) IBOutlet UITextField *confirmPassText;
+@property (weak, nonatomic) IBOutlet UILabel *carModelLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carBrandLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carPlatesLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carCardLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carMagazineLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carLicenseLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carColorLabel;
+
 
 @end
 
@@ -33,7 +38,7 @@
 
 - (IBAction)doCloseSession:(id)sender {
     UIAlertController *confirmController = [UIAlertController
-                                            alertControllerWithTitle:@"GoPplus Driver"
+                                            alertControllerWithTitle:@"GoPPlus Driver"
                                             message:@"Cerrar Sesión"
                                             preferredStyle:UIAlertControllerStyleAlert];
     
@@ -64,14 +69,8 @@
     [self presentViewController:confirmController animated:YES completion:nil];
 }
 
-- (IBAction)doUpdateAccount:(id)sender {
-}
-
 - (IBAction)doInitManualSync:(id)sender {
     [self SyncData];
-}
-
-- (IBAction)doShowVehicleData:(id)sender {
 }
 
 - (void)SyncData {

@@ -13,8 +13,8 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *userInput;
 @property (weak, nonatomic) IBOutlet UITextField *passwordInput;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (weak, nonatomic) AppDelegate *app;
-@property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @end
 
 @implementation AccessViewController
@@ -25,16 +25,14 @@
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
         [self.app initDrawerWindow];
-    } else {
-        self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        [self.spinner setBackgroundColor:[UIColor blackColor]];
-        self.spinner.center = CGPointMake(160, 240);
-        self.spinner.tag = 1;
     }
+    
+    [self stopSpinner];
 }
 
 - (void)stopSpinner {
-    [[self.view viewWithTag:1] stopAnimating];
+    [self.spinner stopAnimating];
+    [self.view setUserInteractionEnabled:YES];
 }
 
 - (IBAction)doVerifyCredentials:(id)sender {
@@ -45,6 +43,7 @@
     
     [self.view addSubview:self.spinner];
     [self.spinner startAnimating];
+    [self.view setUserInteractionEnabled:NO];
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"status"] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if ([[responseObject objectForKey:@"data"] count] >0) {

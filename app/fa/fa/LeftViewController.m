@@ -204,7 +204,7 @@
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog(@"locationManager didFailWithError %@", error);
-    [self showAlert:@"GoPplus Driver" :@"Error with Location Manager. Restart App."];
+    [self showAlert:@"GoPPlus Driver" :@"Error with Location Manager. Restart App."];
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {

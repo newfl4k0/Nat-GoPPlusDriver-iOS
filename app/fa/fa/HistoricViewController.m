@@ -13,6 +13,7 @@
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) AppDelegate *app;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @end
 
@@ -22,7 +23,16 @@
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
+    
+    [self.table setDelegate:self];
+    [self.table setDataSource:self];
 
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    [self.spinner stopAnimating];
+    [self setTableData];
+}
+
+- (void)setTableData {
     @try {
         NSArray *services = [self.app.dataLibrary getArray:@"vc-services"];
         
@@ -33,19 +43,38 @@
         } else {
             [self showAlert:@"Historial" :@"Actualmente no tienes ningún servicio en historial. Para actualizar ve a Configuración>Iniciar sincronización manual"];
         }
+        
+        [self.table reloadData];
     } @catch (NSException *exception) {
         NSLog(@"%@", exception);
         [self showAlert:@"Historial" :@"Ocurrió un error al mostrar los servicios. Intenta nuevamente"];
     }
-    
-    [self.table setDelegate:self];
-    [self.table setDataSource:self];
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 }
 
 - (IBAction)doToggleMenu:(id)sender {
     [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
      toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+}
+
+- (IBAction)doSync:(id)sender {
+    [self.spinner startAnimating];
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      [self.spinner stopAnimating];
+                      
+                      if ([[responseObject objectForKey:@"data"] count]>0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
+                          [self showAlert:@"Sincronización Manual" :@"Servicios Actualizados"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"vc-services"];
+                      }
+                      
+                      [self setTableData];
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      [self.spinner stopAnimating];
+                      [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+                  }];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
