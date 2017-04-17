@@ -13,6 +13,7 @@
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (weak, nonatomic) AppDelegate *app;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @end
 
 @implementation NextViewController
@@ -24,6 +25,24 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventHandler:) name:@"eventReload" object:nil];
     
+    [self.table setDelegate:self];
+    [self.table setDataSource:self];
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    [self.spinner stopAnimating];
+    [self setTableData];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:YES];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"eventReload" object:nil];
+}
+
+- (IBAction)doToggleMenu:(id)sender {
+    [((AppDelegate *) [UIApplication sharedApplication].delegate).drawerController
+     toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+}
+
+- (void)setTableData {
     @try {
         NSArray *services = [self.app.dataLibrary getArray:@"vc-services"];
         
@@ -38,21 +57,8 @@
         NSLog(@"%@", exception);
         [self showAlert:@"Próximos Servicios" :@"Ocurrió un error al mostrar los servicios. Intenta nuevamente"];
     }
-    
-    [self.table setDelegate:self];
-    [self.table setDataSource:self];
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 }
 
-- (void)viewWillDisappear:(BOOL)animated{
-    [super viewWillDisappear:YES];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"eventReload" object:nil];
-}
-
-- (IBAction)doToggleMenu:(id)sender {
-    [((AppDelegate *) [UIApplication sharedApplication].delegate).drawerController
-     toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"%@", indexPath);
@@ -87,9 +93,7 @@
                                                                         message:message
                                                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
-    
-    [errorAlert addAction:ok];
+    [errorAlert addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
     [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
     [self presentViewController:errorAlert animated:YES completion:nil];
 }
@@ -100,6 +104,27 @@
 
 - (void)eventHandler: (NSNotification *) notification {
     [self.table reloadData];
+}
+
+- (IBAction)syncServices:(id)sender {
+    [self.spinner startAnimating];
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      [self.spinner stopAnimating];
+                      
+                      if ([[responseObject objectForKey:@"data"] count]>0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
+                          [self showAlert:@"Próximos viajes" :@"Servicios Actualizados"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"vc-services"];
+                      }
+                      
+                      [self setTableData];
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      [self.spinner stopAnimating];
+                      [self showAlert:@"Próximos viajes" :@"Error: servicio no disponible. Intenta nuevamente."];
+                  }];
 }
 
 @end

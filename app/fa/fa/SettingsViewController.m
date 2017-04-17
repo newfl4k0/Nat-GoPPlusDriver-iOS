@@ -52,10 +52,14 @@
     UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] };
         
+        [self.spinner startAnimating];
+        
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"logout"]
                     parameters:parameters
                       progress:nil
                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                           [self.spinner stopAnimating];
+                           
                            if (self.app.locationManager!=nil) {
                                [self.app.locationManager stopUpdatingLocation];
                            }
@@ -63,6 +67,7 @@
                            [self.app.dataLibrary deleteAll];
                            [self.app initLoginWindow];
                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                           [self.spinner stopAnimating];
                            [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
                        }];
     }];
