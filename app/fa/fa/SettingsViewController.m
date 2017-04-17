@@ -19,6 +19,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *carMagazineLabel;
 @property (weak, nonatomic) IBOutlet UILabel *carLicenseLabel;
 @property (weak, nonatomic) IBOutlet UILabel *carColorLabel;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 
 
 @end
@@ -30,6 +31,7 @@
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
     [self reloadVehicleData];
+    [self.spinner stopAnimating];
 }
 
 - (IBAction)doToggleMenu:(id)sender {
@@ -92,6 +94,7 @@
 
 - (void)syncVehicleData {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"getVehicleInfo"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_id"]]  } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.spinner stopAnimating];
         
         if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
             [self.app.dataLibrary saveDictionary:[responseObject objectForKey:@"data"] : @"vehicleData"];
@@ -100,31 +103,38 @@
             [self showAlert:@"Datos del vehículo" :@"Error: servicio no disponible. Intenta nuevamente."];
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.spinner stopAnimating];
         [self showAlert:@"Datos del vehículo" :@"Error: servicio no disponible. Intenta nuevamente."];
     }];
 }
 
-- (void)SyncData {
+- (void)syncServices {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      if ([[responseObject objectForKey:@"data"] count]>0) {
+                      if ([[responseObject objectForKey:@"data"] count] > 0) {
                           [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
-                          [self showAlert:@"Sincronización Manual" :@"Servicios Actualizados"];
                       } else {
                           [self.app.dataLibrary deleteKey:@"vc-services"];
                       }
+                      
+                      [self syncVehicleData];
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      [self.spinner stopAnimating];
                       [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
                   }];
-    
-    
-    [self syncVehicleData];
+}
+
+- (void)SyncData {
+    [self.spinner startAnimating];
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"cancel"] parameters:@{} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if ([[responseObject objectForKey:@"data"] count] > 0) {
             [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"canceloptions"];
         }
+        
+        [self syncServices];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.spinner stopAnimating];
         [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
     }];
 }
@@ -134,14 +144,12 @@
                                                                         message:message
                                                                  preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
-    
-    [errorAlert addAction:ok];
+    [errorAlert addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil]];
     [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
     [self presentViewController:errorAlert animated:YES completion:nil];
 }
 
-- (void)dissmissAlert:(UIAlertController *) alert{
+- (void)dissmissAlert:(UIAlertController *) alert {
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 

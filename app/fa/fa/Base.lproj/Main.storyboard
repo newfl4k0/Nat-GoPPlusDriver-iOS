@@ -768,6 +768,15 @@
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" alpha="0.84999999999999998" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="EEc-lh-LHX">
+                                <rect key="frame" x="137.5" y="283.5" width="100" height="100"/>
+                                <color key="backgroundColor" red="0.18428918720000001" green="0.1843278706" blue="0.18428674340000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="Kjg-Ax-83L"/>
+                                    <constraint firstAttribute="height" constant="100" id="seO-yU-g8S"/>
+                                </constraints>
+                                <color key="color" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -791,6 +800,7 @@
                             <constraint firstItem="OHt-oQ-GkD" firstAttribute="leading" secondItem="geF-I4-K3T" secondAttribute="leading" id="Nil-bN-pej"/>
                             <constraint firstItem="OHt-oQ-GkD" firstAttribute="top" secondItem="F5G-ib-FER" secondAttribute="bottom" constant="16" id="NxQ-Ff-hjh"/>
                             <constraint firstItem="xGx-vO-CeS" firstAttribute="leading" secondItem="baP-3l-JIG" secondAttribute="leading" id="OQh-Rj-mbc"/>
+                            <constraint firstItem="EEc-lh-LHX" firstAttribute="centerY" secondItem="Suy-ZL-iKg" secondAttribute="centerY" id="QX4-Dj-tV2"/>
                             <constraint firstItem="gkW-po-aGH" firstAttribute="width" secondItem="Suy-ZL-iKg" secondAttribute="width" id="Qb4-we-L60"/>
                             <constraint firstItem="geF-I4-K3T" firstAttribute="centerX" secondItem="NpL-aq-HI8" secondAttribute="centerX" id="QkY-Qn-kup"/>
                             <constraint firstItem="lxA-3v-urB" firstAttribute="leading" secondItem="v8n-XK-QX7" secondAttribute="leading" id="Sar-Vq-R7R"/>
@@ -799,6 +809,7 @@
                             <constraint firstItem="NpL-aq-HI8" firstAttribute="top" secondItem="bKk-A8-Q80" secondAttribute="bottom" constant="8" id="UUF-gs-Ht8"/>
                             <constraint firstItem="bLy-oE-ANz" firstAttribute="centerY" secondItem="uTj-LV-Dz3" secondAttribute="centerY" id="Wfr-NP-Se4"/>
                             <constraint firstItem="F5G-ib-FER" firstAttribute="centerX" secondItem="Suy-ZL-iKg" secondAttribute="centerX" id="XeQ-J2-4SJ"/>
+                            <constraint firstItem="EEc-lh-LHX" firstAttribute="centerX" secondItem="Suy-ZL-iKg" secondAttribute="centerX" id="XwA-pQ-EcD"/>
                             <constraint firstItem="xGx-vO-CeS" firstAttribute="top" secondItem="baP-3l-JIG" secondAttribute="bottom" constant="8" id="YIB-2E-x4Z"/>
                             <constraint firstItem="66u-tD-PmW" firstAttribute="leading" secondItem="xGx-vO-CeS" secondAttribute="leading" id="a8l-xJ-wBx"/>
                             <constraint firstItem="geF-I4-K3T" firstAttribute="height" secondItem="NpL-aq-HI8" secondAttribute="height" id="ajM-tw-lBZ"/>
@@ -829,6 +840,7 @@
                         <outlet property="carModelLabel" destination="uby-dn-BZK" id="xhW-Fc-jz4"/>
                         <outlet property="carPlatesLabel" destination="C3m-uT-1w9" id="481-c3-rWD"/>
                         <outlet property="navigationBar" destination="gkW-po-aGH" id="dpS-xq-oA4"/>
+                        <outlet property="spinner" destination="EEc-lh-LHX" id="IAX-Hz-U9w"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AXG-yf-nYx" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1346,7 +1358,6 @@
                             <constraint firstItem="ff6-Rk-8Y2" firstAttribute="leading" secondItem="f3W-7s-MZp" secondAttribute="leadingMargin" id="U6i-Gv-5kE"/>
                             <constraint firstItem="k5z-lf-A4D" firstAttribute="top" secondItem="tyW-nM-kqg" secondAttribute="bottom" constant="8" id="gyA-qE-jwp"/>
                             <constraint firstItem="hmG-Eh-PZE" firstAttribute="width" secondItem="pYv-Vo-bEr" secondAttribute="width" id="iX3-oA-YTp"/>
-                            <constraint firstItem="ff6-Rk-8Y2" firstAttribute="centerX" secondItem="H4h-be-a9N" secondAttribute="centerX" id="jcz-y1-1Vo"/>
                             <constraint firstAttribute="leadingMargin" secondItem="pYv-Vo-bEr" secondAttribute="leading" id="kIr-iX-g8s"/>
                             <constraint firstItem="hmG-Eh-PZE" firstAttribute="top" secondItem="pYv-Vo-bEr" secondAttribute="bottom" constant="8" id="ksm-HZ-9OT"/>
                             <constraint firstItem="tyW-nM-kqg" firstAttribute="top" secondItem="IUk-zV-QDO" secondAttribute="bottom" constant="8" id="qFn-tm-0LU"/>

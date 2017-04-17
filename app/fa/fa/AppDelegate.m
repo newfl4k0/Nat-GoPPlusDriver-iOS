@@ -69,7 +69,7 @@
 }
 
 
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     NSString *strDevicetoken = [[NSString alloc]initWithFormat:@"%@", [[[deviceToken description]
                                                                         stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]]
                                                                         stringByReplacingOccurrencesOfString:@" "
@@ -93,8 +93,6 @@
 
 - (void)handleNotification:(NSDictionary *)notification {
     @try {
-        NSLog(@"New notification: %@", notification);
-        
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             

@@ -40,6 +40,7 @@
         [self syncStatus];
         [self syncCancelOptions];
         [self syncServices];
+        [self syncVehicleData];
     }
 }
 
@@ -48,17 +49,18 @@
 }
 
 - (void)updateToken {
-    NSInteger iddriver = [self.app.dataLibrary getInteger:@"driver_id"];
     NSString *token = [self.app.dataLibrary getString:@"token"];
     
     if (token != nil) {
-        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:iddriver],
+        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
                                       @"token": token };
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"set-token"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"Error: token not updated: %@", error);
         }];
+    } else {
+        NSLog(@"token is null");
     }
 }
 
@@ -235,6 +237,19 @@
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       NSLog(@"[syncServices] %@", error);
                   }];
+}
+
+- (void)syncVehicleData {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"getVehicleInfo"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_id"]]  } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+            [self.app.dataLibrary saveDictionary:[responseObject objectForKey:@"data"] : @"vehicleData"];
+        } else {
+            NSLog(@"[getVehicleInfo] error: %@", responseObject);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"[getVehicleInfo] %@", error);
+    }];
 }
 
 @end

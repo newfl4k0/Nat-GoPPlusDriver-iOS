@@ -30,6 +30,9 @@
                                      resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                      resizingMode:UIImageResizingModeStretch]
                       forBarMetrics:UIBarMetricsDefault];
+    
+    [self initializeImageProfile];
+    [self getImage];
 }
 
 - (IBAction)updateName:(id)sender {
