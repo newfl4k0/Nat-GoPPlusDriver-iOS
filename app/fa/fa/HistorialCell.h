@@ -17,6 +17,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *startLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endLabel;
 @property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *clientLabel;
 @property (nonatomic) float lat_o;
 @property (nonatomic) float lng_o;
 @property (nonatomic) float lat_d;

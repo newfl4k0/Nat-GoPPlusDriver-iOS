@@ -10,6 +10,6 @@
 #import "MapViewController.h"
 #import "AppDelegate.h"
 
-@interface LeftViewController : ViewController<CLLocationManagerDelegate, UIImagePickerControllerDelegate>
+@interface LeftViewController : ViewController<CLLocationManagerDelegate>
 
 @end

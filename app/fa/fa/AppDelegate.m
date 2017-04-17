@@ -23,12 +23,12 @@
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
-    self.serverUrl = @"http://godriver.azurewebsites.net/";
+    self.serverUrl = @"http://192.168.15.44:8000/"; //@"http://godriver.azurewebsites.net/";
     [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyBFtapySRpYnSA8LC6HqsQWgtDIFeuWzto"];
     //Push notifications
     [self registerForRemoteNotifications];
-
+    
     return YES;
 }
 
@@ -47,6 +47,8 @@
     
     _window.rootViewController = self.drawerController;
     [_window makeKeyAndVisible];
+    
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 - (void)initLoginWindow {
@@ -57,36 +59,31 @@
 }
 
 - (void)registerForRemoteNotifications {
-    if (SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")) {
-        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-        center.delegate = self;
-        [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAlertStyleAlert | UNAuthorizationOptionBadge ) completionHandler:^(BOOL granted, NSError * _Nullable error) {
-            if (!error) {
-                [[UIApplication sharedApplication] registerForRemoteNotifications];
-            }
-        }];
-    } else {
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings
-                                                                             settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge)
-                                                                             categories:nil]];
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
-    }
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAlertStyleAlert | UNAuthorizationOptionBadge ) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (!error) {
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        }
+    }];
 }
 
-- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
-    [application registerForRemoteNotifications];
-}
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     NSString *strDevicetoken = [[NSString alloc]initWithFormat:@"%@", [[[deviceToken description]
                                                                         stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]]
                                                                         stringByReplacingOccurrencesOfString:@" "
                                                                         withString:@""]];
-    [self.dataLibrary saveString:strDevicetoken :@"token"];
+    
+    if (strDevicetoken != nil) {
+        [self.dataLibrary saveString:strDevicetoken :@"token"];
+    } else {
+        NSLog(@"[didRegisterForRemoteNotificationsWithDeviceToken] strDeviceToken is null");
+    }
 }
 
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    NSLog(@"Push Notification Information : %@", userInfo);
+    //(NSLog(@"Push Notification Information : %@", userInfo);
 }
 
 -(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {

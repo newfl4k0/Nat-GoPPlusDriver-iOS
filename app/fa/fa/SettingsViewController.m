@@ -29,6 +29,7 @@
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    [self reloadVehicleData];
 }
 
 - (IBAction)doToggleMenu:(id)sender {
@@ -73,6 +74,36 @@
     [self SyncData];
 }
 
+- (void)reloadVehicleData {
+    @try {
+        NSDictionary *carData = [self.app.dataLibrary getDictionary:@"vehicleData"];
+
+        self.carModelLabel.text    = [carData valueForKey:@"modelo"];
+        self.carBrandLabel.text    = [carData valueForKey:@"marca"];
+        self.carPlatesLabel.text   = [carData valueForKey:@"matricula"];
+        self.carCardLabel.text     = [carData valueForKey:@"tarjeton"];
+        self.carMagazineLabel.text = [[carData valueForKey:@"revista"] stringValue];
+        self.carLicenseLabel.text  = [self.app.dataLibrary getString:@"license"];
+        self.carColorLabel.text    = [carData valueForKey:@"color"];
+    } @catch (NSException *exception) {
+        NSLog(@"Exception: %@", exception);
+    }
+}
+
+- (void)syncVehicleData {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"getVehicleInfo"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_id"]]  } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+            [self.app.dataLibrary saveDictionary:[responseObject objectForKey:@"data"] : @"vehicleData"];
+            [self reloadVehicleData];
+        } else {
+            [self showAlert:@"Datos del vehículo" :@"Error: servicio no disponible. Intenta nuevamente."];
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self showAlert:@"Datos del vehículo" :@"Error: servicio no disponible. Intenta nuevamente."];
+    }];
+}
+
 - (void)SyncData {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -86,6 +117,8 @@
                       [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
                   }];
     
+    
+    [self syncVehicleData];
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"cancel"] parameters:@{} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if ([[responseObject objectForKey:@"data"] count] > 0) {

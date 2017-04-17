@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AppDelegate.h"
 
-@interface ProfileViewController : UIViewController
+@interface ProfileViewController : UIViewController<UIImagePickerControllerDelegate>
 
 @end

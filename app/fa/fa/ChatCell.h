@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface ChatCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIView *messageView;
 @property (weak, nonatomic) IBOutlet UILabel *message;
 @property (weak, nonatomic) IBOutlet UILabel *date;
 @end

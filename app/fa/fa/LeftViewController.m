@@ -14,7 +14,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *welcomeLabel;
 @property (strong, nonatomic) NSDate *currentDate;
 @property (strong, nonatomic) NSDate *trackDate;
-@property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (nonatomic) BOOL firstUpdate;
 @property (weak, nonatomic) IBOutlet UIImageView *imageDriver;
 @end
@@ -31,29 +30,17 @@
         self.currentDate = [NSDate date];
         self.trackDate   = [NSDate date];
         [self initializeLocationManager];
-        [self getVehicleDriverServices];
+        
+        self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@", [self.app.dataLibrary getString:@"driver_fullname"]];
+        [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
+        
+        [self getImage];
+        [self updateToken];
+        
+        [self syncStatus];
+        [self syncCancelOptions];
+        [self syncServices];
     }
-    
-    self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido, %@", [self.app.dataLibrary getString:@"driver_name"]];
-    [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
-    
-    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapDetected)];
-    singleTap.numberOfTapsRequired = 1;
-    [self.imageDriver setUserInteractionEnabled:YES];
-    [self.imageDriver addGestureRecognizer:singleTap];
-    
-    
-    #if TARGET_IPHONE_SIMULATOR
-        NSLog(@"This is simulator mode....");
-    #else
-        self.imagePickerController = [[UIImagePickerController alloc] init];
-        self.imagePickerController.delegate = self;
-        self.imagePickerController.allowsEditing = YES;
-        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-    #endif
-    
-    [self getImage];
-    [self updateToken];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -65,16 +52,13 @@
     NSString *token = [self.app.dataLibrary getString:@"token"];
     
     if (token != nil) {
-        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:iddriver] ,
+        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:iddriver],
                                       @"token": token };
         
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"set-token"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"token updated");
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"Error: token not updated: %@", error);
         }];
-    } else {
-        NSLog(@"Error: token is null");
     }
 }
 
@@ -188,19 +172,6 @@
                    }];
 }
 
-- (void)getVehicleDriverServices {
-    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
-                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      if ([[responseObject objectForKey:@"data"] count]>0) {
-                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
-                      } else {
-                          [self.app.dataLibrary deleteKey:@"vc-services"];
-                      }
-                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                      NSLog(@"%@", error);
-                      [self showAlert:@"Sincronización" :@"Error: servicio no disponible. Intenta nuevamente."];
-                  }];
-}
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog(@"locationManager didFailWithError %@", error);
@@ -223,48 +194,47 @@
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
-- (void)tapDetected {
-    #if TARGET_IPHONE_SIMULATOR
-        NSLog(@"Simulator, prevent ");
-    #else
-        [self presentViewController:self.imagePickerController animated:YES completion:NULL];
-    #endif
-}
-
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    UIImage *chosenImage = info[UIImagePickerControllerEditedImage];
-    NSData *imageData = UIImageJPEGRepresentation(chosenImage, 0.5);
-    [picker dismissViewControllerAnimated:YES completion:NULL];
-    [self.imageDriver setImage:chosenImage];
-    
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"upload"] parameters:@{ @"id": [self.app.dataLibrary getString:@"driver_id"]  }
-        constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-            [formData appendPartWithFileData:imageData name:@"theImage" fileName:@"image.jpg" mimeType:@"image/jpeg"];
-        }
-        progress:nil
-        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"upload: %@", responseObject);
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self showAlert:@"GoPS" :@"Error al subir imagen"];
-    }];
-}
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    [picker dismissViewControllerAnimated:YES completion:NULL];
-}
 
 - (void) getImage {
     @try {
-        NSString *urlImage = [[[self.app.serverUrl stringByAppendingString:@"images/?id="] stringByAppendingString:[self.app.dataLibrary getString:@"driver_id"]] stringByAppendingString:@".jpg"];
-        NSURL *url = [NSURL URLWithString:urlImage];
-        NSData *data = [NSData dataWithContentsOfURL:url];
-        UIImage *image = [UIImage imageWithData:data];
-        [self.imageDriver setImage:image];
+        NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[[self.app.serverUrl stringByAppendingString:@"images/?id="] stringByAppendingString:[self.app.dataLibrary getString:@"driver_id"]] stringByAppendingString:@".jpg"]]];
+        [self.imageDriver setImage:[UIImage imageWithData:data]];
         self.imageDriver.layer.cornerRadius = self.imageDriver.frame.size.width / 2;
         self.imageDriver.clipsToBounds = YES;
     } @catch (NSException *exception) {
         NSLog(@"[getImage] exception: %@", exception);
+        self.imageDriver.image = [UIImage imageNamed:@"avatar.png"];
     }
+}
+
+
+- (void)syncStatus {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"status"] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"estatus"];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"[syncStatus] %@", error);
+    }];
+}
+
+- (void)syncCancelOptions {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"cancel"] parameters:@{} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"canceloptions"];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"[syncCancelOptions] %@", error);
+    }];
+}
+
+- (void)syncServices {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"vc-services"] parameters:@{@"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      if ([[responseObject objectForKey:@"data"] count]>0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"vc-services"];
+                      }
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      NSLog(@"[syncServices] %@", error);
+                  }];
 }
 
 @end

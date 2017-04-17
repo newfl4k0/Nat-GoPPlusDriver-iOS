@@ -65,7 +65,7 @@
                       
                       if ([[responseObject objectForKey:@"data"] count]>0) {
                           [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"vc-services"];
-                          [self showAlert:@"Sincronización Manual" :@"Servicios Actualizados"];
+                          [self showAlert:@"Historial" :@"Servicios Actualizados"];
                       } else {
                           [self.app.dataLibrary deleteKey:@"vc-services"];
                       }
@@ -73,7 +73,7 @@
                       [self setTableData];
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       [self.spinner stopAnimating];
-                      [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+                      [self showAlert:@"Historial" :@"Error: servicio no disponible. Intenta nuevamente."];
                   }];
 }
 
@@ -94,6 +94,7 @@
     [cell.endLabel setText:data[@"destino"]];
     [cell.dateLabel setText:data[@"fecha_despacho"]];
     [cell.status setText:data[@"estatus"]];
+    [cell.clientLabel setText:data[@"cliente"]];
     
     return cell;
 }
