@@ -17,8 +17,7 @@
 @property (strong, nonatomic) NSTimer *timer;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (weak, nonatomic) IBOutlet UIButton *navBackButton;
-
-
+@property (weak, nonatomic) UIImage *clientImage;
 @end
 
 @implementation ChatViewController
@@ -39,11 +38,11 @@
     }];
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                                                                             resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
-    
+
     if (self.isClient == YES) {
         [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
+        self.clientImage = [UIImage imageNamed:@"avatar.png"];
     }
-
 }
 
 - (void)updateChatArray {
@@ -227,6 +226,12 @@
         [cell.message setText:[data objectForKey:@"mensaje"]];
         [cell.date setText:[data objectForKey:@"fecha"]];
         
+        if (self.isClient == YES) {
+            cell.image.image = self.clientImage;
+            cell.image.layer.cornerRadius = cell.image.frame.size.width / 2;
+            cell.image.clipsToBounds = YES;
+        }
+        
         return cell;
     }
 }
@@ -249,13 +254,12 @@
                                           attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:10]}
                                              context:nil];
     
-    
-    
     const CGFloat CELL_CONTENT_MARGIN = 22;
     return MAX(CELL_CONTENT_MARGIN + size.size.height + sizeDate.size.height, 64);
 }
 
-
-
+- (void) setClientName : (UIImage *)image {
+    self.clientImage = image;
+}
 
 @end
