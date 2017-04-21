@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface DataLibrary : NSObject
 - (BOOL)existsKey:(NSString *)key;
@@ -14,6 +15,7 @@
 - (void)saveString:(NSString *)value :(NSString *)key;
 - (void)saveDictionary:(NSDictionary *)value :(NSString *)key;
 - (void)saveDouble:(double)value :(NSString *)key;
+- (void)saveDriverImage:(UIImage *) imageData;
 - (NSInteger)getInteger:(NSString *)stringForKey;
 - (NSString *)getString:(NSString *)stringForKey;
 - (NSDictionary *)getDictionary:(NSString *)stringForKey;
@@ -23,4 +25,5 @@
 - (NSInteger)getStatusIdForName:(NSString *)key;
 - (NSArray *)getArray:(NSString *)key;
 - (void)saveArray:(NSArray *)value :(NSString *)key;
+- (UIImage *)getDriverImage;
 @end

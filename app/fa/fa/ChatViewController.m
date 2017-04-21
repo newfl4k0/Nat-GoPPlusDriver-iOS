@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 
+
 @end
 
 @implementation ChatViewController
@@ -42,6 +43,7 @@
     if (self.isClient == YES) {
         [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
     }
+
 }
 
 - (void)updateChatArray {
@@ -207,6 +209,10 @@
         
         cell.message.lineBreakMode = NSLineBreakByWordWrapping;
         cell.message.numberOfLines = 0;
+        [cell.image setImage:[self.app.dataLibrary getDriverImage]];
+        
+        cell.image.layer.cornerRadius = cell.image.frame.size.width / 2;
+        cell.image.clipsToBounds = YES;
         
         [cell.message setText:[data objectForKey:@"mensaje"]];
         [cell.date setText:[data objectForKey:@"fecha"]];

@@ -203,12 +203,15 @@
 - (void) getImage {
     @try {
         NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:[[[self.app.serverUrl stringByAppendingString:@"images/?id="] stringByAppendingString:[self.app.dataLibrary getString:@"driver_id"]] stringByAppendingString:@".jpg"]]];
+        
         [self.imageDriver setImage:[UIImage imageWithData:data]];
         self.imageDriver.layer.cornerRadius = self.imageDriver.frame.size.width / 2;
         self.imageDriver.clipsToBounds = YES;
+        [self.app.dataLibrary saveDriverImage:[UIImage imageWithData:data]];
     } @catch (NSException *exception) {
         NSLog(@"[getImage] exception: %@", exception);
         self.imageDriver.image = [UIImage imageNamed:@"avatar.png"];
+        [self.app.dataLibrary saveDriverImage:[UIImage imageNamed:@"avatar.png"]];
     }
 }
 

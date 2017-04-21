@@ -35,6 +35,10 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (void)saveDriverImage:(UIImage *) imageData {
+    [[NSUserDefaults standardUserDefaults] setObject:UIImageJPEGRepresentation(imageData, 0.5) forKey:@"driverImage"];
+}
+
 - (BOOL)existsKey:(NSString *)key {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:key] == nil) {
         return NO;
@@ -83,6 +87,14 @@
     }
     
     return statusId;
+}
+
+- (UIImage *)getDriverImage {
+    @try {
+        return [UIImage imageWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"driverImage"]];
+    } @catch (NSException *exception) {
+        return [UIImage imageNamed:@"bglogintop"];
+    }
 }
 
 @end

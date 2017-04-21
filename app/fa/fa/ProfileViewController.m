@@ -138,6 +138,7 @@
     }
                   progress:nil
                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       [self.app.dataLibrary saveDriverImage:chosenImage];
                        [self.spinner stopAnimating];
                        NSLog(@"upload: %@", responseObject);
                    }
