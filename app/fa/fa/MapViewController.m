@@ -103,12 +103,13 @@
 }
 
 - (void)initGoogleMap {
-    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0
-                                                            longitude:0
-                                                                 zoom:17];
+    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:17];
     self.gmap.camera = camera;
     self.gmap.myLocationEnabled = YES;
+    self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
+    self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 4, 0);
+    
     [self getServicesAndVehicles];
 }
 

@@ -8,6 +8,6 @@
 
 #import "ViewController.h"
 
-@interface AccessViewController : ViewController
+@interface AccessViewController : ViewController<UITextFieldDelegate>
 
 @end

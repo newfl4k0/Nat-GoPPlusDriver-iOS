@@ -297,7 +297,7 @@
 				TargetAttributes = {
 					6CDD656A1E18027F00E59880 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = HBYGLC63T8;
+						DevelopmentTeam = 426NG3E4Q3;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Maps.iOS = {
@@ -550,11 +550,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = fa/fa.entitlements;
-				DEVELOPMENT_TEAM = HBYGLC63T8;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 426NG3E4Q3;
 				INFOPLIST_FILE = fa/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.cristinaavila.fa;
+				PRODUCT_BUNDLE_IDENTIFIER = net.azurewebsites.gops;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -564,11 +568,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = fa/fa.entitlements;
-				DEVELOPMENT_TEAM = HBYGLC63T8;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 426NG3E4Q3;
 				INFOPLIST_FILE = fa/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.cristinaavila.fa;
+				PRODUCT_BUNDLE_IDENTIFIER = net.azurewebsites.gops;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};

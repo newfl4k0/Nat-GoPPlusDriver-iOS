@@ -25,7 +25,7 @@
     self.currentStatus = 0;
     self.serverUrl = @"http://godriver.azurewebsites.net/";
     [Fabric with:@[[Crashlytics class]]];
-    [GMSServices provideAPIKey:@"AIzaSyBFtapySRpYnSA8LC6HqsQWgtDIFeuWzto"];
+    [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
     //Push notifications
     [self registerForRemoteNotifications];
     

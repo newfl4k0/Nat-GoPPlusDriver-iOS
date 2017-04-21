@@ -177,7 +177,10 @@
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     NSLog(@"locationManager didFailWithError %@", error);
-    [self showAlert:@"GoPPlus Driver" :@"Error with Location Manager. Restart App."];
+    
+    [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+        [self initializeLocationManager];
+    }];
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {

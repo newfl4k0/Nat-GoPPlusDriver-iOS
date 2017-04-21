@@ -23,6 +23,14 @@
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+    singleTap.numberOfTapsRequired = 1;
+    [self.view setUserInteractionEnabled:YES];
+    [self.view addGestureRecognizer:singleTap];
+    
+    [self.userInput setDelegate:self];
+    [self.passwordInput setDelegate:self];
+    
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
         [self.app initDrawerWindow];
     } else {
@@ -97,5 +105,23 @@
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
+- (void)hideKeyboard {
+    if ([self.userInput isFirstResponder]) {
+        [self.userInput resignFirstResponder];
+    }
+    
+    if ([self.passwordInput isFirstResponder]) {
+        [self.passwordInput resignFirstResponder];
+    }
+}
+
+
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [self.userInput resignFirstResponder];
+    [self.passwordInput resignFirstResponder];
+
+    return NO;
+}
 
 @end
