@@ -108,7 +108,7 @@
     self.gmap.myLocationEnabled = YES;
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
-    self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 4, 0);
+    self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 3, 0);
     
     [self getServicesAndVehicles];
 }
@@ -144,6 +144,8 @@
     
     if (self.isOnService) {
         NSDictionary *serviceLocation = [self.app.dataLibrary getDictionary:@"service"];
+        NSData *imageStart = UIImagePNGRepresentation([UIImage imageNamed:@"pinstart.png"]);
+        NSData *imageEnd = UIImagePNGRepresentation([UIImage imageNamed:@"pinend.png"]);
         
         if (serviceLocation != nil) {
             if (self.serviceStatus == 4) {
@@ -151,7 +153,8 @@
                     self.startServiceMarker = [[GMSMarker alloc] init];
                     self.startServiceMarker.title = [serviceLocation objectForKey:@"origen"];
                     self.startServiceMarker.position = CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_origen"] doubleValue], [[serviceLocation objectForKey:@"lng_origen"] doubleValue]);
-                    self.startServiceMarker.icon = [UIImage imageNamed:@"pinstart.png"];
+                    self.startServiceMarker.icon = [UIImage imageWithData:imageStart scale:3];
+                    
                     self.startServiceMarker.map = self.gmap;
                 }
             }
@@ -163,7 +166,7 @@
                     self.endServiceMarker = [[GMSMarker alloc] init];
                     self.endServiceMarker.title = [serviceLocation objectForKey:@"destino"];
                     self.endServiceMarker.position = CLLocationCoordinate2DMake([[serviceLocation objectForKey:@"lat_destino"] doubleValue], [[serviceLocation objectForKey:@"lng_destino"] doubleValue]);
-                    self.endServiceMarker.icon = [UIImage imageNamed:@"pinend.png"];
+                    self.endServiceMarker.icon = [UIImage imageWithData:imageEnd scale:3];
                     self.endServiceMarker.map = self.gmap;
                 }
             }
@@ -190,6 +193,9 @@
             
             NSDictionary *response = responseObject;
             
+            NSData *imageDot = UIImagePNGRepresentation([UIImage imageNamed:@"dot.png"]);
+            NSData *imageCar = UIImagePNGRepresentation([UIImage imageNamed:@"car.png"]);
+            
             if ([[response objectForKey:@"status"] boolValue] == YES) {
                 self.shouldCleanMap = YES;
                 NSArray *services = [response objectForKey:@"services"];
@@ -198,7 +204,7 @@
                 for (NSDictionary *service in services) {
                     GMSMarker *marker = [[GMSMarker alloc] init];
                     marker.position = CLLocationCoordinate2DMake([[service objectForKey:@"Latitud_Origen"] doubleValue], [[service objectForKey:@"Longitud_Origen"] doubleValue]);
-                    marker.icon = [UIImage imageNamed:@"dot.png"];
+                    marker.icon = [UIImage imageWithData:imageDot scale:2];
                     marker.map = self.gmap;
                     
                     [self.gmsmarkerArray addObject: marker];
@@ -207,7 +213,7 @@
                 for (NSDictionary *vehicle in vehicles) {
                     GMSMarker *marker = [[GMSMarker alloc] init];
                     marker.position = CLLocationCoordinate2DMake([[vehicle objectForKey:@"lat"] doubleValue], [[vehicle objectForKey:@"lng"] doubleValue]);
-                    marker.icon = [UIImage imageNamed:@"car.png"];
+                    marker.icon = [UIImage imageWithData:imageCar scale:2];
                     marker.map = self.gmap;
                     
                     [self.gmsmarkerArray addObject: marker];
