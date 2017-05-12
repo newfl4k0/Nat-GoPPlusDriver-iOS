@@ -41,6 +41,7 @@
         [self syncCancelOptions];
         [self syncServices];
         [self syncVehicleData];
+        [self syncConfiguration];
     }
 }
 
@@ -256,6 +257,20 @@
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"[getVehicleInfo] %@", error);
     }];
+}
+
+- (void)syncConfiguration {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"sync"] parameters:@{} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      if ([[responseObject objectForKey:@"data"] count] > 0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"settings"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"settings"];
+                      }
+                      
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+                  }];
 }
 
 @end

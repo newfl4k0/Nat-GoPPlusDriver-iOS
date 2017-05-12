@@ -97,9 +97,25 @@
     }
 }
 
+
+- (void)syncConfiguration {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"sync"] parameters:@{} progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                      if ([[responseObject objectForKey:@"data"] count] > 0) {
+                          [self.app.dataLibrary saveArray:[responseObject objectForKey:@"data"] :@"settings"];
+                      } else {
+                          [self.app.dataLibrary deleteKey:@"settings"];
+                      }
+                      
+                      [self.spinner stopAnimating];
+                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                      [self.spinner stopAnimating];
+                      [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+                  }];
+}
+
 - (void)syncVehicleData {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"getVehicleInfo"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_id"]]  } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        [self.spinner stopAnimating];
         
         if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
             [self.app.dataLibrary saveDictionary:[responseObject objectForKey:@"data"] : @"vehicleData"];
@@ -107,6 +123,9 @@
         } else {
             [self showAlert:@"Datos del vehículo" :@"Error: servicio no disponible. Intenta nuevamente."];
         }
+        
+        
+        [self syncConfiguration];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self.spinner stopAnimating];
         [self showAlert:@"Datos del vehículo" :@"Error: servicio no disponible. Intenta nuevamente."];

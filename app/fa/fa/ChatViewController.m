@@ -18,6 +18,8 @@
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 @property (weak, nonatomic) UIImage *clientImage;
+@property (weak, nonatomic) IBOutlet UIButton *callButton;
+@property (weak, nonatomic) NSDictionary *clientData;
 @end
 
 @implementation ChatViewController
@@ -39,6 +41,8 @@
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                                                                             resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 
+    
+    
     if (self.isClient == YES) {
         [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
         self.clientImage = [UIImage imageNamed:@"avatar.png"];
@@ -52,20 +56,23 @@
                                      @"did": self.did
                                      };
         
-        NSLog(@"GET chat cliente %@", parameters);
         [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-client"]
                    parameters: parameters
                       progress:nil
                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                           NSDictionary *data = (NSDictionary *) responseObject;
                           self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                          
+                          if ([data objectForKey:@"clientData"] != nil) {
+                              self.clientData = [data objectForKey:@"clientData"];
+                          }
+                          
                           [self.table reloadData];
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                           NSLog(@"Error %@", error);
                       }];
     } else {
         NSDictionary *parameters = @{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]};
-        NSLog(@"GET chat base %@", parameters);
         [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
                    parameters: parameters
                      progress:nil
@@ -76,6 +83,30 @@
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                           NSLog(@"Error %@", error);
                       }];
+    }
+}
+
+
+- (IBAction)doCall:(id)sender {
+    if (self.isClient) {
+        if (self.clientData != nil) {
+            NSString *phoneNumber = @"tel:";
+            phoneNumber = [phoneNumber stringByAppendingString: [self.clientData objectForKey:@"phone"]];
+            
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber]];
+        }
+    } else {
+        NSArray *data = [self.app.dataLibrary getArray:@"settings"];
+        
+        for (NSDictionary *key in data) {
+            if ([[key objectForKey:@"k"] isEqualToString:@"telefonoBase"]) {
+                NSString *phoneNumber = @"tel:";
+                phoneNumber = [phoneNumber stringByAppendingString: [key objectForKey:@"v"]];
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber]];
+                
+                break; //Force and close loop
+            }
+        }
     }
 }
 
@@ -226,8 +257,8 @@
         [cell.message setText:[data objectForKey:@"mensaje"]];
         [cell.date setText:[data objectForKey:@"fecha"]];
         
-        if (self.isClient == YES) {
-            cell.image.image = self.clientImage;
+        if (self.isClient && self.clientData != nil) {
+            [cell.image setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[self.clientData objectForKey:@"image"]]]]];
             cell.image.layer.cornerRadius = cell.image.frame.size.width / 2;
             cell.image.clipsToBounds = YES;
         }
