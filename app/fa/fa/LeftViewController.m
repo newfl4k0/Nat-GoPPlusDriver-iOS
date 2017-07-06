@@ -116,6 +116,7 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
+    NSLog(@"locationManager");
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     self.app.selfLocation = location;
@@ -126,13 +127,15 @@
         [self sendTrack:location];
     }
     
-    if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 300.0) {
+    if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 30.0) {
+        NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
     }
     
 
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 10.0) {
+        NSLog(@"sendTrack");
         self.trackDate = [NSDate date];
         [self sendTrack:location];
     }

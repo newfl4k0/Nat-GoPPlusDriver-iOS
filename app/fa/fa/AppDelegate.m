@@ -23,7 +23,7 @@
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
-    self.serverUrl = @"http://godriver.azurewebsites.net/";
+    self.serverUrl =  @"http://192.168.15.100:8000/"; //@"https://godriver.azurewebsites.net/";
     [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
     //Push notifications

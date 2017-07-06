@@ -329,6 +329,8 @@
                       
                       [self changeStatus];
                   }];
+    
+    [self trackService];
 }
 
 - (void)changeStatus {
@@ -436,6 +438,7 @@
             NSLog(@"%@", responseObject);
             self.accepted = YES;
             [self showAlert:@"Confirmar" :@"Servicio aceptado"];
+            [self trackService];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
             NSLog(@"%@", error);
@@ -508,18 +511,15 @@
                            }];
         } else if (self.serviceStatus == 5) {
             //Open
-            
+            double price = [self setPrice];
             UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio"
                                                                               message:@"Ingresa el monto y observaciones"
                                                                        preferredStyle:UIAlertControllerStyleAlert];
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                 textField.keyboardType = UIKeyboardTypeNumberPad;
-                textField.placeholder = @"Monto del viaje, Ej. 0.00";
-                
-                if ([service objectForKey:@"monto"]!=nil) {
-                    textField.text = [[service objectForKey:@"monto"] stringValue];
-                }
+                textField.enabled = NO;
+                textField.text = [NSString stringWithFormat:@"%f", price];
             }];
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
@@ -535,16 +535,25 @@
                     [self showAlert:@"Finalizar" :@"Ingresa monto y observaciones"];
                 } else {
                     [self showSpinner];
+                    
+                    NSDictionary *tracker = @{};
+                    
+                    if ([self.app.dataLibrary existsKey:@"track"]) {
+                        tracker = [self.app.dataLibrary getDictionary:@"track"];
+                        
+                    }
+                    
+                    
                     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-end"]
-                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs} progress:nil
+                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs, @"tracker": tracker } progress:nil
                                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                                         [self hideSpinner];
                                        NSLog(@"%@", responseObject);
-                                       self.newStatus = 1;
-                                       [self changeStatus];
+                                       //self.newStatus = 1;
+                                       //[self changeStatus];
                                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                                       [self hideSpinner];
-                                       NSLog(@"%@", error);
+                                       //[self hideSpinner];
+                                       //NSLog(@"%@", error);
                                    }];
                 }
             }];
@@ -630,5 +639,73 @@
         ((ChatViewController *)segue.destinationViewController).isClient = YES;
     }
 }
+
+//Save locally the service
+- (void)trackService {
+    if (self.isOnService && self.accepted) {
+        NSArray *trackLocation = [NSArray alloc];
+        NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
+        NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
+        NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
+        NSString *startTrack = [NSString stringWithFormat:@"%f", [[NSDate date] timeIntervalSince1970]];
+        double distance = 0;
+        
+        
+        if ([self.app.dataLibrary existsKey:@"track"]) {
+            NSArray *currentTrackLocation = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"location"];
+            distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
+            NSMutableArray *trackServiceLocation = [[NSMutableArray alloc] initWithArray:currentTrackLocation];
+            NSString *lastLocation = [currentTrackLocation objectAtIndex:[currentTrackLocation count] - 1];
+            
+            if (![currentLocation isEqualToString:lastLocation]) {
+                [trackServiceLocation addObject:currentLocation];
+                
+                NSArray *lastLatLng = [lastLocation componentsSeparatedByString:@","];
+                distance = distance + [self.app.selfLocation distanceFromLocation:[[CLLocation alloc] initWithLatitude:[[lastLatLng objectAtIndex:0] doubleValue] longitude:[[lastLatLng objectAtIndex:1] doubleValue]]];
+            }
+            
+            trackLocation = trackServiceLocation;
+            startTrack = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"startTrack"];
+            
+        } else {
+            trackLocation = [[NSArray alloc] initWithObjects:currentLocation, nil];
+        }
+        
+        
+        NSDictionary *trackService = @{ @"id": [self.currentService objectForKey:@"idd"], @"location": trackLocation, @"distance": [NSNumber numberWithDouble: distance], @"startTrack": startTrack };
+        [self.app.dataLibrary saveDictionary:trackService :@"track"];
+        
+        NSLog(@"track object stored: %@", trackService);
+        NSLog(@"fare %@", [self.app.dataLibrary getDictionary:@"fare"]);
+        NSLog(@"total: %f", [self setPrice]);
+    } else {
+        [self.app.dataLibrary deleteKey:@"track"];
+    }
+}
+
+- (double) setPrice {
+    NSDictionary *fare = [self.app.dataLibrary getDictionary:@"fare"];
+    NSDictionary *track = [self.app.dataLibrary getDictionary:@"track"];
+    
+    double distance = [[track objectForKey:@"distance"] doubleValue];
+    double startTime = [[track objectForKey:@"startTrack"] doubleValue];
+    double endTime = [[NSDate date] timeIntervalSince1970];
+    
+    double totalTime = endTime - startTime;
+    
+    double fareTime = (totalTime / 60) * ([[fare objectForKey:@"minuto"] doubleValue]);
+    double fareDistance = (distance / 1000) * ([[fare objectForKey:@"km"] doubleValue]);
+    double fareStart = [[fare objectForKey:@"base"] doubleValue];
+    double fareMin = [[fare objectForKey:@"minimo"] doubleValue];
+    
+    double fareTotal = fareStart + fareDistance + fareTime;
+    
+    if (fareTotal < fareMin) {
+        fareTotal = fareMin;
+    }
+    
+    return fareTotal;
+}
+
 
 @end

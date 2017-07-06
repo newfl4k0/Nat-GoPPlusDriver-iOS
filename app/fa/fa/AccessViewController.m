@@ -76,6 +76,7 @@
                            [self.app.dataLibrary saveString:[response valueForKey:@"apellido"] :@"driver_surname"];
                            [self.app.dataLibrary saveString:[response valueForKey:@"completo"] :@"driver_fullname"];
                            [self.app.dataLibrary saveString:[response valueForKey:@"licencia"] :@"license"];
+                           [self.app.dataLibrary saveDictionary:[response valueForKey:@"tarifa"] :@"fare"];
                            
                            [self.app initDrawerWindow];
                        } else {
