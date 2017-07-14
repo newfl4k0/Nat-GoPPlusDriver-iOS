@@ -39,6 +39,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *startAddressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
 @property (strong, nonatomic) NSMutableArray *gmsmarkerArray;
+@property (weak, nonatomic) IBOutlet UIWebView *webController;
 
 @end
 
@@ -72,6 +73,22 @@
                                             resizingMode:UIImageResizingModeStretch]
                              forBarMetrics:UIBarMetricsDefault];
     [self initGoogleMap];
+    
+    self.webController.delegate = self;
+}
+
+
+-(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    NSString *currentUrl = request.URL.absoluteString;
+    
+    if ([currentUrl rangeOfString:@"https://gopspay.azurewebsites.net/postauth-service-end" options:NSRegularExpressionSearch].location != NSNotFound) {
+        NSLog(@"request end");
+        [self hideSpinner];
+        self.newStatus = 1;
+        [self changeStatus];
+    }
+    
+    return YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -511,15 +528,14 @@
                            }];
         } else if (self.serviceStatus == 5) {
             //Open
-            double price = [self setPrice];
             UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio"
                                                                               message:@"Ingresa el monto y observaciones"
                                                                        preferredStyle:UIAlertControllerStyleAlert];
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                 textField.keyboardType = UIKeyboardTypeNumberPad;
-                textField.enabled = NO;
-                textField.text = [NSString stringWithFormat:@"%f", price];
+                //textField.enabled = NO;
+                textField.text = [self setPrice];
             }];
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
@@ -543,18 +559,26 @@
                         
                     }
                     
+                    NSString *url = [[[[[@"https://gopspay.azurewebsites.net/postauth-service-start" stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
                     
-                    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-end"]
-                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs, @"tracker": tracker } progress:nil
-                                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                        [self hideSpinner];
-                                       NSLog(@"%@", responseObject);
-                                       //self.newStatus = 1;
-                                       //[self changeStatus];
-                                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                                       //[self hideSpinner];
-                                       //NSLog(@"%@", error);
-                                   }];
+                    NSLog(@"url %@", url);
+                    
+                    NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
+                    [self.webController loadRequest: request];
+//                    
+//
+//                    
+//                    
+//                    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-end"]
+//                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs, @"tracker": tracker } progress:nil
+//                                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//                                        [self hideSpinner];
+//                                       self.newStatus = 1;
+//                                       [self changeStatus];
+//                                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//                                       [self hideSpinner];
+//                                       NSLog(@"%@", error);
+//                                   }];
                 }
             }];
             
@@ -647,9 +671,7 @@
         NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
         NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
         NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
-        NSString *startTrack = [NSString stringWithFormat:@"%f", [[NSDate date] timeIntervalSince1970]];
         double distance = 0;
-        
         
         if ([self.app.dataLibrary existsKey:@"track"]) {
             NSArray *currentTrackLocation = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"location"];
@@ -665,35 +687,25 @@
             }
             
             trackLocation = trackServiceLocation;
-            startTrack = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"startTrack"];
-            
         } else {
             trackLocation = [[NSArray alloc] initWithObjects:currentLocation, nil];
         }
         
-        
-        NSDictionary *trackService = @{ @"id": [self.currentService objectForKey:@"idd"], @"location": trackLocation, @"distance": [NSNumber numberWithDouble: distance], @"startTrack": startTrack };
+        NSDictionary *trackService = @{ @"id": [self.currentService objectForKey:@"idd"], @"location": trackLocation, @"distance": [NSNumber numberWithDouble: distance] };
         [self.app.dataLibrary saveDictionary:trackService :@"track"];
-        
-        NSLog(@"track object stored: %@", trackService);
-        NSLog(@"fare %@", [self.app.dataLibrary getDictionary:@"fare"]);
-        NSLog(@"total: %f", [self setPrice]);
     } else {
         [self.app.dataLibrary deleteKey:@"track"];
     }
 }
 
-- (double) setPrice {
+- (NSString*) setPrice {
     NSDictionary *fare = [self.app.dataLibrary getDictionary:@"fare"];
     NSDictionary *track = [self.app.dataLibrary getDictionary:@"track"];
-    
+
     double distance = [[track objectForKey:@"distance"] doubleValue];
-    double startTime = [[track objectForKey:@"startTrack"] doubleValue];
-    double endTime = [[NSDate date] timeIntervalSince1970];
+    double totalTime = [[self.currentService objectForKey:@"minutos"] doubleValue];
     
-    double totalTime = endTime - startTime;
-    
-    double fareTime = (totalTime / 60) * ([[fare objectForKey:@"minuto"] doubleValue]);
+    double fareTime = totalTime * ([[fare objectForKey:@"minuto"] doubleValue]);
     double fareDistance = (distance / 1000) * ([[fare objectForKey:@"km"] doubleValue]);
     double fareStart = [[fare objectForKey:@"base"] doubleValue];
     double fareMin = [[fare objectForKey:@"minimo"] doubleValue];
@@ -704,7 +716,10 @@
         fareTotal = fareMin;
     }
     
-    return fareTotal;
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    [fmt setPositiveFormat:@"0.##"];
+    
+    return [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]];
 }
 
 

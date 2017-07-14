@@ -14,6 +14,6 @@
 #import "ChatViewController.h"
 @import GoogleMaps;
 
-@interface MapViewController : ViewController
+@interface MapViewController : ViewController <UIWebViewDelegate>
 @property (strong, nonatomic) NSString *demoString;
 @end

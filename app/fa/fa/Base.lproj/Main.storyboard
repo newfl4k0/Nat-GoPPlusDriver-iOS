@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fnV-Tp-qmf">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fnV-Tp-qmf">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -54,6 +54,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fuP-6f-0Hg">
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </webView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yec-U6-pz1" userLabel="Google" customClass="GMSMapView">
                                 <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" red="0.82533296103496878" green="0.9115856462811418" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -235,16 +239,20 @@
                             <constraint firstItem="xf7-BS-ijw" firstAttribute="top" secondItem="QC0-jV-jsi" secondAttribute="bottom" constant="-20" id="GcN-gX-crB"/>
                             <constraint firstItem="P22-Sk-ml2" firstAttribute="width" secondItem="yec-U6-pz1" secondAttribute="width" id="H2G-A7-TUz"/>
                             <constraint firstAttribute="trailing" secondItem="xE4-R2-PdF" secondAttribute="trailing" constant="8" id="ILu-9l-pZx"/>
+                            <constraint firstItem="fuP-6f-0Hg" firstAttribute="height" secondItem="yec-U6-pz1" secondAttribute="height" id="IML-aH-OYg"/>
                             <constraint firstItem="NBJ-LQ-56e" firstAttribute="width" secondItem="WKF-lY-48f" secondAttribute="width" id="KcH-5H-oXi"/>
                             <constraint firstItem="xE4-R2-PdF" firstAttribute="height" secondItem="WKF-lY-48f" secondAttribute="height" multiplier="0.35" id="Kf7-1o-fq6"/>
                             <constraint firstItem="Njk-UE-ZJS" firstAttribute="bottom" secondItem="xf7-BS-ijw" secondAttribute="bottom" id="L7R-Yk-tVx"/>
                             <constraint firstItem="xf7-BS-ijw" firstAttribute="width" secondItem="WKF-lY-48f" secondAttribute="width" id="Pvu-i0-snd"/>
                             <constraint firstItem="P22-Sk-ml2" firstAttribute="top" secondItem="yec-U6-pz1" secondAttribute="top" id="S0e-Aj-GUe"/>
+                            <constraint firstItem="fuP-6f-0Hg" firstAttribute="width" secondItem="yec-U6-pz1" secondAttribute="width" id="XIS-5z-Ias"/>
                             <constraint firstItem="xf7-BS-ijw" firstAttribute="centerX" secondItem="WKF-lY-48f" secondAttribute="centerX" id="bw2-hc-nZp"/>
                             <constraint firstItem="NBJ-LQ-56e" firstAttribute="centerX" secondItem="WKF-lY-48f" secondAttribute="centerX" id="c8z-Nz-gbb"/>
                             <constraint firstItem="Jfe-CF-YHV" firstAttribute="top" secondItem="xE4-R2-PdF" secondAttribute="bottom" constant="8" id="dP0-pI-YCG"/>
                             <constraint firstItem="P22-Sk-ml2" firstAttribute="centerX" secondItem="yec-U6-pz1" secondAttribute="centerX" id="hvL-CA-wDs"/>
                             <constraint firstItem="xE4-R2-PdF" firstAttribute="leading" secondItem="WKF-lY-48f" secondAttribute="leading" constant="8" id="jwC-iu-4VE"/>
+                            <constraint firstItem="fuP-6f-0Hg" firstAttribute="centerY" secondItem="yec-U6-pz1" secondAttribute="centerY" id="lcI-j2-L7l"/>
+                            <constraint firstItem="fuP-6f-0Hg" firstAttribute="centerX" secondItem="yec-U6-pz1" secondAttribute="centerX" id="xZ7-fE-dRP"/>
                         </constraints>
                     </view>
                     <connections>
@@ -259,6 +267,7 @@
                         <outlet property="navigationBar" destination="xf7-BS-ijw" id="4gz-Kn-cTu"/>
                         <outlet property="startAddressLabel" destination="5vZ-01-ZEN" id="Z0E-LZ-k5R"/>
                         <outlet property="statusButton" destination="NBJ-LQ-56e" id="hJ4-PI-nb8"/>
+                        <outlet property="webController" destination="fuP-6f-0Hg" id="jWg-rU-30s"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Qxa-be-Rxz" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -288,7 +297,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="250"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ufk-ul-r9C" id="sUW-YB-wwk">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="250"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="249.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estatus" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xkh-37-xPI">
@@ -474,7 +483,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="150"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Hat-xl-CbU" id="kuT-Cz-2x6">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="149.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pinstart" translatesAutoresizingMaskIntoConstraints="NO" id="dzq-3v-dRc">
@@ -1527,7 +1536,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="IwY-Sj-gZ6" sceneMemberID="viewController">
                     <toolbarItems/>
                     <nil key="simulatedStatusBarMetrics"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="hsF-2V-5h5">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="hsF-2V-5h5">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
