@@ -32,7 +32,22 @@
     [self.passwordInput setDelegate:self];
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
-        [self.app initDrawerWindow];
+        
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSDictionary *response = responseObject;
+            
+            NSLog(@"response from connection-status %@", response);
+            
+            [self stopSpinner];
+            
+            if ([[response objectForKey:@"status"] boolValue] == YES) {
+                if ([[[response objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 1) {
+                    [self.app initDrawerWindow];
+                }
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self stopSpinner];
+        }];
     } else {
         [self stopSpinner];
     }

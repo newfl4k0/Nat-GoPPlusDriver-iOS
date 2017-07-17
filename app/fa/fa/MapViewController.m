@@ -35,6 +35,8 @@
 @property (weak, nonatomic) IBOutlet GMSMapView *gmap;
 @property (strong, nonatomic) GMSMarker *startServiceMarker;
 @property (strong, nonatomic) GMSMarker *endServiceMarker;
+@property (strong, nonatomic) GMSMarker *geofenceMarker;
+@property (strong, nonatomic) GMSCircle *circ;
 @property (weak, nonatomic) IBOutlet UILabel *driverStatusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *startAddressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
@@ -86,6 +88,7 @@
         [self hideSpinner];
         self.newStatus = 1;
         [self changeStatus];
+        [self.view sendSubviewToBack:self.webController];
     }
     
     return YES;
@@ -120,13 +123,13 @@
 }
 
 - (void)initGoogleMap {
+    self.gmap.delegate = self;
     GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:17];
     self.gmap.camera = camera;
     self.gmap.myLocationEnabled = YES;
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
     self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 3, 0);
-    
     [self getServicesAndVehicles];
 }
 
@@ -205,42 +208,43 @@
 
 - (void)getServicesAndVehicles {
     if (self.currentService == nil && self.gmap!= nil) {
-        [self clearServicesAndVehicles];
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        //[self clearServicesAndVehicles];
+        self.geofenceMarker.title = @"Espere un momento";
+        [self drawGeofence];
+        
+        if (self.circ != nil) {
+            NSDictionary *params = @{
+                                     @"lat": [NSNumber numberWithFloat:self.circ.position.latitude],
+                                     @"lng": [NSNumber numberWithFloat:self.circ.position.longitude],
+                                     @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]
+                                     };
             
-            NSDictionary *response = responseObject;
             
-            NSData *imageDot = UIImagePNGRepresentation([UIImage imageNamed:@"dot.png"]);
-            NSData *imageCar = UIImagePNGRepresentation([UIImage imageNamed:@"car.png"]);
-            
-            if ([[response objectForKey:@"status"] boolValue] == YES) {
-                self.shouldCleanMap = YES;
-                NSArray *services = [response objectForKey:@"services"];
-                NSArray *vehicles = [response objectForKey:@"vehicles"];
+            [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSDictionary *response = responseObject;
+                //NSLog(@"services data %@", response);
                 
-                for (NSDictionary *service in services) {
-                    GMSMarker *marker = [[GMSMarker alloc] init];
-                    marker.position = CLLocationCoordinate2DMake([[service objectForKey:@"Latitud_Origen"] doubleValue], [[service objectForKey:@"Longitud_Origen"] doubleValue]);
-                    marker.icon = [UIImage imageWithData:imageDot scale:2];
-                    marker.map = self.gmap;
-                    
-                    [self.gmsmarkerArray addObject: marker];
-                }
                 
-                for (NSDictionary *vehicle in vehicles) {
-                    GMSMarker *marker = [[GMSMarker alloc] init];
-                    marker.position = CLLocationCoordinate2DMake([[vehicle objectForKey:@"lat"] doubleValue], [[vehicle objectForKey:@"lng"] doubleValue]);
-                    marker.icon = [UIImage imageWithData:imageCar scale:2];
-                    marker.map = self.gmap;
+                if ([[response objectForKey:@"status"] boolValue] == YES) {
                     
-                    [self.gmsmarkerArray addObject: marker];
+                    NSString *totalValue = @"";
+                    
+                    for (NSDictionary *total in [response objectForKey:@"data"]) {
+                        totalValue = [totalValue stringByAppendingString: [total objectForKey:@"total"]];
+                        totalValue = [totalValue stringByAppendingString:@" "];
+                    }
+                    
+                    self.geofenceMarker.title = totalValue;
+                    
                 }
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self clearServicesAndVehicles];
-        }];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                //[self clearServicesAndVehicles];
+            }];
+
+        }
     } else {
-        [self clearServicesAndVehicles];
+        //[self clearServicesAndVehicles];
+        [self removeGeofence];
     }
 }
 
@@ -307,6 +311,8 @@
                               } else {
                                   self.accepted = YES;
                               }
+                              
+                              [self removeGeofence];
                           } else {
                               self.currentService = nil;
                               self.isOnService = NO;
@@ -534,7 +540,7 @@
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                 textField.keyboardType = UIKeyboardTypeNumberPad;
-                //textField.enabled = NO;
+                textField.enabled = NO;
                 textField.text = [self setPrice];
             }];
             
@@ -565,6 +571,7 @@
                     
                     NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
                     [self.webController loadRequest: request];
+                    [self.view bringSubviewToFront:self.webController];
 //                    
 //
 //                    
@@ -720,6 +727,49 @@
     [fmt setPositiveFormat:@"0.##"];
     
     return [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]];
+}
+
+
+//Geofence
+
+- (void) drawGeofence {
+    if (self.circ == nil) {
+        self.circ = [[GMSCircle alloc] init];
+        self.circ.position = [self.gmap.camera target];
+        self.circ.radius = 1000;
+        self.circ.fillColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.3];
+        self.circ.strokeColor = [UIColor redColor];
+        self.circ.strokeWidth = 1;
+        self.circ.map = self.gmap;
+        
+    
+        self.geofenceMarker = [[GMSMarker alloc] init];
+        self.geofenceMarker.title = @"Espere un momento";
+        self.geofenceMarker.position = self.circ.position;
+        self.geofenceMarker.map = self.gmap;
+    } else {
+        self.circ.position = [self.gmap.camera target];
+        self.geofenceMarker.position = self.circ.position;
+    }
+}
+
+- (void) removeGeofence {
+    if (self.circ != nil) {
+        self.circ.map = nil;
+        self.geofenceMarker.map = nil;
+        self.circ = nil;
+        self.geofenceMarker = nil;
+    }
+}
+
+- (void) mapView:(GMSMapView *) mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+    //NSLog(@"You tapped at %f,%f", coordinate.latitude, coordinate.longitude);
+    
+    if (self.circ != nil) {
+        self.circ.position = coordinate;
+        self.geofenceMarker.position = self.circ.position;
+        self.geofenceMarker.title = @"Espere un momento";
+    }
 }
 
 

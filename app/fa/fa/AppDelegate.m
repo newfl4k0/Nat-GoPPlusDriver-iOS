@@ -83,7 +83,7 @@
 }
 
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    //(NSLog(@"Push Notification Information : %@", userInfo);
+    NSLog(@"Push Notification Information : %@", userInfo);
 }
 
 -(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
@@ -93,6 +93,9 @@
 
 - (void)handleNotification:(NSDictionary *)notification {
     @try {
+        NSLog(@"handleNotification: %@", notification);
+        
+        
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             
