@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fnV-Tp-qmf">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fnV-Tp-qmf">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -1485,6 +1485,12 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-configuracion" translatesAutoresizingMaskIntoConstraints="NO" id="VFG-Yb-Dz7">
                                 <rect key="frame" x="8" y="444" width="40" height="40"/>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version 1.0.0 (2)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TMl-FR-9fl">
+                                <rect key="frame" x="143.5" y="642.5" width="88.5" height="16.5"/>
+                                <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="12"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="0.99989169836044312" green="1" blue="0.99988096952438354" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -1494,8 +1500,10 @@
                             <constraint firstItem="LJI-Kq-4FP" firstAttribute="width" secondItem="Re9-SJ-TTk" secondAttribute="width" id="74J-hA-fLI"/>
                             <constraint firstItem="IUk-zV-QDO" firstAttribute="leading" secondItem="sIX-eH-WBC" secondAttribute="trailing" constant="24" id="7Ld-ku-EHG"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="height" secondItem="vBB-bT-AqZ" secondAttribute="height" id="8JJ-HI-hfh"/>
+                            <constraint firstItem="yO0-9f-kJG" firstAttribute="top" secondItem="TMl-FR-9fl" secondAttribute="bottom" constant="8" id="CAQ-oM-RLS"/>
                             <constraint firstItem="tyW-nM-kqg" firstAttribute="centerY" secondItem="vBB-bT-AqZ" secondAttribute="centerY" id="CM3-2P-FSp"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="centerX" secondItem="vBB-bT-AqZ" secondAttribute="centerX" id="Cw8-J6-8mC"/>
+                            <constraint firstItem="TMl-FR-9fl" firstAttribute="centerX" secondItem="f3W-7s-MZp" secondAttribute="centerX" id="Eix-gg-wHI"/>
                             <constraint firstItem="vBB-bT-AqZ" firstAttribute="height" secondItem="sIX-eH-WBC" secondAttribute="height" id="FI1-ca-uVa"/>
                             <constraint firstItem="vBB-bT-AqZ" firstAttribute="centerX" secondItem="sIX-eH-WBC" secondAttribute="centerX" id="GuX-ZJ-MmK"/>
                             <constraint firstItem="Re9-SJ-TTk" firstAttribute="leading" secondItem="H4h-be-a9N" secondAttribute="leading" id="HtV-Ep-1hh"/>

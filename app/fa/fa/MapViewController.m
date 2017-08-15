@@ -18,6 +18,7 @@
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSDictionary *currentService;
+@property (strong, nonatomic) NSDictionary *endServiceEmail;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
@@ -84,6 +85,10 @@
     NSString *currentUrl = request.URL.absoluteString;
     
     if ([currentUrl rangeOfString:@"https://gopspay.azurewebsites.net/postauth-service-end" options:NSRegularExpressionSearch].location != NSNotFound) {
+        //Create Email data
+        
+        [self sendServiceEmail];
+        
         NSLog(@"request end");
         [self hideSpinner];
         self.newStatus = 1;
@@ -332,6 +337,7 @@
                           }
                           
                           [self changeStatus];
+                          [self trackService];
                       } @catch (NSException *exception) {
                           NSLog(@"exception: %@", exception);
                           [self.app.dataLibrary deleteKey:@"service"];
@@ -341,6 +347,7 @@
                           }
                           
                           [self changeStatus];
+                          [self trackService];
                       }
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       NSLog(@"failure: %@", error);
@@ -351,9 +358,10 @@
                       }
                       
                       [self changeStatus];
+                      [self trackService];
                   }];
     
-    [self trackService];
+    
 }
 
 - (void)changeStatus {
@@ -533,6 +541,8 @@
                                NSLog(@"%@", error);
                            }];
         } else if (self.serviceStatus == 5) {
+            self.endServiceEmail = [self endServiceData];
+            
             //Open
             UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio"
                                                                               message:@"Ingresa el monto y observaciones"
@@ -567,25 +577,9 @@
                     
                     NSString *url = [[[[[@"https://gopspay.azurewebsites.net/postauth-service-start" stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
                     
-                    NSLog(@"url %@", url);
-                    
                     NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
                     [self.webController loadRequest: request];
                     [self.view bringSubviewToFront:self.webController];
-//                    
-//
-//                    
-//                    
-//                    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-end"]
-//                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs, @"tracker": tracker } progress:nil
-//                                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//                                        [self hideSpinner];
-//                                       self.newStatus = 1;
-//                                       [self changeStatus];
-//                                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//                                       [self hideSpinner];
-//                                       NSLog(@"%@", error);
-//                                   }];
                 }
             }];
             
@@ -596,7 +590,28 @@
             [endAlert addAction:sendEndAction];
             [endAlert addAction:cancelEndAction];
             [self presentViewController:endAlert animated:YES completion:nil];
+            
         }
+    }
+}
+
+- (void)sendServiceEmail {
+    if (self.endServiceEmail != nil) {
+        
+        //NSLog(@"self.endServiceEmail %@", self.endServiceEmail);
+        
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-email"]
+                                         parameters:self.endServiceEmail progress:nil
+                                            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                                 [self hideSpinner];
+                                                self.newStatus = 1;
+                                                [self changeStatus];
+                                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                                [self hideSpinner];
+                                                NSLog(@"%@", error);
+                                            }];
+        self.endServiceEmail = nil;
     }
 }
 
@@ -673,33 +688,37 @@
 
 //Save locally the service
 - (void)trackService {
-    if (self.isOnService && self.accepted) {
+    if (self.isOnService && [[self.currentService objectForKey:@"estatus_reserva"] intValue] == 5) {
         NSArray *trackLocation = [NSArray alloc];
         NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
         NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
         NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
         double distance = 0;
         
-        if ([self.app.dataLibrary existsKey:@"track"]) {
-            NSArray *currentTrackLocation = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"location"];
-            distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
-            NSMutableArray *trackServiceLocation = [[NSMutableArray alloc] initWithArray:currentTrackLocation];
-            NSString *lastLocation = [currentTrackLocation objectAtIndex:[currentTrackLocation count] - 1];
-            
-            if (![currentLocation isEqualToString:lastLocation]) {
-                [trackServiceLocation addObject:currentLocation];
-                
+        if (self.app.selfLocation != nil && lat > 0 && lng >0) {
+            if ([self.app.dataLibrary existsKey:@"track"]) {
+                NSArray *currentTrackLocation = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"location"];
+                NSMutableArray *trackServiceLocation = [[NSMutableArray alloc] initWithArray:currentTrackLocation];
+                NSString *lastLocation = [currentTrackLocation objectAtIndex:[currentTrackLocation count] - 1];
                 NSArray *lastLatLng = [lastLocation componentsSeparatedByString:@","];
-                distance = distance + [self.app.selfLocation distanceFromLocation:[[CLLocation alloc] initWithLatitude:[[lastLatLng objectAtIndex:0] doubleValue] longitude:[[lastLatLng objectAtIndex:1] doubleValue]]];
+                
+                double currentDistance = [self.app.selfLocation distanceFromLocation:[[CLLocation alloc] initWithLatitude:[[lastLatLng objectAtIndex:0] doubleValue] longitude:[[lastLatLng objectAtIndex:1] doubleValue]]];
+                
+                distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
+                
+                if (![currentLocation isEqualToString:lastLocation] && currentDistance > 20) {
+                    [trackServiceLocation addObject:currentLocation];
+                    distance = distance + currentDistance;
+                }
+                
+                trackLocation = trackServiceLocation;
+            } else {
+                trackLocation = [[NSArray alloc] initWithObjects:currentLocation, nil];
             }
             
-            trackLocation = trackServiceLocation;
-        } else {
-            trackLocation = [[NSArray alloc] initWithObjects:currentLocation, nil];
+            NSDictionary *trackService = @{ @"id": [self.currentService objectForKey:@"idd"], @"location": trackLocation, @"distance": [NSNumber numberWithDouble: distance] };
+            [self.app.dataLibrary saveDictionary:trackService :@"track"];
         }
-        
-        NSDictionary *trackService = @{ @"id": [self.currentService objectForKey:@"idd"], @"location": trackLocation, @"distance": [NSNumber numberWithDouble: distance] };
-        [self.app.dataLibrary saveDictionary:trackService :@"track"];
     } else {
         [self.app.dataLibrary deleteKey:@"track"];
     }
@@ -727,6 +746,57 @@
     [fmt setPositiveFormat:@"0.##"];
     
     return [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]];
+}
+
+- (NSDictionary *) endServiceData {
+    
+    NSDictionary *fare  = [self.app.dataLibrary getDictionary:@"fare"];
+    NSDictionary *track = [self.app.dataLibrary getDictionary:@"track"];
+    NSArray *locations = [track objectForKey:@"location"];
+    
+    
+    double distance = [[track objectForKey:@"distance"] doubleValue];
+    double totalTime = [[self.currentService objectForKey:@"minutos"] doubleValue];
+    
+    double fareTime = totalTime * ([[fare objectForKey:@"minuto"] doubleValue]);
+    double fareDistance = (distance / 1000) * ([[fare objectForKey:@"km"] doubleValue]);
+    double fareStart = [[fare objectForKey:@"base"] doubleValue];
+    double fareMin = [[fare objectForKey:@"minimo"] doubleValue];
+    
+    double fareTotal = fareStart + fareDistance + fareTime;
+    
+    if (fareTotal < fareMin) {
+        fareTotal = fareMin;
+    }
+    
+    NSString *cleanLocations = [[locations componentsJoinedByString:@"|"] stringByReplacingOccurrencesOfString:@"0,0|" withString:@""];
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    
+    [fmt setPositiveFormat:@"0.##"];
+    
+    
+    NSDictionary *end = @{
+                          @"id": [NSNumber numberWithInt:[[self.currentService objectForKey:@"id"] intValue]],
+                          @"chofer": [self.app.dataLibrary getString:@"driver_fullname"],
+                          @"usuario_id": [self.currentService objectForKey:@"usuario_id"],
+                          @"chofer_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                          @"origen": [self.currentService objectForKey:@"origen"],
+                          @"destino": [self.currentService objectForKey:@"destino"],
+                          @"lat_o": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_origen"] doubleValue]],
+                          @"lng_o": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_origen"] doubleValue]],
+                          @"lat_d": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_destino"] doubleValue]],
+                          @"lng_d": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_destino"] doubleValue]],
+                          @"precio_base": [fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]],
+                          @"precio_minimo": [fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]],
+                          @"precio_km": [fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]],
+                          @"precio_minuto": [fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]],
+                          @"path": cleanLocations,
+                          @"tiempo": [NSNumber numberWithDouble:totalTime],
+                          @"km": [fmt stringFromNumber:[NSNumber numberWithDouble:(distance / 1000)]],
+                          @"total": [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]]
+                          };
+    
+    return end;
 }
 
 
@@ -763,8 +833,6 @@
 }
 
 - (void) mapView:(GMSMapView *) mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
-    //NSLog(@"You tapped at %f,%f", coordinate.latitude, coordinate.longitude);
-    
     if (self.circ != nil) {
         self.circ.position = coordinate;
         self.geofenceMarker.position = self.circ.position;
