@@ -63,9 +63,15 @@
                           NSDictionary *data = (NSDictionary *) responseObject;
                           self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
                           
+                          
+                          
+                          
                           if ([data objectForKey:@"clientData"] != nil) {
                               self.clientData = [data objectForKey:@"clientData"];
                           }
+                          
+                          NSLog(@"chat %@", self.dataArray);
+                          NSLog(@"clientData %@", self.clientData);
                           
                           [self.table reloadData];
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

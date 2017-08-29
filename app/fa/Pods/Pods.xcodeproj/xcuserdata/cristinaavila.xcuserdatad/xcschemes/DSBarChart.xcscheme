@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '302FA051A6D4BA2F9574763980671909'
-               BlueprintName = 'Pods-fa'
+               BlueprintIdentifier = '0DB805A79F68297715EE8B896D1CC062'
+               BlueprintName = 'DSBarChart'
                ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'libPods-fa.a'>
+               BuildableName = 'libDSBarChart.a'>
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

@@ -31,7 +31,7 @@
         self.trackDate   = [NSDate date];
         [self initializeLocationManager];
         
-        self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@", [self.app.dataLibrary getString:@"driver_fullname"]];
+        self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@ %@", [self.app.dataLibrary getString:@"driver_name"], [self.app.dataLibrary getString:@"driver_surname"]];
         [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
         
         [self getImage];
@@ -42,6 +42,12 @@
         [self syncServices];
         [self syncVehicleData];
         [self syncConfiguration];
+        
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(setDriverData:)
+         name:@"driverData"
+         object:nil ];
     }
 }
 
@@ -116,6 +122,7 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
+    //NSLog(@"locationManager");
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     self.app.selfLocation = location;
@@ -127,12 +134,14 @@
     }
     
     if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 300.0) {
+        //NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
     }
     
 
-    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 10.0) {
+    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
+        //NSLog(@"sendTrack");
         self.trackDate = [NSDate date];
         [self sendTrack:location];
     }
@@ -214,6 +223,12 @@
         self.imageDriver.image = [UIImage imageNamed:@"avatar.png"];
         [self.app.dataLibrary saveDriverImage:[UIImage imageNamed:@"avatar.png"]];
     }
+}
+
+- (void)setDriverData: (NSNotification *) notification {
+    [self.imageDriver setImage:[self.app.dataLibrary getDriverImage]];
+    self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@ %@", [self.app.dataLibrary getString:@"driver_name"], [self.app.dataLibrary getString:@"driver_surname"]];
+    
 }
 
 

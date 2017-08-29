@@ -24,6 +24,7 @@
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
     self.serverUrl = @"https://godriverqa.azurewebsites.net/";
+
     [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
     //Push notifications
@@ -83,7 +84,7 @@
 }
 
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    //(NSLog(@"Push Notification Information : %@", userInfo);
+    NSLog(@"Push Notification Information : %@", userInfo);
 }
 
 -(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
@@ -93,6 +94,9 @@
 
 - (void)handleNotification:(NSDictionary *)notification {
     @try {
+        NSLog(@"handleNotification: %@", notification);
+        
+        
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             

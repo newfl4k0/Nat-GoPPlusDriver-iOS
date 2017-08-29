@@ -32,7 +32,22 @@
     [self.passwordInput setDelegate:self];
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
-        [self.app initDrawerWindow];
+        
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSDictionary *response = responseObject;
+            
+            NSLog(@"response from connection-status %@", response);
+            
+            [self stopSpinner];
+            
+            if ([[response objectForKey:@"status"] boolValue] == YES) {
+                if ([[[response objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 1) {
+                    [self.app initDrawerWindow];
+                }
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self stopSpinner];
+        }];
     } else {
         [self stopSpinner];
     }
@@ -76,6 +91,8 @@
                            [self.app.dataLibrary saveString:[response valueForKey:@"apellido"] :@"driver_surname"];
                            [self.app.dataLibrary saveString:[response valueForKey:@"completo"] :@"driver_fullname"];
                            [self.app.dataLibrary saveString:[response valueForKey:@"licencia"] :@"license"];
+                           [self.app.dataLibrary saveDictionary:[response valueForKey:@"tarifa"] :@"fare"];
+                           [self.app.dataLibrary saveString:[response valueForKey:@"usuario_id"] :@"userid"];
                            
                            [self.app initDrawerWindow];
                        } else {
@@ -85,7 +102,7 @@
                    failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        NSLog(@"%@", error);
                        [self stopSpinner];
-                       [self showAlert:@"Error" :@"Verifica el estatus del servidor y datos ingresados"];
+                       [self showAlert:@"Error" :@"Verifica tu usuario y contraseña"];
                    }];
 }
 

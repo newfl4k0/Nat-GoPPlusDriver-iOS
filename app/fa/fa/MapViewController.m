@@ -18,6 +18,7 @@
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSDictionary *currentService;
+@property (strong, nonatomic) NSDictionary *endServiceEmail;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
@@ -35,10 +36,13 @@
 @property (weak, nonatomic) IBOutlet GMSMapView *gmap;
 @property (strong, nonatomic) GMSMarker *startServiceMarker;
 @property (strong, nonatomic) GMSMarker *endServiceMarker;
+@property (strong, nonatomic) GMSMarker *geofenceMarker;
+@property (strong, nonatomic) GMSCircle *circ;
 @property (weak, nonatomic) IBOutlet UILabel *driverStatusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *startAddressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
 @property (strong, nonatomic) NSMutableArray *gmsmarkerArray;
+@property (weak, nonatomic) IBOutlet UIWebView *webController;
 
 @end
 
@@ -72,6 +76,27 @@
                                             resizingMode:UIImageResizingModeStretch]
                              forBarMetrics:UIBarMetricsDefault];
     [self initGoogleMap];
+    
+    self.webController.delegate = self;
+}
+
+
+-(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+    NSString *currentUrl = request.URL.absoluteString;
+    
+    if ([currentUrl rangeOfString:@"https://gopspay.azurewebsites.net/postauth-service-end" options:NSRegularExpressionSearch].location != NSNotFound) {
+        //Create Email data
+        
+        [self sendServiceEmail];
+        
+        NSLog(@"request end");
+        [self hideSpinner];
+        self.newStatus = 1;
+        [self changeStatus];
+        [self.view sendSubviewToBack:self.webController];
+    }
+
+    return YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -103,13 +128,13 @@
 }
 
 - (void)initGoogleMap {
+    self.gmap.delegate = self;
     GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:17];
     self.gmap.camera = camera;
     self.gmap.myLocationEnabled = YES;
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
     self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 3, 0);
-    
     [self getServicesAndVehicles];
 }
 
@@ -188,42 +213,43 @@
 
 - (void)getServicesAndVehicles {
     if (self.currentService == nil && self.gmap!= nil) {
-        [self clearServicesAndVehicles];
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        //[self clearServicesAndVehicles];
+        self.geofenceMarker.title = @"Espere un momento";
+        [self drawGeofence];
+        
+        if (self.circ != nil) {
+            NSDictionary *params = @{
+                                     @"lat": [NSNumber numberWithFloat:self.circ.position.latitude],
+                                     @"lng": [NSNumber numberWithFloat:self.circ.position.longitude],
+                                     @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]
+                                     };
             
-            NSDictionary *response = responseObject;
             
-            NSData *imageDot = UIImagePNGRepresentation([UIImage imageNamed:@"dot.png"]);
-            NSData *imageCar = UIImagePNGRepresentation([UIImage imageNamed:@"car.png"]);
-            
-            if ([[response objectForKey:@"status"] boolValue] == YES) {
-                self.shouldCleanMap = YES;
-                NSArray *services = [response objectForKey:@"services"];
-                NSArray *vehicles = [response objectForKey:@"vehicles"];
+            [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSDictionary *response = responseObject;
+                //NSLog(@"services data %@", response);
                 
-                for (NSDictionary *service in services) {
-                    GMSMarker *marker = [[GMSMarker alloc] init];
-                    marker.position = CLLocationCoordinate2DMake([[service objectForKey:@"Latitud_Origen"] doubleValue], [[service objectForKey:@"Longitud_Origen"] doubleValue]);
-                    marker.icon = [UIImage imageWithData:imageDot scale:2];
-                    marker.map = self.gmap;
-                    
-                    [self.gmsmarkerArray addObject: marker];
-                }
                 
-                for (NSDictionary *vehicle in vehicles) {
-                    GMSMarker *marker = [[GMSMarker alloc] init];
-                    marker.position = CLLocationCoordinate2DMake([[vehicle objectForKey:@"lat"] doubleValue], [[vehicle objectForKey:@"lng"] doubleValue]);
-                    marker.icon = [UIImage imageWithData:imageCar scale:2];
-                    marker.map = self.gmap;
+                if ([[response objectForKey:@"status"] boolValue] == YES) {
                     
-                    [self.gmsmarkerArray addObject: marker];
+                    NSString *totalValue = @"";
+                    
+                    for (NSDictionary *total in [response objectForKey:@"data"]) {
+                        totalValue = [totalValue stringByAppendingString: [total objectForKey:@"total"]];
+                        totalValue = [totalValue stringByAppendingString:@" "];
+                    }
+                    
+                    self.geofenceMarker.title = totalValue;
+                    
                 }
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self clearServicesAndVehicles];
-        }];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                //[self clearServicesAndVehicles];
+            }];
+
+        }
     } else {
-        [self clearServicesAndVehicles];
+        //[self clearServicesAndVehicles];
+        [self removeGeofence];
     }
 }
 
@@ -290,6 +316,8 @@
                               } else {
                                   self.accepted = YES;
                               }
+                              
+                              [self removeGeofence];
                           } else {
                               self.currentService = nil;
                               self.isOnService = NO;
@@ -309,6 +337,7 @@
                           }
                           
                           [self changeStatus];
+                          [self trackService];
                       } @catch (NSException *exception) {
                           NSLog(@"exception: %@", exception);
                           [self.app.dataLibrary deleteKey:@"service"];
@@ -318,6 +347,7 @@
                           }
                           
                           [self changeStatus];
+                          [self trackService];
                       }
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       NSLog(@"failure: %@", error);
@@ -328,7 +358,10 @@
                       }
                       
                       [self changeStatus];
+                      [self trackService];
                   }];
+    
+    
 }
 
 - (void)changeStatus {
@@ -436,6 +469,7 @@
             NSLog(@"%@", responseObject);
             self.accepted = YES;
             [self showAlert:@"Confirmar" :@"Servicio aceptado"];
+            [self trackService];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
             NSLog(@"%@", error);
@@ -507,19 +541,17 @@
                                NSLog(@"%@", error);
                            }];
         } else if (self.serviceStatus == 5) {
-            //Open
+            self.endServiceEmail = [self endServiceData];
             
+            //Open
             UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio"
                                                                               message:@"Ingresa el monto y observaciones"
                                                                        preferredStyle:UIAlertControllerStyleAlert];
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                 textField.keyboardType = UIKeyboardTypeNumberPad;
-                textField.placeholder = @"Monto del viaje, Ej. 0.00";
-                
-                if ([service objectForKey:@"monto"]!=nil) {
-                    textField.text = [[service objectForKey:@"monto"] stringValue];
-                }
+                //textField.enabled = NO;
+                textField.text = [self setPrice];
             }];
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
@@ -535,17 +567,19 @@
                     [self showAlert:@"Finalizar" :@"Ingresa monto y observaciones"];
                 } else {
                     [self showSpinner];
-                    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-end"]
-                                parameters:@{@"idr": [service objectForKey:@"id"], @"idd": [service objectForKey:@"idd"], @"price": price, @"obs": obs} progress:nil
-                                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                        [self hideSpinner];
-                                       NSLog(@"%@", responseObject);
-                                       self.newStatus = 1;
-                                       [self changeStatus];
-                                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                                       [self hideSpinner];
-                                       NSLog(@"%@", error);
-                                   }];
+                    
+                    NSDictionary *tracker = @{};
+                    
+                    if ([self.app.dataLibrary existsKey:@"track"]) {
+                        tracker = [self.app.dataLibrary getDictionary:@"track"];
+                        
+                    }
+                    
+                    NSString *url = [[[[[@"https://gopspay.azurewebsites.net/postauth-service-start" stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
+                    
+                    NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
+                    [self.webController loadRequest: request];
+                    [self.view bringSubviewToFront:self.webController];
                 }
             }];
             
@@ -556,7 +590,24 @@
             [endAlert addAction:sendEndAction];
             [endAlert addAction:cancelEndAction];
             [self presentViewController:endAlert animated:YES completion:nil];
+            
         }
+    }
+}
+
+- (void)sendServiceEmail {
+    if (self.endServiceEmail != nil) {
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-email"]
+                                         parameters:self.endServiceEmail progress:nil
+                                            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                                 [self hideSpinner];
+                                                self.newStatus = 1;
+                                                [self changeStatus];
+                                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                                [self hideSpinner];
+                                                NSLog(@"%@", error);
+                                            }];
+        self.endServiceEmail = nil;
     }
 }
 
@@ -630,5 +681,160 @@
         ((ChatViewController *)segue.destinationViewController).isClient = YES;
     }
 }
+
+//Save locally the service
+- (void)trackService {
+    if (self.isOnService && [[self.currentService objectForKey:@"estatus_reserva"] intValue] == 5) {
+        NSArray *trackLocation = [NSArray alloc];
+        NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
+        NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
+        NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
+        double distance = 0;
+        
+        if (self.app.selfLocation != nil && lat > 0 && lng >0) {
+            if ([self.app.dataLibrary existsKey:@"track"]) {
+                NSArray *currentTrackLocation = [[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"location"];
+                NSMutableArray *trackServiceLocation = [[NSMutableArray alloc] initWithArray:currentTrackLocation];
+                NSString *lastLocation = [currentTrackLocation objectAtIndex:[currentTrackLocation count] - 1];
+                NSArray *lastLatLng = [lastLocation componentsSeparatedByString:@","];
+                
+                double currentDistance = [self.app.selfLocation distanceFromLocation:[[CLLocation alloc] initWithLatitude:[[lastLatLng objectAtIndex:0] doubleValue] longitude:[[lastLatLng objectAtIndex:1] doubleValue]]];
+                
+                distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
+                
+                if (![currentLocation isEqualToString:lastLocation] && currentDistance > 20) {
+                    [trackServiceLocation addObject:currentLocation];
+                    distance = distance + currentDistance;
+                }
+                
+                trackLocation = trackServiceLocation;
+            } else {
+                trackLocation = [[NSArray alloc] initWithObjects:currentLocation, nil];
+            }
+            
+            NSDictionary *trackService = @{ @"id": [self.currentService objectForKey:@"idd"], @"location": trackLocation, @"distance": [NSNumber numberWithDouble: distance] };
+            [self.app.dataLibrary saveDictionary:trackService :@"track"];
+        }
+    } else {
+        [self.app.dataLibrary deleteKey:@"track"];
+    }
+}
+
+- (NSString*) setPrice {
+    NSDictionary *fare = [self.app.dataLibrary getDictionary:@"fare"];
+    NSDictionary *track = [self.app.dataLibrary getDictionary:@"track"];
+
+    double distance = [[track objectForKey:@"distance"] doubleValue];
+    double totalTime = [[self.currentService objectForKey:@"minutos"] doubleValue];
+    
+    double fareTime = totalTime * ([[fare objectForKey:@"minuto"] doubleValue]);
+    double fareDistance = (distance / 1000) * ([[fare objectForKey:@"km"] doubleValue]);
+    double fareStart = [[fare objectForKey:@"base"] doubleValue];
+    double fareMin = [[fare objectForKey:@"minimo"] doubleValue];
+    
+    double fareTotal = fareStart + fareDistance + fareTime;
+    
+    if (fareTotal < fareMin) {
+        fareTotal = fareMin;
+    }
+    
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    [fmt setPositiveFormat:@"0.##"];
+    
+    return [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]];
+}
+
+- (NSDictionary *) endServiceData {
+    
+    NSDictionary *fare  = [self.app.dataLibrary getDictionary:@"fare"];
+    NSDictionary *track = [self.app.dataLibrary getDictionary:@"track"];
+    NSArray *locations = [track objectForKey:@"location"];
+    
+    
+    double distance = [[track objectForKey:@"distance"] doubleValue];
+    double totalTime = [[self.currentService objectForKey:@"minutos"] doubleValue];
+    
+    double fareTime = totalTime * ([[fare objectForKey:@"minuto"] doubleValue]);
+    double fareDistance = (distance / 1000) * ([[fare objectForKey:@"km"] doubleValue]);
+    double fareStart = [[fare objectForKey:@"base"] doubleValue];
+    double fareMin = [[fare objectForKey:@"minimo"] doubleValue];
+    
+    double fareTotal = fareStart + fareDistance + fareTime;
+    
+    if (fareTotal < fareMin) {
+        fareTotal = fareMin;
+    }
+    
+    NSString *cleanLocations = [[locations componentsJoinedByString:@"|"] stringByReplacingOccurrencesOfString:@"0,0|" withString:@""];
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    
+    [fmt setPositiveFormat:@"0.##"];
+    
+    
+    NSDictionary *end = @{
+                          @"id": [NSNumber numberWithInt:[[self.currentService objectForKey:@"id"] intValue]],
+                          @"chofer": [self.app.dataLibrary getString:@"driver_fullname"],
+                          @"usuario_id": [self.currentService objectForKey:@"usuario_id"],
+                          @"chofer_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                          @"origen": [self.currentService objectForKey:@"origen"],
+                          @"destino": [self.currentService objectForKey:@"destino"],
+                          @"lat_o": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_origen"] doubleValue]],
+                          @"lng_o": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_origen"] doubleValue]],
+                          @"lat_d": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_destino"] doubleValue]],
+                          @"lng_d": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_destino"] doubleValue]],
+                          @"precio_base": [fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]],
+                          @"precio_minimo": [fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]],
+                          @"precio_km": [fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]],
+                          @"precio_minuto": [fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]],
+                          @"path": cleanLocations,
+                          @"tiempo": [NSNumber numberWithDouble:totalTime],
+                          @"km": [fmt stringFromNumber:[NSNumber numberWithDouble:(distance / 1000)]],
+                          @"total": [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]]
+                          };
+    
+    return end;
+}
+
+
+//Geofence
+
+- (void) drawGeofence {
+    if (self.circ == nil) {
+        self.circ = [[GMSCircle alloc] init];
+        self.circ.position = [self.gmap.camera target];
+        self.circ.radius = 1000;
+        self.circ.fillColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.3];
+        self.circ.strokeColor = [UIColor redColor];
+        self.circ.strokeWidth = 1;
+        self.circ.map = self.gmap;
+        
+    
+        self.geofenceMarker = [[GMSMarker alloc] init];
+        self.geofenceMarker.title = @"Espere un momento";
+        self.geofenceMarker.position = self.circ.position;
+        self.geofenceMarker.map = self.gmap;
+    } else {
+        self.circ.position = [self.gmap.camera target];
+        self.geofenceMarker.position = self.circ.position;
+    }
+}
+
+- (void) removeGeofence {
+    if (self.circ != nil) {
+        self.circ.map = nil;
+        self.geofenceMarker.map = nil;
+        self.circ = nil;
+        self.geofenceMarker = nil;
+    }
+}
+
+- (void) mapView:(GMSMapView *) mapView didTapAtCoordinate:(CLLocationCoordinate2D)coordinate {
+    if (self.circ != nil) {
+        self.circ.position = coordinate;
+        self.geofenceMarker.position = self.circ.position;
+        self.geofenceMarker.title = @"Espere un momento";
+    }
+}
+
 
 @end

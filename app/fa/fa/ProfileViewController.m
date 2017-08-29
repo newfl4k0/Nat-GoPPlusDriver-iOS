@@ -43,6 +43,7 @@
     [self.spinner stopAnimating];
 }
 
+
 - (IBAction)updateName:(id)sender {
     NSString *name = self.nameText.text;
     NSString *surname = self.surnameText.text;
@@ -51,7 +52,7 @@
         [self showAlert:@"GoPPlus Driver" :@"Ingresa el nuevo nombre y apellido"];
         return;
     }
-    
+
     [self.spinner startAnimating];
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-name"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"name": name, @"surname": surname } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.spinner stopAnimating];
@@ -60,6 +61,8 @@
         if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
             [self.app.dataLibrary saveString:name :@"driver_name"];
             [self.app.dataLibrary saveString:surname :@"driver_surname"];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self.spinner stopAnimating];
@@ -77,7 +80,10 @@
     }
     
     [self.spinner startAnimating];
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"pass": pass } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    
+    NSLog(@"userid %@", [self.app.dataLibrary getString:@"userid"]);
+    
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"] parameters:@{ @"id": [self.app.dataLibrary getString:@"userid"], @"pass": pass } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.spinner stopAnimating];
         [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
         
@@ -140,7 +146,7 @@
                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                        [self.app.dataLibrary saveDriverImage:chosenImage];
                        [self.spinner stopAnimating];
-                       NSLog(@"upload: %@", responseObject);
+                       [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
                    }
                    failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        [self.spinner stopAnimating];
