@@ -95,7 +95,7 @@
         [self changeStatus];
         [self.view sendSubviewToBack:self.webController];
     }
-    
+
     return YES;
 }
 
@@ -550,7 +550,7 @@
             
             [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                 textField.keyboardType = UIKeyboardTypeNumberPad;
-                textField.enabled = NO;
+                //textField.enabled = NO;
                 textField.text = [self setPrice];
             }];
             
@@ -597,10 +597,6 @@
 
 - (void)sendServiceEmail {
     if (self.endServiceEmail != nil) {
-        
-        //NSLog(@"self.endServiceEmail %@", self.endServiceEmail);
-        
-        
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-email"]
                                          parameters:self.endServiceEmail progress:nil
                                             success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

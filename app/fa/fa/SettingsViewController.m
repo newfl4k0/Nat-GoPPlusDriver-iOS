@@ -30,7 +30,7 @@
     [super viewDidLoad];
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
-    [self reloadVehicleData];
+    [self syncVehicleData];
     [self.spinner stopAnimating];
 }
 
@@ -116,7 +116,6 @@
 
 - (void)syncVehicleData {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"getVehicleInfo"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_id"]]  } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        
         if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
             [self.app.dataLibrary saveDictionary:[responseObject objectForKey:@"data"] : @"vehicleData"];
             [self reloadVehicleData];

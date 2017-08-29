@@ -31,7 +31,7 @@
         self.trackDate   = [NSDate date];
         [self initializeLocationManager];
         
-        self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@", [self.app.dataLibrary getString:@"driver_fullname"]];
+        self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@ %@", [self.app.dataLibrary getString:@"driver_name"], [self.app.dataLibrary getString:@"driver_surname"]];
         [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
         
         [self getImage];
@@ -42,6 +42,12 @@
         [self syncServices];
         [self syncVehicleData];
         [self syncConfiguration];
+        
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(setDriverData:)
+         name:@"driverData"
+         object:nil ];
     }
 }
 
@@ -217,6 +223,12 @@
         self.imageDriver.image = [UIImage imageNamed:@"avatar.png"];
         [self.app.dataLibrary saveDriverImage:[UIImage imageNamed:@"avatar.png"]];
     }
+}
+
+- (void)setDriverData: (NSNotification *) notification {
+    [self.imageDriver setImage:[self.app.dataLibrary getDriverImage]];
+    self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@ %@", [self.app.dataLibrary getString:@"driver_name"], [self.app.dataLibrary getString:@"driver_surname"]];
+    
 }
 
 

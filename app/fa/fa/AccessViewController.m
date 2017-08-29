@@ -92,6 +92,7 @@
                            [self.app.dataLibrary saveString:[response valueForKey:@"completo"] :@"driver_fullname"];
                            [self.app.dataLibrary saveString:[response valueForKey:@"licencia"] :@"license"];
                            [self.app.dataLibrary saveDictionary:[response valueForKey:@"tarifa"] :@"fare"];
+                           [self.app.dataLibrary saveString:[response valueForKey:@"usuario_id"] :@"userid"];
                            
                            [self.app initDrawerWindow];
                        } else {
@@ -101,7 +102,7 @@
                    failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        NSLog(@"%@", error);
                        [self stopSpinner];
-                       [self showAlert:@"Error" :@"Verifica el estatus del servidor y datos ingresados"];
+                       [self showAlert:@"Error" :@"Verifica tu usuario y contraseña"];
                    }];
 }
 
