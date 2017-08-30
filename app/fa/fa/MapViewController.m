@@ -84,7 +84,7 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *currentUrl = request.URL.absoluteString;
     
-    if ([currentUrl rangeOfString:@"https://gopspay.azurewebsites.net/postauth-service-end" options:NSRegularExpressionSearch].location != NSNotFound) {
+    if ([currentUrl rangeOfString:@"https://gopspayqa.azurewebsites.net/postauth-service-end" options:NSRegularExpressionSearch].location != NSNotFound) {
         //Create Email data
         
         [self sendServiceEmail];
@@ -575,7 +575,7 @@
                         
                     }
                     
-                    NSString *url = [[[[[@"https://gopspay.azurewebsites.net/postauth-service-start" stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
+                    NSString *url = [[[[[@"https://gopspayqa.azurewebsites.net/postauth-service-start" stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
                     
                     NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
                     [self.webController loadRequest: request];
