@@ -53,6 +53,8 @@
         } else {
             [self showAlert:@"Próximos Servicios" :@"Actualmente no tienes ningún servicio pre-asignado. Para actualizar ve a Configuración>Iniciar sincronización manual"];
         }
+        
+        [self.table reloadData];
     } @catch (NSException *exception) {
         NSLog(@"%@", exception);
         [self showAlert:@"Próximos Servicios" :@"Ocurrió un error al mostrar los servicios. Intenta nuevamente"];
@@ -119,6 +121,7 @@
                       } else {
                           [self.app.dataLibrary deleteKey:@"vc-services"];
                       }
+                      
                       
                       [self setTableData];
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
