@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fnV-Tp-qmf">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="fnV-Tp-qmf">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="AvenirNext.ttc">
+            <string>AvenirNext-Bold</string>
+            <string>AvenirNext-DemiBold</string>
+            <string>AvenirNext-Medium</string>
+            <string>AvenirNext-Regular</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--Center View-->
         <scene sceneID="tne-QT-ifu">
@@ -209,8 +217,8 @@
                                 <items>
                                     <navigationItem id="42S-wj-9rH">
                                         <barButtonItem key="leftBarButtonItem" style="done" id="hib-iR-wpX">
-                                            <button key="customView" opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="XBw-V2-ePr">
-                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleAspectFit" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="XBw-V2-ePr">
+                                                <rect key="frame" x="16" y="0.0" width="58" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="menu"/>
                                                 <connections>
@@ -417,8 +425,8 @@
                                 <items>
                                     <navigationItem title="Historial" id="H1H-Jp-k2z">
                                         <barButtonItem key="leftBarButtonItem" width="25" style="done" id="dC9-zs-n4m">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="VhH-R1-kit">
-                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="VhH-R1-kit">
+                                                <rect key="frame" x="16" y="0.0" width="58" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="menu"/>
                                                 <connections>
@@ -427,8 +435,8 @@
                                             </button>
                                         </barButtonItem>
                                         <barButtonItem key="rightBarButtonItem" title="Item" width="25" style="plain" id="NVg-KF-GIf">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="RPW-i4-VUC" userLabel="Sync Button">
-                                                <rect key="frame" x="329" y="27" width="30" height="30"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="RPW-i4-VUC" userLabel="Sync Button">
+                                                <rect key="frame" x="311" y="0.0" width="48" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="sync"/>
                                                 <connections>
@@ -585,8 +593,8 @@
                                 <items>
                                     <navigationItem title="Próximos Viajes" id="6Qm-Rc-YNn">
                                         <barButtonItem key="leftBarButtonItem" style="done" id="0de-Af-8aH">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="71c-e8-uaN">
-                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="71c-e8-uaN">
+                                                <rect key="frame" x="16" y="0.0" width="58" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="menu"/>
                                                 <connections>
@@ -595,8 +603,8 @@
                                             </button>
                                         </barButtonItem>
                                         <barButtonItem key="rightBarButtonItem" style="plain" id="gnx-2s-Wfp">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Bnd-6m-Pam">
-                                                <rect key="frame" x="329" y="27" width="30" height="30"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Bnd-6m-Pam">
+                                                <rect key="frame" x="311" y="0.0" width="48" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="sync"/>
                                                 <connections>
@@ -666,8 +674,8 @@
                                 <items>
                                     <navigationItem title="Estados de Cuenta" id="ucI-wz-p0b">
                                         <barButtonItem key="leftBarButtonItem" image="back" style="plain" id="3Fr-KX-e5t">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="pg8-Um-Lz9">
-                                                <rect key="frame" x="16" y="27" width="30" height="30"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="pg8-Um-Lz9">
+                                                <rect key="frame" x="16" y="0.0" width="50" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="back"/>
                                                 <connections>
@@ -771,8 +779,8 @@
                                 <items>
                                     <navigationItem title="Detalle" id="Fm4-HZ-EUb">
                                         <barButtonItem key="leftBarButtonItem" style="plain" id="Y13-eJ-Z2A">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="4lA-Fq-SxV">
-                                                <rect key="frame" x="16" y="27" width="30" height="30"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="4lA-Fq-SxV">
+                                                <rect key="frame" x="16" y="0.0" width="50" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="back"/>
                                                 <connections>
@@ -979,8 +987,8 @@
                                 <items>
                                     <navigationItem title="Configuración" id="JRr-N7-xlG">
                                         <barButtonItem key="leftBarButtonItem" style="done" id="4TU-6g-Cgz">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="tOX-HS-hRW">
-                                                <rect key="frame" x="16" y="29" width="35" height="25"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="tOX-HS-hRW">
+                                                <rect key="frame" x="16" y="0.0" width="58" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="menu"/>
                                                 <connections>
@@ -1239,8 +1247,8 @@
                                 <items>
                                     <navigationItem title="Perfil" id="kWQ-hb-i2k">
                                         <barButtonItem key="leftBarButtonItem" style="plain" id="vGj-89-kOS">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Z5l-PC-VDo">
-                                                <rect key="frame" x="16" y="27" width="30" height="30"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Z5l-PC-VDo">
+                                                <rect key="frame" x="16" y="0.0" width="50" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="back"/>
                                                 <connections>
@@ -1514,8 +1522,8 @@
                                 <items>
                                     <navigationItem title="Chat" id="7a8-hY-96q">
                                         <barButtonItem key="leftBarButtonItem" style="done" id="F4J-i5-A8U">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="ty3-sX-jh5">
-                                                <rect key="frame" x="16" y="31" width="23" height="22"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="ty3-sX-jh5">
+                                                <rect key="frame" x="16" y="0.0" width="58" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="menu"/>
                                                 <connections>
@@ -1524,8 +1532,8 @@
                                             </button>
                                         </barButtonItem>
                                         <barButtonItem key="rightBarButtonItem" image="phone" style="plain" id="Ujr-4g-jpy">
-                                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="9TW-Jc-vfG" userLabel="callButton">
-                                                <rect key="frame" x="334" y="29" width="25" height="25"/>
+                                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="9TW-Jc-vfG" userLabel="callButton">
+                                                <rect key="frame" x="275" y="0.0" width="84" height="44"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <state key="normal" image="phone"/>
                                                 <connections>
@@ -1852,7 +1860,6 @@
                     <toolbarItems/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="hsF-2V-5h5">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
