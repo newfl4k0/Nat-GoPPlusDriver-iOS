@@ -1,63 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
   <testsuite name="fastlane.lanes">
-    
-    
-    
-      
-<<<<<<< HEAD
-<<<<<<< HEAD
-      <testcase classname="fastlane.lanes" name="0: Verifying required fastlane version" time="0.003227">
-=======
-      <testcase classname="fastlane.lanes" name="0: Verifying required fastlane version" time="0.003186">
->>>>>>> parent of 2dbfc74... Version 5 Fastlane
-        
-      </testcase>
-    
-      
-      <testcase classname="fastlane.lanes" name="1: default_platform" time="0.002276">
-        
-      </testcase>
-    
-      
-<<<<<<< HEAD
-      <testcase classname="fastlane.lanes" name="2: gym" time="59.944932">
-=======
-
-      <testcase classname="fastlane.lanes" name="0: Verifying required fastlane version" time="0.003457">
-
-      </testcase>
-    
-
-      <testcase classname="fastlane.lanes" name="1: default_platform" time="0.002553">
-
-      </testcase>
-    
-      
-
-      <testcase classname="fastlane.lanes" name="2: gym" time="63.308751">
-
->>>>>>> parent of ee42e4c... Change QA endpoint
-=======
-      <testcase classname="fastlane.lanes" name="2: gym" time="54.078843">
->>>>>>> parent of 2dbfc74... Version 5 Fastlane
-        
-      </testcase>
-    
-      
-<<<<<<< HEAD
-<<<<<<< HEAD
       <testcase classname="fastlane.lanes" name="3: crashlytics" time="9.928363">
-=======
-
-      <testcase classname="fastlane.lanes" name="3: crashlytics" time="9.345687">
-
->>>>>>> parent of ee42e4c... Change QA endpoint
-=======
-      <testcase classname="fastlane.lanes" name="3: crashlytics" time="7.777764">
->>>>>>> parent of 2dbfc74... Version 5 Fastlane
-        
       </testcase>
-    
   </testsuite>
 </testsuites>
