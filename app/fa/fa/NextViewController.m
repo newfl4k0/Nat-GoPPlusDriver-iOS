@@ -12,7 +12,6 @@
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) IBOutlet UITableView *table;
 @property (weak, nonatomic) AppDelegate *app;
-@property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @end
 
@@ -20,14 +19,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventHandler:) name:@"eventReload" object:nil];
+    
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventHandler:) name:@"eventReload" object:nil];
-    
     [self.table setDelegate:self];
     [self.table setDataSource:self];
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
     [self.spinner stopAnimating];
     [self setTableData];
 }
@@ -53,15 +51,15 @@
         } else {
             [self showAlert:@"Próximos Servicios" :@"Actualmente no tienes ningún servicio pre-asignado. Para actualizar ve a Configuración>Iniciar sincronización manual"];
         }
+        
+        [self.table reloadData];
     } @catch (NSException *exception) {
-        NSLog(@"%@", exception);
         [self showAlert:@"Próximos Servicios" :@"Ocurrió un error al mostrar los servicios. Intenta nuevamente"];
     }
 }
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"%@", indexPath);
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

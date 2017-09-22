@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
 
-@interface ProfileViewController : UIViewController<UIImagePickerControllerDelegate,UITextFieldDelegate>
+@interface ProfileViewController : UIViewController<UINavigationControllerDelegate,UIImagePickerControllerDelegate,UITextFieldDelegate>
 
 @end

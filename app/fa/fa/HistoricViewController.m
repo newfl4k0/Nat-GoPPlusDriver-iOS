@@ -14,7 +14,6 @@
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) AppDelegate *app;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
-@property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @end
 
 @implementation HistoricViewController
@@ -26,8 +25,6 @@
     
     [self.table setDelegate:self];
     [self.table setDataSource:self];
-
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
     [self.spinner stopAnimating];
     [self setTableData];
 }
@@ -46,7 +43,6 @@
         
         [self.table reloadData];
     } @catch (NSException *exception) {
-        NSLog(@"%@", exception);
         [self showAlert:@"Historial" :@"Ocurrió un error al mostrar los servicios. Intenta nuevamente"];
     }
 }

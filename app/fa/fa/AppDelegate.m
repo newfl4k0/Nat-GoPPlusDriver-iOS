@@ -23,7 +23,8 @@
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
-    self.serverUrl = @"https://godriverqa.azurewebsites.net/";
+    self.serverUrl = @"https://godriver.azurewebsites.net/";
+    self.payworksUrl = @"https://gopspay.azurewebsites.net/";
 
     [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
@@ -59,16 +60,26 @@
     [_window makeKeyAndVisible];
 }
 
+// UNUserNotificationCenter Delegate // >= iOS 10
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    [self handleNotification:notification.request.content.userInfo];
+}
+
 - (void)registerForRemoteNotifications {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     center.delegate = self;
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAlertStyleAlert | UNAuthorizationOptionBadge ) completionHandler:^(BOOL granted, NSError * _Nullable error) {
         if (!error) {
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+                [[UIApplication sharedApplication] registerForRemoteNotifications];
+            }];
+        } else {
+            NSLog(@"registerForRemoteNotifications %@", error);
         }
     }];
 }
-
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     NSString *strDevicetoken = [[NSString alloc]initWithFormat:@"%@", [[[deviceToken description]
@@ -115,19 +126,11 @@
     }
 }
 
-// UNUserNotificationCenter Delegate // >= iOS 10
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
-    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
-    [self handleNotification:notification.request.content.userInfo];
-}
-
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
     completionHandler();
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [self handleNotification: response.notification.request.content.userInfo];
 }
-
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

@@ -32,11 +32,8 @@
     [self.passwordInput setDelegate:self];
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
-        
         [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSDictionary *response = responseObject;
-            
-            NSLog(@"response from connection-status %@", response);
             
             [self stopSpinner];
             
@@ -67,10 +64,7 @@
     [self.spinner startAnimating];
     [self.view setUserInteractionEnabled:NO];
     
-    NSDictionary *parameters = @{
-                                 @"user": [self.userInput text],
-                                 @"password": [self.passwordInput text]
-                                 };
+    NSDictionary *parameters = @{@"user": [self.userInput text], @"password": [self.passwordInput text]};
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"login"]
                 parameters:parameters
@@ -118,7 +112,7 @@
     [self presentViewController:errorAlert animated:YES completion:nil];
 }
 
--(void)dissmissAlert:(UIAlertController *) alert{
+- (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 

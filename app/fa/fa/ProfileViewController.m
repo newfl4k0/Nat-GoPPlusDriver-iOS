@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UINavigationBar *navBar;
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
+@property(weak, nonatomic) id<UINavigationControllerDelegate, UIImagePickerControllerDelegate> delegate;
 
 @end
 
@@ -80,9 +81,6 @@
     }
     
     [self.spinner startAnimating];
-    
-    NSLog(@"userid %@", [self.app.dataLibrary getString:@"userid"]);
-    
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"] parameters:@{ @"id": [self.app.dataLibrary getString:@"userid"], @"pass": pass } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         [self.spinner stopAnimating];
         [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];

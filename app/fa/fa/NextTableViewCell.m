@@ -123,7 +123,8 @@
     NSDictionary *dict = [[self.app.dataLibrary getArray:@"canceloptions"] objectAtIndex:indexPath.row];
     NSDictionary *parameters = @{
                                  @"idr": [NSNumber numberWithInteger:self.serviceId],
-                                 @"idc": [NSNumber numberWithInteger:[dict[@"id"] integerValue]]
+                                 @"idc": [NSNumber numberWithInteger:[dict[@"id"] integerValue]],
+                                 @"vc_id": [self.app.dataLibrary getString:@"vehicle_driver_id"]
                                 };
     
     [self dissmissAlert:self.alertController];

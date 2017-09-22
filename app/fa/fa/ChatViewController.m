@@ -19,7 +19,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 @property (weak, nonatomic) UIImage *clientImage;
 @property (weak, nonatomic) IBOutlet UIButton *callButton;
-@property (weak, nonatomic) NSDictionary *clientData;
+@property (strong, nonatomic) NSDictionary *clientData;
 @end
 
 @implementation ChatViewController
@@ -70,8 +70,8 @@
                               self.clientData = [data objectForKey:@"clientData"];
                           }
                           
-                          NSLog(@"chat %@", self.dataArray);
-                          NSLog(@"clientData %@", self.clientData);
+                          //NSLog(@"chat %@", self.dataArray);
+                          //NSLog(@"clientData %@", self.clientData);
                           
                           [self.table reloadData];
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

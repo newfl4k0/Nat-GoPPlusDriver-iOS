@@ -19,7 +19,6 @@
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSDictionary *currentService;
 @property (strong, nonatomic) NSDictionary *endServiceEmail;
-@property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
 @property (nonatomic) NSInteger newStatus;
@@ -71,10 +70,6 @@
     self.spinner.center = CGPointMake(160, 240);
     self.spinner.hidesWhenStopped = YES;
     [self.view addSubview:self.spinner];
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"]
-                                            resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
-                                            resizingMode:UIImageResizingModeStretch]
-                             forBarMetrics:UIBarMetricsDefault];
     [self initGoogleMap];
     
     self.webController.delegate = self;
@@ -84,7 +79,7 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *currentUrl = request.URL.absoluteString;
     
-    if ([currentUrl rangeOfString:@"https://gopspayqa.azurewebsites.net/postauth-service-end" options:NSRegularExpressionSearch].location != NSNotFound) {
+    if ([currentUrl rangeOfString:[self.app.payworksUrl stringByAppendingString:@"postauth-service-end"] options:NSRegularExpressionSearch].location != NSNotFound) {
         //Create Email data
         
         [self sendServiceEmail];
@@ -129,18 +124,16 @@
 
 - (void)initGoogleMap {
     self.gmap.delegate = self;
-    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:17];
-    self.gmap.camera = camera;
+    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:10];
     self.gmap.myLocationEnabled = YES;
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
-    self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 3, 0);
+    self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 2.2, 0);
     [self getServicesAndVehicles];
 }
 
 - (void)setGoogleMapCenter:(CLLocation *)location {
-    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:location.coordinate.latitude longitude:location.coordinate.longitude zoom:17];
-    self.gmap.camera = camera;
+    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:location.coordinate.latitude longitude:location.coordinate.longitude zoom:17];
 }
 
 - (void)removeStartServiceMarker {
@@ -446,9 +439,8 @@
 - (void)cancelService {
     if (self.currentService != nil) {
         NSDictionary *parameters = @{
-                                     @"r": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
-                                     @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]],
-                                     @"af_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"affiliate_id"]]};
+                                     @"r_id": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
+                                     @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]};
 
         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"reject-service"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSLog(@"%@", responseObject);
@@ -575,7 +567,7 @@
                         
                     }
                     
-                    NSString *url = [[[[[@"https://gopspayqa.azurewebsites.net/postauth-service-start" stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
+                    NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
                     
                     NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
                     [self.webController loadRequest: request];
