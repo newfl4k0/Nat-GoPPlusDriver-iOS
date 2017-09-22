@@ -23,8 +23,8 @@
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
-    self.serverUrl = @"https://godriver.azurewebsites.net/";
-    self.payworksUrl = @"https://gopspay.azurewebsites.net/";
+    self.serverUrl = @"https://godriverqa.azurewebsites.net/";
+    self.payworksUrl = @"https://gopspayqa.azurewebsites.net/";
 
     [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
