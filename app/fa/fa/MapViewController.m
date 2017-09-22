@@ -83,8 +83,6 @@
         //Create Email data
         
         [self sendServiceEmail];
-        
-        NSLog(@"request end");
         [self hideSpinner];
         self.newStatus = 1;
         [self changeStatus];
@@ -107,19 +105,33 @@
     
 }
 
+- (void)initTimeriOS9 {
+    [self setGoogleMapLatestLocation];
+    [self initializeServiceData];
+    [self getServicesAndVehicles];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self initTimeriOS9];
+    });
+}
+
 //Handle Timers
 - (void)initTimer {
-    self.timerMap = [NSTimer scheduledTimerWithTimeInterval:3.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self setGoogleMapLatestLocation];
-    }];
-    
-    self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self initializeServiceData];
-    }];
-    
-    self.timerServicesAndVehicles = [NSTimer scheduledTimerWithTimeInterval:30.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self getServicesAndVehicles];
-    }];
+    if ([[[UIDevice currentDevice] systemVersion] intValue] >= 10) {
+        self.timerMap = [NSTimer scheduledTimerWithTimeInterval:3.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            [self setGoogleMapLatestLocation];
+        }];
+        
+        self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            [self initializeServiceData];
+        }];
+        
+        self.timerServicesAndVehicles = [NSTimer scheduledTimerWithTimeInterval:30.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            [self getServicesAndVehicles];
+        }];
+    } else {
+        [self initTimeriOS9];
+    }
 }
 
 - (void)initGoogleMap {
@@ -153,10 +165,9 @@
 - (void)setGoogleMapLatestLocation {
     if (self.app.locationManager != nil) {
         CLLocation* location = [self.app.locationManager location];
-
-        if (location != nil && self.locationUpdated == NO) {
+        
+        if (location != nil) {
             [self setGoogleMapCenter:location];
-            self.locationUpdated = YES;
         }
     }
     

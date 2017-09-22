@@ -122,7 +122,6 @@
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
-    //NSLog(@"locationManager");
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     self.app.selfLocation = location;
@@ -134,14 +133,13 @@
     }
     
     if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 300.0) {
-        //NSLog(@"sendLocation");
+        NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
     }
     
-
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
-        //NSLog(@"sendTrack");
+        NSLog(@"sendTrack");
         self.trackDate = [NSDate date];
         [self sendTrack:location];
     }
@@ -185,12 +183,22 @@
 }
 
 
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-    NSLog(@"locationManager didFailWithError %@", error);
+- (void)ios9LocationManagerTimer {
+    [self initializeLocationManager];
     
-    [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
-        [self initializeLocationManager];
-    }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self ios9LocationManagerTimer];
+    });
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    if ([[[UIDevice currentDevice] systemVersion] intValue] >= 10) {
+        [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+            [self initializeLocationManager];
+        }];
+    } else {
+        [self ios9LocationManagerTimer];
+    }
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {

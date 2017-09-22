@@ -14,35 +14,30 @@
 @property (weak, nonatomic) IBOutlet UITextField *messageInput;
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (weak, nonatomic) AppDelegate *app;
-@property (strong, nonatomic) NSTimer *timer;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navigationBar;
 @property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 @property (weak, nonatomic) UIImage *clientImage;
 @property (weak, nonatomic) IBOutlet UIButton *callButton;
 @property (strong, nonatomic) NSDictionary *clientData;
+@property (nonatomic) BOOL shouldUpdate;
 @end
 
 @implementation ChatViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
+    self.shouldUpdate = YES;
     
     [self.table setDataSource:self];
     [self.table setDelegate:self];
     [self.messageInput setDelegate:self];
-    
     [self updateChatArray];
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        [self updateChatArray];
-    }];
+    
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                                                                             resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 
-    
-    
     if (self.isClient == YES) {
         [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
         self.clientImage = [UIImage imageNamed:@"avatar.png"];
@@ -50,45 +45,45 @@
 }
 
 - (void)updateChatArray {
-    if (self.isClient == YES) {
-        NSDictionary *parameters = @{
-                                     @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
-                                     @"did": self.did
-                                     };
+    if (self.shouldUpdate) {
+        if (self.isClient == YES) {
+            NSDictionary *parameters = @{
+                                         @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
+                                         @"did": self.did
+                                         };
+            
+            [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-client"]
+                       parameters: parameters
+                          progress:nil
+                          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                              NSDictionary *data = (NSDictionary *) responseObject;
+                              self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                              
+                              if ([data objectForKey:@"clientData"] != nil) {
+                                  self.clientData = [data objectForKey:@"clientData"];
+                              }
+                              
+                              [self.table reloadData];
+                          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                              NSLog(@"Error %@", error);
+                          }];
+        } else {
+            NSDictionary *parameters = @{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]};
+            [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
+                       parameters: parameters
+                         progress:nil
+                          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                              NSDictionary *data = (NSDictionary *) responseObject;
+                              self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
+                              [self.table reloadData];
+                          } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                              NSLog(@"Error %@", error);
+                          }];
+        }
         
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-client"]
-                   parameters: parameters
-                      progress:nil
-                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                          NSDictionary *data = (NSDictionary *) responseObject;
-                          self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
-                          
-                          
-                          
-                          
-                          if ([data objectForKey:@"clientData"] != nil) {
-                              self.clientData = [data objectForKey:@"clientData"];
-                          }
-                          
-                          //NSLog(@"chat %@", self.dataArray);
-                          //NSLog(@"clientData %@", self.clientData);
-                          
-                          [self.table reloadData];
-                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                          NSLog(@"Error %@", error);
-                      }];
-    } else {
-        NSDictionary *parameters = @{@"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]]};
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"chat-base"]
-                   parameters: parameters
-                     progress:nil
-                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                          NSDictionary *data = (NSDictionary *) responseObject;
-                          self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
-                          [self.table reloadData];
-                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                          NSLog(@"Error %@", error);
-                      }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [self updateChatArray];
+        });
     }
 }
 
@@ -123,6 +118,7 @@
 
 - (IBAction)doToggleMenu:(id)sender {
     if (self.isClient) {
+        self.shouldUpdate = NO;
         [self dismissViewControllerAnimated:YES completion:nil];
     } else  {
         [((AppDelegate*) [UIApplication sharedApplication].delegate).drawerController
@@ -138,8 +134,6 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-    [self.timer invalidate];
-    self.timer = nil;
 }
 
 #pragma mark - Keyboard
