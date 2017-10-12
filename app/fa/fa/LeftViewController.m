@@ -101,7 +101,7 @@
         self.app.locationManager = [[CLLocationManager alloc] init];
         self.app.locationManager.delegate = self;
         self.app.locationManager.distanceFilter = kCLDistanceFilterNone;
-        self.app.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        self.app.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
         
         [self.app.locationManager setAllowsBackgroundLocationUpdates:YES];
         

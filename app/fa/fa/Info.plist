@@ -30,7 +30,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>7</string>
+	<string>8</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -63,6 +63,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Obtener imagen de perfil</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Usar ubicación GPS</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Usar ubicación GPS</string>
 	<key>NSLocationUsageDescription</key>
@@ -83,10 +85,6 @@
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDefault</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

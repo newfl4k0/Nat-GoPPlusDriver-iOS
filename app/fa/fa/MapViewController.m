@@ -42,6 +42,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
 @property (strong, nonatomic) NSMutableArray *gmsmarkerArray;
 @property (weak, nonatomic) IBOutlet UIWebView *webController;
+@property (strong, nonatomic) NSString *lastStoredLocation;
 
 @end
 
@@ -58,19 +59,26 @@
     self.shouldCleanMap = YES;
     self.needsConfirm = YES;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
-    self.status = 0;
-    self.newStatus = 1;
+    self.status = [self.app.dataLibrary getInteger:@"status"];
+    self.newStatus = [self.app.dataLibrary getInteger:@"status"];
     self.gmsmarkerArray = [[NSMutableArray alloc] init];
     [self changeStatus];
     [self initTimer];
-    [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
-    self.driverStatusLabel.text = @"Libre";
+    
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [self.spinner setBackgroundColor:[UIColor blackColor]];
     self.spinner.center = CGPointMake(160, 240);
     self.spinner.hidesWhenStopped = YES;
     [self.view addSubview:self.spinner];
     [self initGoogleMap];
+    
+    if (self.status == 1) {
+        [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
+        self.driverStatusLabel.text = @"Libre";
+    } else {
+        [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
+        self.driverStatusLabel.text = @"Ausente";
+    }
     
     self.webController.delegate = self;
 }
@@ -167,7 +175,21 @@
         CLLocation* location = [self.app.locationManager location];
         
         if (location != nil) {
-            [self setGoogleMapCenter:location];
+            NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
+            NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
+            
+            if (self.lastStoredLocation != nil) {
+                NSArray *lastLatLng = [self.lastStoredLocation componentsSeparatedByString:@","];
+                double currentDistance = [self.app.selfLocation distanceFromLocation:[[CLLocation alloc] initWithLatitude:[[lastLatLng objectAtIndex:0] doubleValue] longitude:[[lastLatLng objectAtIndex:1] doubleValue]]];
+                
+                if (currentDistance > 20) {
+                    self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
+                    [self setGoogleMapCenter:location];
+                }
+            } else {
+                self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
+                [self setGoogleMapCenter:location];
+            }
         }
     }
     
