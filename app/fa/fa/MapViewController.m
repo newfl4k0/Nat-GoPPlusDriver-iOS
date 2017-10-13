@@ -88,8 +88,6 @@
     NSString *currentUrl = request.URL.absoluteString;
     
     if ([currentUrl rangeOfString:[self.app.payworksUrl stringByAppendingString:@"postauth-service-end"] options:NSRegularExpressionSearch].location != NSNotFound) {
-        //Create Email data
-        
         [self sendServiceEmail];
         [self hideSpinner];
         self.newStatus = 1;
@@ -149,7 +147,7 @@
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
     self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 2.2, 0);
-    [self getServicesAndVehicles];
+    
 }
 
 - (void)setGoogleMapCenter:(CLLocation *)location {
@@ -189,6 +187,7 @@
             } else {
                 self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
                 [self setGoogleMapCenter:location];
+                [self getServicesAndVehicles];
             }
         }
     }
@@ -254,7 +253,6 @@
             [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSDictionary *response = responseObject;
                 //NSLog(@"services data %@", response);
-                
                 
                 if ([[response objectForKey:@"status"] boolValue] == YES) {
                     

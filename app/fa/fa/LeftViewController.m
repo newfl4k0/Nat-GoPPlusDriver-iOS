@@ -133,13 +133,13 @@
     }
     
     if ([eventDate timeIntervalSince1970] - [self.currentDate timeIntervalSince1970] > 300.0) {
-        NSLog(@"sendLocation");
+        //NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
     }
     
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
-        NSLog(@"sendTrack");
+        //NSLog(@"sendTrack");
         self.trackDate = [NSDate date];
         [self sendTrack:location];
     }

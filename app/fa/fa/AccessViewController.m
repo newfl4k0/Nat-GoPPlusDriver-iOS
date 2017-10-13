@@ -27,7 +27,6 @@
     singleTap.numberOfTapsRequired = 1;
     [self.view setUserInteractionEnabled:YES];
     [self.view addGestureRecognizer:singleTap];
-    
     [self.userInput setDelegate:self];
     [self.passwordInput setDelegate:self];
     

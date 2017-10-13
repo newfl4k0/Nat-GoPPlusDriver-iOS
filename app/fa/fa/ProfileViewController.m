@@ -15,6 +15,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *surnameText;
 @property (weak, nonatomic) IBOutlet UITextField *passText;
 @property (weak, nonatomic) IBOutlet UITextField *confirmPassText;
+@property (weak, nonatomic) IBOutlet UITextField *currentPassText;
 @property (weak, nonatomic) IBOutlet UINavigationBar *navBar;
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
@@ -38,10 +39,16 @@
     
     self.passText.delegate = self;
     self.confirmPassText.delegate = self;
+    self.currentPassText.delegate = self;
     
     [self initializeImageProfile];
     [self getImage];
     [self.spinner stopAnimating];
+    
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+    singleTap.numberOfTapsRequired = 1;
+    [self.view setUserInteractionEnabled:YES];
+    [self.view addGestureRecognizer:singleTap];
 }
 
 
@@ -74,25 +81,35 @@
 - (IBAction)updatePassword:(id)sender {
     NSString *pass = self.passText.text;
     NSString *pass2 = self.confirmPassText.text;
+    NSString *currentPass = self.currentPassText.text;
     
     if ([pass isEqualToString:@""] || ![pass isEqualToString:pass2]) {
-        [self showAlert:@"GoPPlus Driver" :@"Verifica la contraseña ingresada"];
+        [self showAlert:@"GoPPlus Driver" :@"Verifica la nueva contraseña ingresada"];
+        return;
+    }
+    
+    if ([currentPass isEqualToString:@""]) {
+        [self showAlert:@"GoPPlus Driver" :@"Verifica la contraseña actual"];
         return;
     }
     
     [self.spinner startAnimating];
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"] parameters:@{ @"id": [self.app.dataLibrary getString:@"userid"], @"pass": pass } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        [self.spinner stopAnimating];
-        [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
+    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"]
+                parameters:@{ @"id": [self.app.dataLibrary getString:@"userid"], @"pass": pass, @"oldpass": currentPass }
+                  progress:nil
+                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       [self.spinner stopAnimating];
+                       [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
         
-        if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
-            self.passText.text = @"";
-            self.confirmPassText.text = @"";
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        [self.spinner stopAnimating];
-        [self showAlert:@"GoPPlus Driver" :@"Error al actualizar. Intenta nuevamente"];
-    }];
+                       if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+                           self.passText.text = @"";
+                           self.confirmPassText.text = @"";
+                           self.currentPassText.text = @"";
+                       }
+                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                       [self.spinner stopAnimating];
+                       [self showAlert:@"GoPPlus Driver" :@"Error al actualizar. Intenta nuevamente"];
+                   }];
 }
 
 - (IBAction)quitSegue:(id)sender {
@@ -207,5 +224,28 @@
     self.view.frame = CGRectOffset(self.view.frame, 0, movement);
     [UIView commitAnimations];
 }
+
+- (void)hideKeyboard {
+    if ([self.passText isFirstResponder]) {
+        [self.passText resignFirstResponder];
+    }
+    
+    if ([self.confirmPassText isFirstResponder]) {
+        [self.confirmPassText resignFirstResponder];
+    }
+    
+    if ([self.currentPassText isFirstResponder]) {
+        [self.currentPassText resignFirstResponder];
+    }
+    
+    if ([self.nameText isFirstResponder]) {
+        [self.nameText resignFirstResponder];
+    }
+    
+    if ([self.surnameText isFirstResponder]) {
+        [self.surnameText resignFirstResponder];
+    }
+}
+
 
 @end
