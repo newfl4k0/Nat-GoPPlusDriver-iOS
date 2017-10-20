@@ -132,7 +132,9 @@
         self.imagePickerController = [[UIImagePickerController alloc] init];
         self.imagePickerController.delegate = self;
         self.imagePickerController.allowsEditing = YES;
-        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        self.imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+
+    
     #endif
 }
 

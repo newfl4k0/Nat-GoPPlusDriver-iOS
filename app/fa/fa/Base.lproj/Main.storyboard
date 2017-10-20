@@ -1785,9 +1785,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="136"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="avatar" translatesAutoresizingMaskIntoConstraints="NO" id="H4h-be-a9N">
-                                        <rect key="frame" x="8" y="16" width="72" height="72"/>
+                                        <rect key="frame" x="8" y="16" width="80" height="80"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" secondItem="H4h-be-a9N" secondAttribute="height" multiplier="1:1" id="gvS-9f-wmL"/>
+                                            <constraint firstAttribute="height" constant="80" id="BHo-Hp-2KI"/>
+                                            <constraint firstAttribute="width" secondItem="H4h-be-a9N" secondAttribute="height" id="gvS-9f-wmL"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Bienvenido &lt;Nombre Chofer&gt;" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ff6-Rk-8Y2">
@@ -1803,7 +1804,7 @@
                                     <constraint firstAttribute="bottom" secondItem="ff6-Rk-8Y2" secondAttribute="bottom" constant="8" id="7MA-xW-XD7"/>
                                     <constraint firstItem="H4h-be-a9N" firstAttribute="top" secondItem="b4V-oU-Zt8" secondAttribute="top" constant="16" id="GeL-nb-h9O"/>
                                     <constraint firstItem="ff6-Rk-8Y2" firstAttribute="leading" secondItem="H4h-be-a9N" secondAttribute="leading" id="mP1-EK-pxY"/>
-                                    <constraint firstItem="ff6-Rk-8Y2" firstAttribute="top" secondItem="H4h-be-a9N" secondAttribute="bottom" constant="16" id="nai-9C-FaZ"/>
+                                    <constraint firstItem="ff6-Rk-8Y2" firstAttribute="top" secondItem="H4h-be-a9N" secondAttribute="bottom" constant="8" id="nai-9C-FaZ"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="ff6-Rk-8Y2" secondAttribute="trailing" constant="20" symbolic="YES" id="sIf-kZ-NM1"/>
                                 </constraints>
                             </view>
@@ -1898,7 +1899,6 @@
                             <constraint firstItem="vBB-bT-AqZ" firstAttribute="top" secondItem="sIX-eH-WBC" secondAttribute="bottom" constant="16" id="6xp-Oo-iv0"/>
                             <constraint firstItem="LJI-Kq-4FP" firstAttribute="width" secondItem="Re9-SJ-TTk" secondAttribute="width" id="74J-hA-fLI"/>
                             <constraint firstItem="IUk-zV-QDO" firstAttribute="leading" secondItem="sIX-eH-WBC" secondAttribute="trailing" constant="24" id="7Ld-ku-EHG"/>
-                            <constraint firstItem="H4h-be-a9N" firstAttribute="height" secondItem="f3W-7s-MZp" secondAttribute="height" multiplier="0.15" id="7e2-48-7Ig"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="height" secondItem="vBB-bT-AqZ" secondAttribute="height" id="8JJ-HI-hfh"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="k5z-lf-A4D" secondAttribute="trailing" constant="20" symbolic="YES" id="9fS-4J-KNl"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="hmG-Eh-PZE" secondAttribute="trailing" constant="20" symbolic="YES" id="A2e-zO-bAM"/>

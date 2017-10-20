@@ -179,16 +179,19 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.messageInput resignFirstResponder];
     
-    if (self.messageInput.text.length >0) {
+    NSString *unfilteredString = self.messageInput.text;
+    NSCharacterSet *notAllowedChars = [[NSCharacterSet characterSetWithCharactersInString:@"áéíóúàèìòùabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "] invertedSet];
+    NSString *resultString = [[unfilteredString componentsSeparatedByCharactersInSet:notAllowedChars] componentsJoinedByString:@""];
+    
+    if (self.messageInput.text.length >0 && [self.messageInput.text isEqualToString:resultString]) {
         if (self.isClient == YES) {
-            
             NSDictionary *parameters = @{
                                          @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
-                                         @"message": self.messageInput.text,
+                                         @"message": resultString,
                                          @"did": self.did
                                          };
             
-            NSLog(@"Debe enviar chat cliente %@", parameters);
+            //NSLog(@"Debe enviar chat cliente %@", parameters);
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-client"]
                         parameters:parameters progress:nil
@@ -203,7 +206,7 @@
                                          @"message": self.messageInput.text
                                          };
             
-            NSLog(@"Debe enviar chat base %@", parameters);
+            //NSLog(@"Debe enviar chat base %@", parameters);
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
                         parameters:parameters progress:nil
@@ -215,7 +218,10 @@
         }
         
         self.messageInput.text = @"";
+    } else {
+        [self showAlert:@"GoPPlus Driver" :@"Verifica el mensaje. No debe estar vacío, debe contener letras, números y espacios solamente."];
     }
+    
     
     return NO;
 }
@@ -292,5 +298,24 @@
 - (void) setClientName : (UIImage *)image {
     self.clientImage = image;
 }
+
+
+//Alerts
+- (void)showAlert:(NSString *)title :(NSString *)message {
+    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
+                                                                        message:message
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
+    
+    [errorAlert addAction:ok];
+    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
+    [self presentViewController:errorAlert animated:YES completion:nil];
+}
+
+- (void)dissmissAlert:(UIAlertController *) alert{
+    [alert dismissViewControllerAnimated:true completion:nil];
+}
+
 
 @end
