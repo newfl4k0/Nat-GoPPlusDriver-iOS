@@ -575,6 +575,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = fa/fa.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 426NG3E4Q3;
 				INFOPLIST_FILE = fa/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -593,6 +594,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = fa/fa.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 426NG3E4Q3;
 				INFOPLIST_FILE = fa/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
