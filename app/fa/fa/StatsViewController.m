@@ -21,6 +21,7 @@
 @property (strong, nonatomic) NSNumber *conductor_id;
 @property (weak, nonatomic) IBOutlet UILabel *dayAmount;
 @property (strong, nonatomic) NSDictionary *stats;
+@property (strong, nonatomic) NSNumberFormatter *fmt;
 @end
 
 @implementation StatsViewController
@@ -39,12 +40,18 @@
     self.datepicker.maximumDate = [[NSDate alloc] init];
     self.datepicker.minimumDate =  [self.datepicker.maximumDate dateByAddingTimeInterval:(-86400 * 365)];
     self.conductor_id = [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]];
+    
+    self.fmt = [[NSNumberFormatter alloc] init];
+    [self.fmt setPositiveFormat:@"0.##"];
+    
     [self setChart];
 }
 
 
 - (void)setChart {
     [self deleteChart];
+    
+    
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"statsDriverByWeek"] parameters:@{@"id": self.conductor_id, @"day": [self.formatter stringFromDate:self.datepicker.date] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *data = [responseObject objectForKey:@"data"];
@@ -58,8 +65,7 @@
             [ref addObject:[day objectForKey:@"Dia"]];
         }
         
-        
-        self.dayAmount.text = [NSString stringWithFormat:@"$%@", [[data objectForKey:@"driver"] objectForKey:@"Total_Conductor"]];
+        self.dayAmount.text = [NSString stringWithFormat:@"$%@", [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[[data objectForKey:@"driver"] objectForKey:@"Total_Conductor"] doubleValue]]]];
         self.chrt = [[DSBarChart alloc] initWithFrame:self.chartContainer.bounds
                                                 color:[UIColor redColor]
                                            references:ref

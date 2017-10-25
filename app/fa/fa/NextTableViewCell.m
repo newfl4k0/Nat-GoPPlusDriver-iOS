@@ -139,9 +139,11 @@
             [self triggerNotification];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self showAlert:@"Próximos Servicios" :@"Error al sincronizar servicios, vuelve a intentarlo."];
+            [self triggerNotification];
         }];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self showAlert:@"Próximos Servicios" :@"Error al rechazar servicio, vuelve a intentarlo."];
+        [self triggerNotification];
     }];
 }
 
@@ -183,6 +185,14 @@
 - (void)triggerNotification {
     [[NSNotificationCenter defaultCenter]
      postNotificationName:@"eventReload"
+     object:nil ];
+    
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"eventShowSpinner"
+     object:nil ];
+    
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"eventStopSpinner"
      object:nil ];
 }
 

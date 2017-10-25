@@ -142,12 +142,11 @@
 
 - (void)initGoogleMap {
     self.gmap.delegate = self;
-    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:10];
+    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:18];
     self.gmap.myLocationEnabled = YES;
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
     self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 2.2, 0);
-    
 }
 
 - (void)setGoogleMapCenter:(CLLocation *)location {
@@ -836,6 +835,7 @@
         self.geofenceMarker.title = @"Espere un momento";
         self.geofenceMarker.position = self.circ.position;
         self.geofenceMarker.map = self.gmap;
+        self.gmap.selectedMarker = self.geofenceMarker;
     } else {
         self.circ.position = [self.gmap.camera target];
         self.geofenceMarker.position = self.circ.position;
@@ -856,6 +856,7 @@
         self.circ.position = coordinate;
         self.geofenceMarker.position = self.circ.position;
         self.geofenceMarker.title = @"Espere un momento";
+        self.gmap.selectedMarker = self.geofenceMarker;
     }
 }
 
