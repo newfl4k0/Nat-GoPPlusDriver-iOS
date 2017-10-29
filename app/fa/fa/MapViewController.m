@@ -84,17 +84,42 @@
 }
 
 
+- (NSDictionary*)decodeURL:(NSString*)urlString {
+    NSMutableDictionary *queryStringDictionary = [[NSMutableDictionary alloc] init];
+    NSArray *urlComponents = [urlString componentsSeparatedByString:@"&"];
+    
+    for (NSString *keyValuePair in urlComponents) {
+        NSArray *pairComponents = [keyValuePair componentsSeparatedByString:@"="];
+        NSString *key = [[pairComponents firstObject] stringByRemovingPercentEncoding];
+        NSString *value = [[pairComponents lastObject] stringByRemovingPercentEncoding];
+        
+        [queryStringDictionary setObject:value forKey:key];
+    }
+    
+    return queryStringDictionary;
+}
+
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *currentUrl = request.URL.absoluteString;
     
+    NSLog(@"currentUrl %@", currentUrl);
+    
     if ([currentUrl rangeOfString:[self.app.payworksUrl stringByAppendingString:@"postauth-service-end"] options:NSRegularExpressionSearch].location != NSNotFound) {
-        [self sendServiceEmail];
-        [self hideSpinner];
-        self.newStatus = 1;
-        [self changeStatus];
-        [self.view sendSubviewToBack:self.webController];
+        NSDictionary *params = [self decodeURL:currentUrl];
+        
+        if ([[params objectForKey:@"RESULTADO_PAYW"] isEqualToString:@"A"]) {
+            [self sendServiceEmail];
+            [self hideSpinner];
+            self.newStatus = 1;
+            [self changeStatus];
+            [self.view sendSubviewToBack:self.webController];
+        } else {
+            [self showAlert:@"Error en el pago" : [[params objectForKey:@"TEXTO"] stringByReplacingOccurrencesOfString:@"+" withString:@" "]];
+            [self hideSpinner];
+            [self.view sendSubviewToBack:self.webController];
+        }
     }
-
+    
     return YES;
 }
 
