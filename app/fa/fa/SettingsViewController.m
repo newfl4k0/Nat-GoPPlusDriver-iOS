@@ -107,7 +107,8 @@
                           [self.app.dataLibrary deleteKey:@"settings"];
                       }
                       
-                      [self.spinner stopAnimating];
+                      [self syncDriver];
+                      
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       [self.spinner stopAnimating];
                       [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
@@ -159,6 +160,23 @@
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self.spinner stopAnimating];
         [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+    }];
+}
+
+- (void)syncDriver {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"driverdata"] parameters:@{@"id": [self.app.dataLibrary getString:@"driver_id"]} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if ([[responseObject objectForKey:@"data"] count] > 0) {
+            NSDictionary *driverData = [[responseObject objectForKey:@"data"] objectAtIndex:0];
+            [self.app.dataLibrary saveString:[driverData objectForKey:@"nombre"] :@"driver_name"];
+            [self.app.dataLibrary saveString:[driverData objectForKey:@"apellido"] :@"driver_surname"];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
+        }
+        
+        [self.spinner stopAnimating];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self.spinner stopAnimating];
+        [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
+        [self.spinner stopAnimating];
     }];
 }
 

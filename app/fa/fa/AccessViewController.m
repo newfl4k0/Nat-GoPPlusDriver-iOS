@@ -27,7 +27,6 @@
     singleTap.numberOfTapsRequired = 1;
     [self.view setUserInteractionEnabled:YES];
     [self.view addGestureRecognizer:singleTap];
-    
     [self.userInput setDelegate:self];
     [self.passwordInput setDelegate:self];
     
@@ -133,6 +132,27 @@
     [self.passwordInput resignFirstResponder];
 
     return NO;
+}
+
+-(void)textFieldDidBeginEditing:(UITextField *)textField {
+    [self animateTextField:textField up:YES];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    [self animateTextField:textField up:NO];
+}
+
+-(void)animateTextField:(UITextField*)textField up:(BOOL)up {
+    const int movementDistance = -130; // tweak as needed
+    const float movementDuration = 0.3f; // tweak as needed
+    
+    int movement = (up ? movementDistance : -movementDistance);
+    
+    [UIView beginAnimations: @"animateTextField" context: nil];
+    [UIView setAnimationBeginsFromCurrentState: YES];
+    [UIView setAnimationDuration: movementDuration];
+    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
+    [UIView commitAnimations];
 }
 
 @end

@@ -126,46 +126,29 @@
     }
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-}
-
 #pragma mark - Keyboard
 
-- (void)moveView:(NSDictionary *)userInfo up:(BOOL)up {
-    CGRect keyboardEndFrame;
-    UIViewAnimationCurve animationCurve;
-    NSTimeInterval animationDuration;
+-(void)textFieldDidBeginEditing:(UITextField *)textField {
+    [self animateTextField:textField up:YES];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    [self animateTextField:textField up:NO];
+}
+
+-(void)animateTextField:(UITextField*)textField up:(BOOL)up {
+    const int movementDistance = -160; // tweak as needed
+    const float movementDuration = 0.3f; // tweak as needed
     
-    [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardEndFrame];
-    [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] getValue:&animationCurve];
-    [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] getValue:&animationDuration];
+    int movement = (up ? movementDistance : -movementDistance);
     
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationBeginsFromCurrentState:YES];
-    [UIView setAnimationDuration:animationDuration];
-    [UIView setAnimationCurve:animationCurve];
-    
-    CGRect keyboardFrame = [self.view convertRect:keyboardEndFrame toView:nil];
-    int y = keyboardFrame.size.height * (up ? -1 : 1);
-    self.view.frame = CGRectOffset(self.view.frame, 0, y);
+    [UIView beginAnimations: @"animateTextField" context: nil];
+    [UIView setAnimationBeginsFromCurrentState: YES];
+    [UIView setAnimationDuration: movementDuration];
+    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
     [UIView commitAnimations];
 }
 
-- (void)keyboardWillShow:(NSNotification *)notification {
-    [self moveView:[notification userInfo] up:YES];
-}
-
-- (void)keyboardWillHide:(NSNotification *)notification {
-    [self moveView:[notification userInfo] up:NO];
-    
-}
 
 //Touch table view and hide keyboard
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -179,16 +162,19 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.messageInput resignFirstResponder];
     
-    if (self.messageInput.text.length >0) {
+    NSString *unfilteredString = self.messageInput.text;
+    NSCharacterSet *notAllowedChars = [[NSCharacterSet characterSetWithCharactersInString:@"áéíóúàèìòùabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "] invertedSet];
+    NSString *resultString = [[unfilteredString componentsSeparatedByCharactersInSet:notAllowedChars] componentsJoinedByString:@""];
+    
+    if (self.messageInput.text.length >0 && [self.messageInput.text isEqualToString:resultString]) {
         if (self.isClient == YES) {
-            
             NSDictionary *parameters = @{
                                          @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
-                                         @"message": self.messageInput.text,
+                                         @"message": resultString,
                                          @"did": self.did
                                          };
             
-            NSLog(@"Debe enviar chat cliente %@", parameters);
+            //NSLog(@"Debe enviar chat cliente %@", parameters);
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-client"]
                         parameters:parameters progress:nil
@@ -203,7 +189,7 @@
                                          @"message": self.messageInput.text
                                          };
             
-            NSLog(@"Debe enviar chat base %@", parameters);
+            //NSLog(@"Debe enviar chat base %@", parameters);
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
                         parameters:parameters progress:nil
@@ -215,7 +201,10 @@
         }
         
         self.messageInput.text = @"";
+    } else {
+        [self showAlert:@"GoPPlus Driver" :@"Verifica el mensaje. No debe estar vacío, debe contener letras, números y espacios solamente."];
     }
+    
     
     return NO;
 }
@@ -292,5 +281,24 @@
 - (void) setClientName : (UIImage *)image {
     self.clientImage = image;
 }
+
+
+//Alerts
+- (void)showAlert:(NSString *)title :(NSString *)message {
+    UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
+                                                                        message:message
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleCancel handler:nil];
+    
+    [errorAlert addAction:ok];
+    [self performSelector:@selector(dissmissAlert:) withObject:errorAlert afterDelay:3.0];
+    [self presentViewController:errorAlert animated:YES completion:nil];
+}
+
+- (void)dissmissAlert:(UIAlertController *) alert{
+    [alert dismissViewControllerAnimated:true completion:nil];
+}
+
 
 @end

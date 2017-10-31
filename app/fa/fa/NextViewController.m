@@ -20,6 +20,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventHandler:) name:@"eventReload" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showSpinnerMain:) name:@"eventShowSpinner" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stopSpinnerMain:) name:@"eventStopSpinner" object:nil];
     
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
@@ -33,6 +35,8 @@
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:YES];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"eventReload" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"eventShowSpinner" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"eventShowSpinner" object:nil];
 }
 
 - (IBAction)doToggleMenu:(id)sender {
@@ -103,6 +107,15 @@
 - (void)eventHandler: (NSNotification *) notification {
     [self.table reloadData];
 }
+
+- (void)showSpinnerMain: (NSNotification *) notification {
+    [self.spinner startAnimating];
+}
+
+- (void)stopSpinnerMain: (NSNotification *) notification {
+    [self.spinner stopAnimating];
+}
+
 
 - (IBAction)syncServices:(id)sender {
     [self.spinner startAnimating];

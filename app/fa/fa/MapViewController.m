@@ -42,6 +42,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *endAddressLabel;
 @property (strong, nonatomic) NSMutableArray *gmsmarkerArray;
 @property (weak, nonatomic) IBOutlet UIWebView *webController;
+@property (strong, nonatomic) NSString *lastStoredLocation;
 
 @end
 
@@ -58,13 +59,12 @@
     self.shouldCleanMap = YES;
     self.needsConfirm = YES;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
-    self.status = 0;
-    self.newStatus = 1;
+    self.status = [self.app.dataLibrary getInteger:@"status"];
+    self.newStatus = [self.app.dataLibrary getInteger:@"status"];
     self.gmsmarkerArray = [[NSMutableArray alloc] init];
     [self changeStatus];
     [self initTimer];
-    [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
-    self.driverStatusLabel.text = @"Libre";
+    
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [self.spinner setBackgroundColor:[UIColor blackColor]];
     self.spinner.center = CGPointMake(160, 240);
@@ -72,23 +72,54 @@
     [self.view addSubview:self.spinner];
     [self initGoogleMap];
     
+    if (self.status == 1) {
+        [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
+        self.driverStatusLabel.text = @"Libre";
+    } else {
+        [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
+        self.driverStatusLabel.text = @"Ausente";
+    }
+    
     self.webController.delegate = self;
 }
 
 
+- (NSDictionary*)decodeURL:(NSString*)urlString {
+    NSMutableDictionary *queryStringDictionary = [[NSMutableDictionary alloc] init];
+    NSArray *urlComponents = [urlString componentsSeparatedByString:@"&"];
+    
+    for (NSString *keyValuePair in urlComponents) {
+        NSArray *pairComponents = [keyValuePair componentsSeparatedByString:@"="];
+        NSString *key = [[pairComponents firstObject] stringByRemovingPercentEncoding];
+        NSString *value = [[pairComponents lastObject] stringByRemovingPercentEncoding];
+        
+        [queryStringDictionary setObject:value forKey:key];
+    }
+    
+    return queryStringDictionary;
+}
+
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *currentUrl = request.URL.absoluteString;
     
+    NSLog(@"currentUrl %@", currentUrl);
+    
     if ([currentUrl rangeOfString:[self.app.payworksUrl stringByAppendingString:@"postauth-service-end"] options:NSRegularExpressionSearch].location != NSNotFound) {
-        //Create Email data
+        NSDictionary *params = [self decodeURL:currentUrl];
         
-        [self sendServiceEmail];
-        [self hideSpinner];
-        self.newStatus = 1;
-        [self changeStatus];
-        [self.view sendSubviewToBack:self.webController];
+        if ([[params objectForKey:@"RESULTADO_PAYW"] isEqualToString:@"A"]) {
+            [self sendServiceEmail];
+            [self hideSpinner];
+            self.newStatus = 1;
+            [self changeStatus];
+            [self.view sendSubviewToBack:self.webController];
+        } else {
+            [self showAlert:@"Error en el pago" : [[params objectForKey:@"TEXTO"] stringByReplacingOccurrencesOfString:@"+" withString:@" "]];
+            [self hideSpinner];
+            [self.view sendSubviewToBack:self.webController];
+        }
     }
-
+    
     return YES;
 }
 
@@ -136,12 +167,11 @@
 
 - (void)initGoogleMap {
     self.gmap.delegate = self;
-    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:10];
+    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:18];
     self.gmap.myLocationEnabled = YES;
     self.gmap.settings.myLocationButton = YES;
     self.gmap.mapType = kGMSTypeNormal;
     self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 2.2, 0);
-    [self getServicesAndVehicles];
 }
 
 - (void)setGoogleMapCenter:(CLLocation *)location {
@@ -167,7 +197,22 @@
         CLLocation* location = [self.app.locationManager location];
         
         if (location != nil) {
-            [self setGoogleMapCenter:location];
+            NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
+            NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
+            
+            if (self.lastStoredLocation != nil) {
+                NSArray *lastLatLng = [self.lastStoredLocation componentsSeparatedByString:@","];
+                double currentDistance = [self.app.selfLocation distanceFromLocation:[[CLLocation alloc] initWithLatitude:[[lastLatLng objectAtIndex:0] doubleValue] longitude:[[lastLatLng objectAtIndex:1] doubleValue]]];
+                
+                if (currentDistance > 20) {
+                    self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
+                    [self setGoogleMapCenter:location];
+                }
+            } else {
+                self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
+                [self setGoogleMapCenter:location];
+                [self getServicesAndVehicles];
+            }
         }
     }
     
@@ -232,7 +277,6 @@
             [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSDictionary *response = responseObject;
                 //NSLog(@"services data %@", response);
-                
                 
                 if ([[response objectForKey:@"status"] boolValue] == YES) {
                     
@@ -816,6 +860,7 @@
         self.geofenceMarker.title = @"Espere un momento";
         self.geofenceMarker.position = self.circ.position;
         self.geofenceMarker.map = self.gmap;
+        self.gmap.selectedMarker = self.geofenceMarker;
     } else {
         self.circ.position = [self.gmap.camera target];
         self.geofenceMarker.position = self.circ.position;
@@ -836,6 +881,7 @@
         self.circ.position = coordinate;
         self.geofenceMarker.position = self.circ.position;
         self.geofenceMarker.title = @"Espere un momento";
+        self.gmap.selectedMarker = self.geofenceMarker;
     }
 }
 
