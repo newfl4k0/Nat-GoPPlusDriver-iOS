@@ -62,6 +62,8 @@
 
 // UNUserNotificationCenter Delegate // >= iOS 10
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSLog(@"userNotificationCenter");
+    
     completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [self handleNotification:notification.request.content.userInfo];
@@ -127,6 +129,8 @@
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+     NSLog(@"didReceiveNotificationResponse");
+    
     completionHandler();
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [self handleNotification: response.notification.request.content.userInfo];

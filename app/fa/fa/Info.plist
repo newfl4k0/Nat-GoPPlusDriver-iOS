@@ -30,7 +30,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>14</string>
+	<string>15</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -61,6 +61,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Obtener imagen de perfil</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Obtener imagen de perfil</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

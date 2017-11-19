@@ -18,7 +18,7 @@
 @property (strong, nonatomic) UIActivityIndicatorView *spinner;
 @property (weak, nonatomic) AppDelegate *app;
 @property (strong, nonatomic) NSDictionary *currentService;
-@property (strong, nonatomic) NSDictionary *endServiceEmail;
+@property (strong, nonatomic) NSMutableDictionary *endServiceEmail;
 @property (nonatomic) NSInteger connection_id;
 @property (nonatomic) NSInteger status;
 @property (nonatomic) NSInteger newStatus;
@@ -102,21 +102,25 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *currentUrl = request.URL.absoluteString;
     
-    NSLog(@"currentUrl %@", currentUrl);
-    
     if ([currentUrl rangeOfString:[self.app.payworksUrl stringByAppendingString:@"postauth-service-end"] options:NSRegularExpressionSearch].location != NSNotFound) {
         NSDictionary *params = [self decodeURL:currentUrl];
         
         if ([[params objectForKey:@"RESULTADO_PAYW"] isEqualToString:@"A"]) {
             [self sendServiceEmail];
-            [self hideSpinner];
-            self.newStatus = 1;
-            [self changeStatus];
             [self.view sendSubviewToBack:self.webController];
+            
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                self.newStatus = 1;
+                [self changeStatus];
+                [self hideSpinner];
+                self.endServiceButton.enabled = YES;
+            });
         } else {
             [self showAlert:@"Error en el pago" : [[params objectForKey:@"TEXTO"] stringByReplacingOccurrencesOfString:@"+" withString:@" "]];
             [self hideSpinner];
             [self.view sendSubviewToBack:self.webController];
+            self.endServiceButton.enabled = YES;
         }
     }
     
@@ -588,56 +592,90 @@
                                NSLog(@"%@", error);
                            }];
         } else if (self.serviceStatus == 5) {
+            
             self.endServiceEmail = [self endServiceData];
+            NSDictionary *params = @{@"id": [self.endServiceEmail objectForKey:@"id"]};
             
-            //Open
-            UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio"
-                                                                              message:@"Ingresa el monto y observaciones"
-                                                                       preferredStyle:UIAlertControllerStyleAlert];
-            
-            [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-                textField.keyboardType = UIKeyboardTypeNumberPad;
-                //textField.enabled = NO;
-                textField.text = [self setPrice];
-            }];
-            
-            [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-                textField.keyboardType = UIKeyboardTypeDefault;
-                textField.placeholder = @"Observaciones del viaje";
-            }];
-            
-            UIAlertAction *sendEndAction = [UIAlertAction actionWithTitle:@"Finalizar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                NSString *price = endAlert.textFields[0].text;
-                NSString *obs   = endAlert.textFields[1].text;
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"validate-code"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+
+                NSDictionary *data = [responseObject objectForKey:@"data"];
                 
-                if ([price isEqualToString:@""] || [obs isEqualToString:@""]) {
-                    [self showAlert:@"Finalizar" :@"Ingresa monto y observaciones"];
-                } else {
-                    [self showSpinner];
+                if ([[data objectForKey:@"status"] boolValue] == YES) {
+                    double creditos_cl = [[data objectForKey:@"creditos_cliente"] doubleValue];
+                    double descuento   = [[data objectForKey:@"descuento_codigo"] doubleValue];
+                    double abono_us    = [[data objectForKey:@"nuevo_abono_usuario"] doubleValue];
+                    double n_total     = [[self.endServiceEmail objectForKey:@"total_viaje"] doubleValue] - (descuento + creditos_cl);
+                    int id_us          = [[data objectForKey:@"id_usuario"] intValue];
+                    NSString *codigo   = [data objectForKey:@"motivo_descuento"];
                     
-                    NSDictionary *tracker = @{};
                     
-                    if ([self.app.dataLibrary existsKey:@"track"]) {
-                        tracker = [self.app.dataLibrary getDictionary:@"track"];
-                        
+                    if (id_us > 0 && abono_us > 0) {
+                        [self.endServiceEmail setObject:[NSNumber numberWithDouble:abono_us] forKey:@"n_cred_usr"];
+                        [self.endServiceEmail setObject:[NSNumber numberWithInt:id_us] forKey:@"id_cred_usr"];
                     }
                     
-                    NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
-                    
-                    NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
-                    [self.webController loadRequest: request];
-                    [self.view bringSubviewToFront:self.webController];
+                    [self.endServiceEmail setObject:codigo forKey:@"codigo"];
+                    [self.endServiceEmail setObject:[NSNumber numberWithDouble:descuento] forKey:@"codigo_monto"];
+                    [self.endServiceEmail setObject:[NSNumber numberWithDouble:creditos_cl] forKey:@"creditos"];
+                    [self.endServiceEmail setObject:[NSNumber numberWithDouble:n_total] forKey:@"total"];
+
+                } else {
+                    //Normal, no descuento
+                    [self.endServiceEmail setObject:[self.endServiceEmail objectForKey:@"total_viaje"] forKey:@"total"];
                 }
+                
+                NSLog(@"new endServiceEmail %@", self.endServiceEmail);
+                
+                //Open
+                UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio" message:@"Ingresa el monto y observaciones" preferredStyle:UIAlertControllerStyleAlert];
+                
+                [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                    textField.keyboardType = UIKeyboardTypeDecimalPad;
+                    //textField.enabled = NO;
+                    textField.text = [[self.endServiceEmail objectForKey:@"total"] stringValue];
+                }];
+                 
+                [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                    textField.keyboardType = UIKeyboardTypeDefault;
+                    textField.placeholder = @"Observaciones del viaje";
+                }];
+                 
+                UIAlertAction *sendEndAction = [UIAlertAction actionWithTitle:@"Finalizar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    NSString *price = endAlert.textFields[0].text;
+                    NSString *obs   = endAlert.textFields[1].text;
+                    
+                    if ([price isEqualToString:@""] || [obs isEqualToString:@""]) {
+                         [self showAlert:@"Finalizar" :@"Ingresa monto y observaciones"];
+                    } else {
+                        [self showSpinner];
+                        self.endServiceButton.enabled = NO;
+                     
+                        NSDictionary *tracker = @{};
+                     
+                        if ([self.app.dataLibrary existsKey:@"track"]) {
+                            tracker = [self.app.dataLibrary getDictionary:@"track"];
+                        }
+                     
+                        NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
+                     
+                        NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
+                        [self.webController loadRequest: request];
+                        [self.view bringSubviewToFront:self.webController];
+                    }
+                }];
+                
+                UIAlertAction *cancelEndAction = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                     [self dissmissAlert:endAlert];
+                }];
+                
+                [endAlert addAction:sendEndAction];
+                [endAlert addAction:cancelEndAction];
+                [self presentViewController:endAlert animated:YES completion:nil];
+                
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self showAlert:@"Finalizar" :@"Error. Intenta nuevamente"];
+                NSLog(@"%@", error);
             }];
-            
-            UIAlertAction *cancelEndAction = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                [self dissmissAlert:endAlert];
-            }];
-            
-            [endAlert addAction:sendEndAction];
-            [endAlert addAction:cancelEndAction];
-            [self presentViewController:endAlert animated:YES completion:nil];
-            
         }
     }
 }
@@ -791,8 +829,7 @@
     return [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]];
 }
 
-- (NSDictionary *) endServiceData {
-    
+- (NSMutableDictionary *) endServiceData {
     NSDictionary *fare  = [self.app.dataLibrary getDictionary:@"fare"];
     NSDictionary *track = [self.app.dataLibrary getDictionary:@"track"];
     NSArray *locations = [track objectForKey:@"location"];
@@ -817,27 +854,26 @@
     
     [fmt setPositiveFormat:@"0.##"];
     
+    NSMutableDictionary *end = [NSMutableDictionary new];
     
-    NSDictionary *end = @{
-                          @"id": [NSNumber numberWithInt:[[self.currentService objectForKey:@"id"] intValue]],
-                          @"chofer": [self.app.dataLibrary getString:@"driver_fullname"],
-                          @"usuario_id": [self.currentService objectForKey:@"usuario_id"],
-                          @"chofer_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
-                          @"origen": [self.currentService objectForKey:@"origen"],
-                          @"destino": [self.currentService objectForKey:@"destino"],
-                          @"lat_o": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_origen"] doubleValue]],
-                          @"lng_o": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_origen"] doubleValue]],
-                          @"lat_d": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_destino"] doubleValue]],
-                          @"lng_d": [NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_destino"] doubleValue]],
-                          @"precio_base": [fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]],
-                          @"precio_minimo": [fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]],
-                          @"precio_km": [fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]],
-                          @"precio_minuto": [fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]],
-                          @"path": cleanLocations,
-                          @"tiempo": [NSNumber numberWithDouble:totalTime],
-                          @"km": [fmt stringFromNumber:[NSNumber numberWithDouble:(distance / 1000)]],
-                          @"total": [fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]]
-                          };
+    [end setObject:[NSNumber numberWithInt:[[self.currentService objectForKey:@"id"] intValue]] forKey:@"id"];
+    [end setObject:[self.app.dataLibrary getString:@"driver_fullname"] forKey:@"chofer"];
+    [end setObject:[self.currentService objectForKey:@"usuario_id"] forKey:@"usuario_id"];
+    [end setObject:[NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]] forKey:@"chofer_id"];
+    [end setObject:[self.currentService objectForKey:@"origen"] forKey:@"origen"];
+    [end setObject:[self.currentService objectForKey:@"destino"] forKey:@"destino"];
+    [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_origen"] doubleValue]] forKey:@"lat_o"];
+    [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_origen"] doubleValue]] forKey:@"lng_o"];
+    [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_destino"] doubleValue]] forKey:@"lat_d"];
+    [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_destino"] doubleValue]] forKey:@"lng_d"];
+    [end setObject:[fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]] forKey:@"precio_base"];
+    [end setObject:[fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]] forKey:@"precio_minimo"];
+    [end setObject:[fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]] forKey:@"precio_km"];
+    [end setObject:[fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]] forKey:@"precio_minuto"];
+    [end setObject:cleanLocations forKey:@"path"];
+    [end setObject:[NSNumber numberWithDouble:totalTime] forKey:@"tiempo"];
+    [end setObject:[fmt stringFromNumber:[NSNumber numberWithDouble:(distance / 1000)]] forKey:@"km"];
+    [end setObject:[fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]] forKey:@"total_viaje"];
     
     return end;
 }
