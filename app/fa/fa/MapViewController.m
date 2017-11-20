@@ -624,7 +624,6 @@
                     [self.endServiceEmail setObject:[self.endServiceEmail objectForKey:@"total_viaje"] forKey:@"total"];
                 }
                 
-                NSLog(@"new endServiceEmail %@", self.endServiceEmail);
                 
                 //Open
                 UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio" message:@"Ingresa el monto y observaciones" preferredStyle:UIAlertControllerStyleAlert];
@@ -632,7 +631,7 @@
                 [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                     textField.keyboardType = UIKeyboardTypeDecimalPad;
                     //textField.enabled = NO;
-                    textField.text = [[self.endServiceEmail objectForKey:@"total"] stringValue];
+                    textField.text = [self.endServiceEmail objectForKey:@"total"];
                 }];
                  
                 [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {

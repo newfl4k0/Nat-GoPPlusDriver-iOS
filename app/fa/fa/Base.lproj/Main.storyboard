@@ -1821,18 +1821,8 @@
                                     <action selector="doOpenMapView:" destination="YRj-aY-Rec" eventType="touchUpInside" id="BYF-0K-vby"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hmG-Eh-PZE">
-                                <rect key="frame" x="72" y="210" width="118" height="36"/>
-                                <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
-                                <state key="normal" title="Próximos viajes">
-                                    <color key="titleColor" red="0.1215686277" green="0.1294117719" blue="0.1411764771" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="doOpenNextView:" destination="YRj-aY-Rec" eventType="touchUpInside" id="slb-SC-noN"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IUk-zV-QDO">
-                                <rect key="frame" x="72" y="266" width="64" height="36"/>
+                                <rect key="frame" x="72" y="210" width="64" height="36"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
                                 <state key="normal" title="Historial">
                                     <color key="titleColor" red="0.1215686277" green="0.1294117719" blue="0.1411764771" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1842,7 +1832,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tyW-nM-kqg">
-                                <rect key="frame" x="72" y="322" width="208" height="36"/>
+                                <rect key="frame" x="72" y="266" width="208" height="36"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
                                 <state key="normal" title="Chat con el sistema central">
                                     <color key="titleColor" red="0.1215686277" green="0.1294117719" blue="0.1411764771" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1852,7 +1842,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k5z-lf-A4D">
-                                <rect key="frame" x="72" y="378" width="111" height="36"/>
+                                <rect key="frame" x="72" y="322" width="111" height="36"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="17"/>
                                 <state key="normal" title="Configuración">
                                     <color key="titleColor" red="0.1215686277" green="0.1294117719" blue="0.1411764771" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1870,19 +1860,16 @@
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="x42-xS-KUm"/>
                                 </constraints>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-proximo" translatesAutoresizingMaskIntoConstraints="NO" id="LJI-Kq-4FP">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-historial" translatesAutoresizingMaskIntoConstraints="NO" id="sIX-eH-WBC">
                                 <rect key="frame" x="8" y="208" width="40" height="40"/>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-historial" translatesAutoresizingMaskIntoConstraints="NO" id="sIX-eH-WBC">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-chat" translatesAutoresizingMaskIntoConstraints="NO" id="vBB-bT-AqZ">
                                 <rect key="frame" x="8" y="264" width="40" height="40"/>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-chat" translatesAutoresizingMaskIntoConstraints="NO" id="vBB-bT-AqZ">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-configuracion" translatesAutoresizingMaskIntoConstraints="NO" id="VFG-Yb-Dz7">
                                 <rect key="frame" x="8" y="320" width="40" height="40"/>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-configuracion" translatesAutoresizingMaskIntoConstraints="NO" id="VFG-Yb-Dz7">
-                                <rect key="frame" x="8" y="376" width="40" height="40"/>
-                            </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version 1.0.0 (15)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TMl-FR-9fl">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version 1.0.0 (20)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TMl-FR-9fl">
                                 <rect key="frame" x="112.5" y="455" width="95.5" height="17"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="12"/>
                                 <nil key="textColor"/>
@@ -1892,16 +1879,14 @@
                         <color key="backgroundColor" red="0.99989169836044312" green="1" blue="0.99988096952438354" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="k5z-lf-A4D" firstAttribute="centerY" secondItem="VFG-Yb-Dz7" secondAttribute="centerY" id="1MK-7P-PBh"/>
+                            <constraint firstItem="sIX-eH-WBC" firstAttribute="width" secondItem="Re9-SJ-TTk" secondAttribute="width" id="2Hq-DX-r4I"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="IUk-zV-QDO" secondAttribute="trailing" constant="20" symbolic="YES" id="3DL-x3-5Ie"/>
-                            <constraint firstItem="hmG-Eh-PZE" firstAttribute="centerY" secondItem="LJI-Kq-4FP" secondAttribute="centerY" id="3xW-dV-0fs"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="pYv-Vo-bEr" secondAttribute="trailing" constant="20" symbolic="YES" id="6EM-JY-CJ9"/>
                             <constraint firstItem="b4V-oU-Zt8" firstAttribute="top" secondItem="HrM-qJ-wiA" secondAttribute="bottom" constant="-20" id="6aI-bo-ZF2"/>
                             <constraint firstItem="vBB-bT-AqZ" firstAttribute="top" secondItem="sIX-eH-WBC" secondAttribute="bottom" constant="16" id="6xp-Oo-iv0"/>
-                            <constraint firstItem="LJI-Kq-4FP" firstAttribute="width" secondItem="Re9-SJ-TTk" secondAttribute="width" id="74J-hA-fLI"/>
                             <constraint firstItem="IUk-zV-QDO" firstAttribute="leading" secondItem="sIX-eH-WBC" secondAttribute="trailing" constant="24" id="7Ld-ku-EHG"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="height" secondItem="vBB-bT-AqZ" secondAttribute="height" id="8JJ-HI-hfh"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="k5z-lf-A4D" secondAttribute="trailing" constant="20" symbolic="YES" id="9fS-4J-KNl"/>
-                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="hmG-Eh-PZE" secondAttribute="trailing" constant="20" symbolic="YES" id="A2e-zO-bAM"/>
                             <constraint firstItem="yO0-9f-kJG" firstAttribute="top" secondItem="TMl-FR-9fl" secondAttribute="bottom" constant="8" id="CAQ-oM-RLS"/>
                             <constraint firstItem="tyW-nM-kqg" firstAttribute="centerY" secondItem="vBB-bT-AqZ" secondAttribute="centerY" id="CM3-2P-FSp"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="centerX" secondItem="vBB-bT-AqZ" secondAttribute="centerX" id="Cw8-J6-8mC"/>
@@ -1911,22 +1896,17 @@
                             <constraint firstItem="Re9-SJ-TTk" firstAttribute="leading" secondItem="H4h-be-a9N" secondAttribute="leading" id="HtV-Ep-1hh"/>
                             <constraint firstAttribute="trailing" secondItem="tyW-nM-kqg" secondAttribute="trailing" constant="40" id="JCe-de-Ok3"/>
                             <constraint firstItem="tyW-nM-kqg" firstAttribute="leading" secondItem="IUk-zV-QDO" secondAttribute="leading" id="JfN-g1-cgY"/>
-                            <constraint firstItem="sIX-eH-WBC" firstAttribute="top" secondItem="LJI-Kq-4FP" secondAttribute="bottom" constant="16" id="LfA-sg-sL7"/>
-                            <constraint firstItem="LJI-Kq-4FP" firstAttribute="centerX" secondItem="Re9-SJ-TTk" secondAttribute="centerX" id="MOt-MM-Wm4"/>
-                            <constraint firstItem="sIX-eH-WBC" firstAttribute="width" secondItem="LJI-Kq-4FP" secondAttribute="width" id="Ncl-ee-m9E"/>
+                            <constraint firstItem="sIX-eH-WBC" firstAttribute="top" secondItem="Re9-SJ-TTk" secondAttribute="bottom" constant="16" id="Q2i-bD-EwI"/>
                             <constraint firstItem="pYv-Vo-bEr" firstAttribute="leading" secondItem="Re9-SJ-TTk" secondAttribute="trailing" constant="24" id="Tzw-PW-DJA"/>
+                            <constraint firstItem="sIX-eH-WBC" firstAttribute="leading" secondItem="Re9-SJ-TTk" secondAttribute="leading" id="VxT-dk-jWL"/>
                             <constraint firstItem="Re9-SJ-TTk" firstAttribute="top" secondItem="b4V-oU-Zt8" secondAttribute="bottom" constant="16" id="X7T-go-Sxb"/>
                             <constraint firstItem="vBB-bT-AqZ" firstAttribute="width" secondItem="sIX-eH-WBC" secondAttribute="width" id="XlI-JV-WW5"/>
-                            <constraint firstItem="hmG-Eh-PZE" firstAttribute="leading" secondItem="LJI-Kq-4FP" secondAttribute="trailing" constant="24" id="bwY-R9-cY6"/>
-                            <constraint firstItem="sIX-eH-WBC" firstAttribute="height" secondItem="LJI-Kq-4FP" secondAttribute="height" id="eRA-d7-UkR"/>
                             <constraint firstItem="k5z-lf-A4D" firstAttribute="leading" secondItem="VFG-Yb-Dz7" secondAttribute="trailing" constant="24" id="gfW-yh-V7e"/>
-                            <constraint firstItem="sIX-eH-WBC" firstAttribute="centerX" secondItem="LJI-Kq-4FP" secondAttribute="centerX" id="iVt-xz-Yf3"/>
                             <constraint firstItem="b4V-oU-Zt8" firstAttribute="width" secondItem="f3W-7s-MZp" secondAttribute="width" id="mVn-WZ-yDE"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="width" secondItem="vBB-bT-AqZ" secondAttribute="width" id="mqk-qJ-xOv"/>
-                            <constraint firstItem="LJI-Kq-4FP" firstAttribute="top" secondItem="Re9-SJ-TTk" secondAttribute="bottom" constant="16" id="nxi-ru-Id0"/>
                             <constraint firstItem="IUk-zV-QDO" firstAttribute="centerY" secondItem="sIX-eH-WBC" secondAttribute="centerY" id="pTe-zv-qaY"/>
-                            <constraint firstItem="LJI-Kq-4FP" firstAttribute="height" secondItem="Re9-SJ-TTk" secondAttribute="height" id="ss7-4Y-cmq"/>
                             <constraint firstItem="b4V-oU-Zt8" firstAttribute="centerX" secondItem="f3W-7s-MZp" secondAttribute="centerX" id="tLn-rC-S5E"/>
+                            <constraint firstItem="sIX-eH-WBC" firstAttribute="height" secondItem="Re9-SJ-TTk" secondAttribute="height" id="vUP-qa-cGS"/>
                             <constraint firstItem="VFG-Yb-Dz7" firstAttribute="top" secondItem="vBB-bT-AqZ" secondAttribute="bottom" constant="16" id="wrc-Zh-5Cd"/>
                             <constraint firstItem="pYv-Vo-bEr" firstAttribute="centerY" secondItem="Re9-SJ-TTk" secondAttribute="centerY" id="xLQ-h3-aeg"/>
                         </constraints>
@@ -1973,7 +1953,6 @@
         <image name="menu-configuracion" width="109" height="107"/>
         <image name="menu-historial" width="110" height="112"/>
         <image name="menu-mapa" width="166" height="173"/>
-        <image name="menu-proximo" width="90" height="119"/>
         <image name="phone" width="84" height="84"/>
         <image name="pinend" width="95" height="118"/>
         <image name="pinstart" width="95" height="118"/>
