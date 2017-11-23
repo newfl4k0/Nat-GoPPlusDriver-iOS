@@ -43,6 +43,7 @@
 @property (strong, nonatomic) NSMutableArray *gmsmarkerArray;
 @property (weak, nonatomic) IBOutlet UIWebView *webController;
 @property (strong, nonatomic) NSString *lastStoredLocation;
+@property (strong, nonatomic) NSNumberFormatter *fmt;
 
 @end
 
@@ -64,6 +65,9 @@
     self.gmsmarkerArray = [[NSMutableArray alloc] init];
     [self changeStatus];
     [self initTimer];
+    
+    self.fmt = [[NSNumberFormatter alloc] init];
+    [self.fmt setPositiveFormat:@"0.##"];
     
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [self.spinner setBackgroundColor:[UIColor blackColor]];
@@ -90,8 +94,8 @@
     
     for (NSString *keyValuePair in urlComponents) {
         NSArray *pairComponents = [keyValuePair componentsSeparatedByString:@"="];
-        NSString *key = [[pairComponents firstObject] stringByRemovingPercentEncoding];
-        NSString *value = [[pairComponents lastObject] stringByRemovingPercentEncoding];
+        NSString *key           = [[pairComponents firstObject] stringByRemovingPercentEncoding];
+        NSString *value         = [[pairComponents lastObject] stringByRemovingPercentEncoding];
         
         [queryStringDictionary setObject:value forKey:key];
     }
@@ -281,10 +285,8 @@
             
             [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"services"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSDictionary *response = responseObject;
-                //NSLog(@"services data %@", response);
                 
                 if ([[response objectForKey:@"status"] boolValue] == YES) {
-                    
                     NSString *totalValue = @"";
                     
                     for (NSDictionary *total in [response objectForKey:@"data"]) {
@@ -617,15 +619,19 @@
                     NSString *codigo   = [data objectForKey:@"motivo_descuento"];
                     
                     
+                    if (n_total < 0) {
+                        n_total = 0;
+                    }
+                    
                     if (id_us > 0 && abono_us > 0) {
                         [self.endServiceEmail setObject:[NSNumber numberWithDouble:abono_us] forKey:@"n_cred_usr"];
                         [self.endServiceEmail setObject:[NSNumber numberWithInt:id_us] forKey:@"id_cred_usr"];
                     }
                     
                     [self.endServiceEmail setObject:codigo forKey:@"codigo"];
-                    [self.endServiceEmail setObject:[NSNumber numberWithDouble:descuento] forKey:@"codigo_monto"];
-                    [self.endServiceEmail setObject:[NSNumber numberWithDouble:creditos_cl] forKey:@"creditos"];
-                    [self.endServiceEmail setObject:[NSNumber numberWithDouble:n_total] forKey:@"total"];
+                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:descuento]] forKey:@"codigo_monto"];
+                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:creditos_cl]] forKey:@"creditos"];
+                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:n_total]] forKey:@"total"];
 
                 } else {
                     //Normal, no descuento
@@ -638,7 +644,7 @@
                 [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                     textField.keyboardType = UIKeyboardTypeDecimalPad;
                     //textField.enabled = NO;
-                    textField.text = [self.endServiceEmail objectForKey:@"total"];
+                    textField.text = [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[self.endServiceEmail objectForKey:@"total"] doubleValue]]];
                 }];
                  
                 [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
@@ -649,6 +655,10 @@
                 UIAlertAction *sendEndAction = [UIAlertAction actionWithTitle:@"Finalizar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     NSString *price = endAlert.textFields[0].text;
                     NSString *obs   = endAlert.textFields[1].text;
+                  
+                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:[price doubleValue]]] forKey:@"total"];
+                    
+                    //update
                     
                     if ([price isEqualToString:@""]) {
                         [self showAlert:@"Finalizar" :@"Ingresa el monto del servicio"];
@@ -656,6 +666,7 @@
                         [self showAlert:@"Finalizar" :@"Ingresa las observaciones del viaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
                     } else {
                         [self showSpinner];
+                        
                         self.endServiceButton.enabled = NO;
                         
                         [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"send-obs"] parameters:@{@"id": [service objectForKey:@"id"], @"obs": obs } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -663,6 +674,7 @@
                             NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
 
                             NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
+                            
                             [self.webController loadRequest: request];
                             [self.view bringSubviewToFront:self.webController];
 
@@ -787,8 +799,8 @@
 - (void)trackService {
     if (self.isOnService && [[self.currentService objectForKey:@"estatus_reserva"] intValue] == 5) {
         NSArray *trackLocation = [NSArray alloc];
-        NSNumber *lat = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude];
-        NSNumber *lng = [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude];
+        NSNumber *lat = [NSNumber numberWithDouble:self.app.selfLocation.coordinate.latitude];
+        NSNumber *lng = [NSNumber numberWithDouble:self.app.selfLocation.coordinate.longitude];
         NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
         double distance = 0;
         
@@ -803,7 +815,7 @@
                 
                 distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
                 
-                if (![currentLocation isEqualToString:lastLocation] && currentDistance > 20) {
+                if (![currentLocation isEqualToString:lastLocation] && currentDistance > 50) {
                     [trackServiceLocation addObject:currentLocation];
                     distance = distance + currentDistance;
                 }
@@ -882,14 +894,14 @@
     [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_origen"] doubleValue]] forKey:@"lng_o"];
     [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_destino"] doubleValue]] forKey:@"lat_d"];
     [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_destino"] doubleValue]] forKey:@"lng_d"];
-    [end setObject:[fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]] forKey:@"precio_base"];
-    [end setObject:[fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]] forKey:@"precio_minimo"];
-    [end setObject:[fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]] forKey:@"precio_km"];
-    [end setObject:[fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]] forKey:@"precio_minuto"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]] forKey:@"precio_base"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]] forKey:@"precio_minimo"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]] forKey:@"precio_km"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]] forKey:@"precio_minuto"];
     [end setObject:cleanLocations forKey:@"path"];
     [end setObject:[NSNumber numberWithDouble:totalTime] forKey:@"tiempo"];
-    [end setObject:[fmt stringFromNumber:[NSNumber numberWithDouble:(distance / 1000)]] forKey:@"km"];
-    [end setObject:[fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]] forKey:@"total_viaje"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:(distance / 1000)]] forKey:@"km"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithFloat:fareTotal]] forKey:@"total_viaje"];
     
     return end;
 }
