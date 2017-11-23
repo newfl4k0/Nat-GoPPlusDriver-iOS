@@ -40,41 +40,47 @@
 }
 
 - (IBAction)doCloseSession:(id)sender {
-    UIAlertController *confirmController = [UIAlertController
-                                            alertControllerWithTitle:@"GoPPlus Driver"
-                                            message:@"Cerrar Sesión"
-                                            preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-        [confirmController dismissViewControllerAnimated:YES completion:nil];
-    }];
-    
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] };
+    if (self.app.hasService == 0) {
+        UIAlertController *confirmController = [UIAlertController
+                                                alertControllerWithTitle:@"GoPPlus Driver"
+                                                message:@"Cerrar Sesión"
+                                                preferredStyle:UIAlertControllerStyleAlert];
         
-        [self.spinner startAnimating];
+        UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            [confirmController dismissViewControllerAnimated:YES completion:nil];
+        }];
         
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"logout"]
-                    parameters:parameters
-                      progress:nil
-                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                           [self.spinner stopAnimating];
-                           
-                           if (self.app.locationManager!=nil) {
-                               [self.app.locationManager stopUpdatingLocation];
-                           }
-                           
-                           [self.app.dataLibrary deleteAll];
-                           [self.app initLoginWindow];
-                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                           [self.spinner stopAnimating];
-                           [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
-                       }];
-    }];
-    
-    [confirmController addAction:cancel];
-    [confirmController addAction:ok];
-    [self presentViewController:confirmController animated:YES completion:nil];
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            NSDictionary *parameters = @{ @"connection": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] };
+            
+            [self.spinner startAnimating];
+            
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"logout"]
+                        parameters:parameters
+                          progress:nil
+                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                               [self.spinner stopAnimating];
+                               
+                               if (self.app.locationManager!=nil) {
+                                   [self.app.locationManager stopUpdatingLocation];
+                               }
+                               
+                               [self.app.dataLibrary deleteAll];
+                               [self.app initLoginWindow];
+                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                               [self.spinner stopAnimating];
+                               [self showAlert:@"Cerrar Sesión" :@"Error, intenta nuevamente"];
+                           }];
+        }];
+        
+        [confirmController addAction:cancel];
+        [confirmController addAction:ok];
+        [self presentViewController:confirmController animated:YES completion:nil];
+    } else {
+        [self showAlert:@"Cerrar Sesión" :@"Tienes un servicio en curso"];
+    }
+
 }
 
 - (IBAction)doInitManualSync:(id)sender {

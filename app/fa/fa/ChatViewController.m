@@ -20,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *callButton;
 @property (strong, nonatomic) NSDictionary *clientData;
 @property (nonatomic) BOOL shouldUpdate;
+@property int keyboardsize;
 @end
 
 @implementation ChatViewController
@@ -42,6 +43,13 @@
         [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
         self.clientImage = [UIImage imageNamed:@"avatar.png"];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWasShown:)
+                                                 name:UIKeyboardDidShowNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasHidden:) name:UIKeyboardWillHideNotification object:nil];
 }
 
 - (void)updateChatArray {
@@ -128,6 +136,36 @@
 
 #pragma mark - Keyboard
 
+- (void)keyboardWasShown:(NSNotification *)notification {
+    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    //Given size may not account for screen rotation
+    int height = MIN(keyboardSize.height,keyboardSize.width);
+    
+    NSLog(@"keyboardWasShown %i", height);
+    
+    self.keyboardsize = height;
+    
+    [self animateView:YES :self.keyboardsize];
+}
+
+- (void)keyboardWasHidden:(NSNotification *)notification {
+    [self animateView:NO :self.keyboardsize];
+}
+
+- (void)animateView:(BOOL)up :(int)height {
+//    const int movementDistance = - (height); // tweak as needed
+//    const float movementDuration = 0.3f; // tweak as needed
+//
+//    int movement = (up ? movementDistance : -movementDistance);
+//
+//    [UIView beginAnimations: @"animateTextField" context: nil];
+//    [UIView setAnimationBeginsFromCurrentState: YES];
+//    [UIView setAnimationDuration: movementDuration];
+//    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
+//    [UIView commitAnimations];
+}
+
 -(void)textFieldDidBeginEditing:(UITextField *)textField {
     [self animateTextField:textField up:YES];
 }
@@ -137,7 +175,7 @@
 }
 
 -(void)animateTextField:(UITextField*)textField up:(BOOL)up {
-    const int movementDistance = -160; // tweak as needed
+    const int movementDistance = -220; // tweak as needed
     const float movementDuration = 0.3f; // tweak as needed
     
     int movement = (up ? movementDistance : -movementDistance);
@@ -162,15 +200,11 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.messageInput resignFirstResponder];
     
-    NSString *unfilteredString = self.messageInput.text;
-    NSCharacterSet *notAllowedChars = [[NSCharacterSet characterSetWithCharactersInString:@"áéíóúàèìòùabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "] invertedSet];
-    NSString *resultString = [[unfilteredString componentsSeparatedByCharactersInSet:notAllowedChars] componentsJoinedByString:@""];
-    
-    if (self.messageInput.text.length >0 && [self.messageInput.text isEqualToString:resultString]) {
+    if ([self isTextValid:self.messageInput.text]) {
         if (self.isClient == YES) {
             NSDictionary *parameters = @{
                                          @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
-                                         @"message": resultString,
+                                         @"message": self.messageInput.text,
                                          @"did": self.did
                                          };
             
@@ -202,10 +236,9 @@
         
         self.messageInput.text = @"";
     } else {
-        [self showAlert:@"GoPPlus Driver" :@"Verifica el mensaje. No debe estar vacío, debe contener letras, números y espacios solamente."];
+        [self showAlert:@"Chat" :@"Verifica tu mensaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
     }
-    
-    
+
     return NO;
 }
 
@@ -298,6 +331,15 @@
 
 - (void)dissmissAlert:(UIAlertController *) alert{
     [alert dismissViewControllerAnimated:true completion:nil];
+}
+
+- (BOOL)isTextValid:(NSString *) textToValidate {
+    NSString *pattern = @"([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])";
+    NSError  *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+    NSArray *matches = [regex matchesInString:textToValidate options:0 range: NSMakeRange(0, [textToValidate length])];
+    
+    return [matches count] > 0;
 }
 
 

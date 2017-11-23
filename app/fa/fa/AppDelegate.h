@@ -25,6 +25,7 @@
 @property (strong, nonatomic) DataLibrary *dataLibrary;
 @property (strong, nonatomic) CLLocation *selfLocation;
 @property (nonatomic) NSInteger currentStatus;
+@property (nonatomic) NSInteger hasService;
 
 - (void)initDrawerWindow;
 - (void)initLoginWindow;

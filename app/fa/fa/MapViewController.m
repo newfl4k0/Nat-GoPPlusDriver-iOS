@@ -109,13 +109,14 @@
             [self sendServiceEmail];
             [self.view sendSubviewToBack:self.webController];
             
-            
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 self.newStatus = 1;
+                [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
                 [self changeStatus];
                 [self hideSpinner];
                 self.endServiceButton.enabled = YES;
             });
+            
         } else {
             [self showAlert:@"Error en el pago" : [[params objectForKey:@"TEXTO"] stringByReplacingOccurrencesOfString:@"+" withString:@" "]];
             [self hideSpinner];
@@ -325,6 +326,7 @@
                           NSArray *responseArray = [responseObject objectForKey:@"data"];
             
                           if (responseArray.count>0) {
+                              self.app.hasService = 1;
                               [self clearServicesAndVehicles];
                               NSDictionary *response =  [responseArray objectAtIndex:0];
                 
@@ -371,6 +373,8 @@
                               
                               [self removeGeofence];
                           } else {
+                              self.app.hasService = 0;
+                              
                               self.currentService = nil;
                               self.isOnService = NO;
                               self.accepted = NO;
@@ -392,6 +396,9 @@
                           [self trackService];
                       } @catch (NSException *exception) {
                           NSLog(@"exception: %@", exception);
+                          
+                          self.app.hasService = 0;
+                          
                           [self.app.dataLibrary deleteKey:@"service"];
                           
                           if (self.status != 1 && self.status != 4) {
@@ -403,6 +410,7 @@
                       }
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       NSLog(@"failure: %@", error);
+                      self.app.hasService = 0;
                       [self.app.dataLibrary deleteKey:@"service"];
                       
                       if (self.status != 1 && self.status != 4) {
@@ -624,7 +632,6 @@
                     [self.endServiceEmail setObject:[self.endServiceEmail objectForKey:@"total_viaje"] forKey:@"total"];
                 }
                 
-                
                 //Open
                 UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio" message:@"Ingresa el monto y observaciones" preferredStyle:UIAlertControllerStyleAlert];
                 
@@ -643,23 +650,25 @@
                     NSString *price = endAlert.textFields[0].text;
                     NSString *obs   = endAlert.textFields[1].text;
                     
-                    if ([price isEqualToString:@""] || [obs isEqualToString:@""]) {
-                         [self showAlert:@"Finalizar" :@"Ingresa monto y observaciones"];
+                    if ([price isEqualToString:@""]) {
+                        [self showAlert:@"Finalizar" :@"Ingresa el monto del servicio"];
+                    } else if (![self isTextValid:obs]) {
+                        [self showAlert:@"Finalizar" :@"Ingresa las observaciones del viaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
                     } else {
                         [self showSpinner];
                         self.endServiceButton.enabled = NO;
-                     
-                        NSDictionary *tracker = @{};
-                     
-                        if ([self.app.dataLibrary existsKey:@"track"]) {
-                            tracker = [self.app.dataLibrary getDictionary:@"track"];
-                        }
-                     
-                        NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
-                     
-                        NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
-                        [self.webController loadRequest: request];
-                        [self.view bringSubviewToFront:self.webController];
+                        
+                        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"send-obs"] parameters:@{@"id": [service objectForKey:@"id"], @"obs": obs } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+
+                            NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
+
+                            NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
+                            [self.webController loadRequest: request];
+                            [self.view bringSubviewToFront:self.webController];
+
+                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                            [self showAlert:@"Finalizar" :@"Error. Comentario no enviado"];
+                        }];
                     }
                 }];
                 
@@ -673,10 +682,18 @@
                 
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                 [self showAlert:@"Finalizar" :@"Error. Intenta nuevamente"];
-                NSLog(@"%@", error);
             }];
         }
     }
+}
+
+- (BOOL)isTextValid:(NSString *) textToValidate {
+    NSString *pattern = @"([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])";
+    NSError  *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+    NSArray *matches = [regex matchesInString:textToValidate options:0 range: NSMakeRange(0, [textToValidate length])];
+    
+    return [matches count] > 0;
 }
 
 - (void)sendServiceEmail {

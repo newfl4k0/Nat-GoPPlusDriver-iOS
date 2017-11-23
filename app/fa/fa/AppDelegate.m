@@ -23,6 +23,7 @@
     self.dataLibrary = [[DataLibrary alloc] init];
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
+    self.hasService = 0;
     self.serverUrl = @"https://godriverqa.azurewebsites.net/";
     self.payworksUrl = @"https://gopspayqa.azurewebsites.net/";
 
@@ -62,7 +63,7 @@
 
 // UNUserNotificationCenter Delegate // >= iOS 10
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    NSLog(@"userNotificationCenter");
+    //NSLog(@"userNotificationCenter");
     
     completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
@@ -78,7 +79,7 @@
                 [[UIApplication sharedApplication] registerForRemoteNotifications];
             }];
         } else {
-            NSLog(@"registerForRemoteNotifications %@", error);
+            //NSLog(@"registerForRemoteNotifications %@", error);
         }
     }];
 }
@@ -92,24 +93,21 @@
     if (strDevicetoken != nil) {
         [self.dataLibrary saveString:strDevicetoken :@"token"];
     } else {
-        NSLog(@"[didRegisterForRemoteNotificationsWithDeviceToken] strDeviceToken is null");
+        //NSLog(@"[didRegisterForRemoteNotificationsWithDeviceToken] strDeviceToken is null");
     }
 }
 
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    NSLog(@"Push Notification Information : %@", userInfo);
+    //NSLog(@"Push Notification Information : %@", userInfo);
 }
 
 -(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    NSLog(@"%@ = %@", NSStringFromSelector(_cmd), error);
-    NSLog(@"Error = %@",error);
+    //NSLog(@"%@ = %@", NSStringFromSelector(_cmd), error);
+    //NSLog(@"Error = %@",error);
 }
 
 - (void)handleNotification:(NSDictionary *)notification {
     @try {
-        NSLog(@"handleNotification: %@", notification);
-        
-        
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             
@@ -129,8 +127,6 @@
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-     NSLog(@"didReceiveNotificationResponse");
-    
     completionHandler();
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [self handleNotification: response.notification.request.content.userInfo];
@@ -149,7 +145,28 @@
 
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+    
+    if ([self.dataLibrary existsKey:@"connection_id"] == YES) {
+        [self.manager GET:[self.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+
+            if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+                if ([[[responseObject objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 0) {
+                    
+                    if (self.locationManager!=nil) {
+                        [self.locationManager stopUpdatingLocation];
+                        self.locationManager = nil;
+                    }
+                    
+                    [self.dataLibrary deleteAll];
+                    [self initLoginWindow];
+                }
+            }
+             
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+
+        }];
+    }
+    
 }
 
 
