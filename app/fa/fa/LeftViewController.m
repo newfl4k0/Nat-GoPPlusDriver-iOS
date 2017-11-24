@@ -132,14 +132,14 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
 //    double last_heading = [self.app.dataLibrary getDouble:@"heading"];
 //    self.trueHeading = [newHeading trueHeading];
-//    
+//
 //    if (last_heading != self.trueHeading) {
 //        double diff = last_heading - self.trueHeading;
-//        
+//
 //        if (diff < 0) {
 //            diff = diff * -1;
 //        }
-//        
+//
 //        if (diff > 15) {
 //            [self.app.dataLibrary saveDouble:self.trueHeading :@"heading"];
 //        }

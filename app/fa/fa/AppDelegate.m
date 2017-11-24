@@ -26,6 +26,7 @@
     self.hasService = 0;
     self.serverUrl = @"https://godriverqa.azurewebsites.net/";
     self.payworksUrl = @"https://gopspayqa.azurewebsites.net/";
+    self.isAlertOpen = NO;
 
     [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
@@ -146,10 +147,29 @@
 
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+    [self validaConexion];
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    NSLog(@"quit value: %@", [self.dataLibrary getString:@"quit"]);
+}
+
+
+- (void)applicationWillTerminate:(UIApplication *)application {
     
+    if (self.isAlertOpen) {
+        [self.dataLibrary saveString:@"1" :@"quit"];
+        NSLog(@"sancionar");
+    }
+ 
+}
+
+
+- (void) validaConexion {
     if ([self.dataLibrary existsKey:@"connection_id"] == YES) {
         [self.manager GET:[self.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-
+            
             if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
                 if ([[[responseObject objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 0) {
                     
@@ -164,20 +184,9 @@
                 }
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-
+            NSLog(@"%@", error);
         }];
     }
-}
-
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
-}
-
-
-- (void)applicationWillTerminate:(UIApplication *)application {
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
 

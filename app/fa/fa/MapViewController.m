@@ -86,6 +86,7 @@
     }
     
     self.webController.delegate = self;
+    self.app.isAlertOpen = YES;
 }
 
 
@@ -423,8 +424,6 @@
                       [self changeStatus];
                       [self trackService];
                   }];
-    
-    
 }
 
 - (void)changeStatus {
@@ -491,22 +490,31 @@
                                                                    preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self];
         [self acceptService];
         [confirmAlert dismissViewControllerAnimated:true completion:nil];
+        self.app.isAlertOpen = NO;
+        
     }];
     
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Rechazar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self];
         [self cancelService];
         [confirmAlert dismissViewControllerAnimated:true completion:nil];
+        self.app.isAlertOpen = NO;
     }];
     
     [confirmAlert addAction:ok];
     [confirmAlert addAction:cancel];
+    
     [self performSelector:@selector(automaticallyCancelService:) withObject:confirmAlert afterDelay:90.0];
     [self presentViewController:confirmAlert animated:YES completion:nil];
+    
+    self.app.isAlertOpen = YES;
 }
 
 - (void)cancelService {
+    
     if (self.currentService != nil) {
         NSDictionary *parameters = @{
                                      @"r_id": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
@@ -524,6 +532,7 @@
 }
 
 - (void)acceptService {
+    
     if (self.currentService != nil) {
         NSDictionary *parameters = @{@"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]] };
         
@@ -540,6 +549,7 @@
 }
 
 - (void)automaticallyCancelService:(UIAlertController *) alert{
+    
     if (self.currentService != nil) {
         if (self.accepted == NO) {
             [self cancelService];
@@ -821,7 +831,7 @@
         
         NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
         double distance = 0;
-        //double minMts = 50;
+        double minMts = 50;
         
         if (self.app.selfLocation != nil && lat > 0 && lng >0) {
             if ([self.app.dataLibrary existsKey:@"track"]) {
@@ -836,7 +846,7 @@
                 
                 //if (![currentLocation isEqualToString:lastLocation] && currentDistance > minMts ) {
                 
-                if (diff_heading > 15) {
+                if (![currentLocation isEqualToString:lastLocation] && currentDistance > minMts ) {
                     [trackServiceLocation addObject:currentLocation];
                     distance = distance + currentDistance;
                 }
@@ -940,7 +950,6 @@
         self.circ.strokeWidth = 1;
         self.circ.map = self.gmap;
         
-    
         self.geofenceMarker = [[GMSMarker alloc] init];
         self.geofenceMarker.title = @"Espere un momento";
         self.geofenceMarker.position = self.circ.position;
