@@ -114,6 +114,7 @@
             if ([id_notif isEqualToString:@"close-connection"]) {
                 if (self.locationManager!=nil) {
                     [self.locationManager stopUpdatingLocation];
+                    [self.locationManager stopUpdatingHeading];
                     self.locationManager = nil;
                 }
                 
@@ -154,6 +155,7 @@
                     
                     if (self.locationManager!=nil) {
                         [self.locationManager stopUpdatingLocation];
+                        [self.locationManager stopUpdatingHeading];
                         self.locationManager = nil;
                     }
                     
@@ -161,12 +163,10 @@
                     [self initLoginWindow];
                 }
             }
-             
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 
         }];
     }
-    
 }
 
 

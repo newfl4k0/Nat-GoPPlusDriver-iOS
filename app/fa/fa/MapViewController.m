@@ -44,6 +44,7 @@
 @property (weak, nonatomic) IBOutlet UIWebView *webController;
 @property (strong, nonatomic) NSString *lastStoredLocation;
 @property (strong, nonatomic) NSNumberFormatter *fmt;
+@property double trueHeading;
 
 @end
 
@@ -801,8 +802,26 @@
         NSArray *trackLocation = [NSArray alloc];
         NSNumber *lat = [NSNumber numberWithDouble:self.app.selfLocation.coordinate.latitude];
         NSNumber *lng = [NSNumber numberWithDouble:self.app.selfLocation.coordinate.longitude];
+        self.trueHeading = [self.app.locationManager.heading trueHeading];
+        double last_heading = [self.app.dataLibrary getDouble:@"heading"];
+        double diff_heading = 0;
+        
+        if (last_heading != self.trueHeading) {
+            diff_heading = last_heading - self.trueHeading;
+            
+            if (diff_heading < 0) {
+                diff_heading = diff_heading * -1;
+            }
+            
+            if (diff_heading > 15) {
+                [self.app.dataLibrary saveDouble:self.trueHeading :@"heading"];
+            }
+        }
+        
+        
         NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
         double distance = 0;
+        //double minMts = 50;
         
         if (self.app.selfLocation != nil && lat > 0 && lng >0) {
             if ([self.app.dataLibrary existsKey:@"track"]) {
@@ -815,7 +834,9 @@
                 
                 distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
                 
-                if (![currentLocation isEqualToString:lastLocation] && currentDistance > 50) {
+                //if (![currentLocation isEqualToString:lastLocation] && currentDistance > minMts ) {
+                
+                if (diff_heading > 15) {
                     [trackServiceLocation addObject:currentLocation];
                     distance = distance + currentDistance;
                 }

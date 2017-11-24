@@ -64,6 +64,7 @@
                                
                                if (self.app.locationManager!=nil) {
                                    [self.app.locationManager stopUpdatingLocation];
+                                   [self.app.locationManager stopUpdatingHeading];
                                }
                                
                                [self.app.dataLibrary deleteAll];

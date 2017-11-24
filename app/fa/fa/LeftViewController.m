@@ -14,8 +14,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *welcomeLabel;
 @property (strong, nonatomic) NSDate *currentDate;
 @property (strong, nonatomic) NSDate *trackDate;
+@property (strong, nonatomic) NSNumber *id_connection;
 @property (nonatomic) BOOL firstUpdate;
 @property (weak, nonatomic) IBOutlet UIImageView *imageDriver;
+@property double trueHeading;
 @end
 
 @implementation LeftViewController
@@ -25,6 +27,9 @@
     
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.firstUpdate = NO;
+    self.trueHeading = -1;
+    
+    self.id_connection = [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]];
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
         self.currentDate = [NSDate date];
@@ -110,6 +115,8 @@
         }
         
         [self.app.locationManager startUpdatingLocation];
+        [self.app.locationManager startUpdatingHeading];
+        
     } else {
         [self.app.locationManager setAllowsBackgroundLocationUpdates:YES];
         
@@ -118,7 +125,25 @@
         }
         
         [self.app.locationManager startUpdatingLocation];
+        [self.app.locationManager startUpdatingHeading];
     }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
+//    double last_heading = [self.app.dataLibrary getDouble:@"heading"];
+//    self.trueHeading = [newHeading trueHeading];
+//    
+//    if (last_heading != self.trueHeading) {
+//        double diff = last_heading - self.trueHeading;
+//        
+//        if (diff < 0) {
+//            diff = diff * -1;
+//        }
+//        
+//        if (diff > 15) {
+//            [self.app.dataLibrary saveDouble:self.trueHeading :@"heading"];
+//        }
+//    }
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
@@ -136,6 +161,7 @@
         //NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
+        [self verifyConnection];
     }
     
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
@@ -180,6 +206,28 @@
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        NSLog(@"Error, location not saved: %@", error);
                    }];
+}
+                          
+                          
+- (void)verifyConnection {
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": self.id_connection } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+            if ([[[responseObject objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 0) {
+                
+                if (self.app.locationManager!=nil) {
+                    [self.app.locationManager stopUpdatingLocation];
+                    [self.app.locationManager stopUpdatingHeading];
+                    self.app.locationManager = nil;
+                }
+                
+                [self.app.dataLibrary deleteAll];
+                [self.app initLoginWindow];
+            }
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"Error connection-status %@", error);
+    }];
 }
 
 
