@@ -147,7 +147,7 @@
 
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [self validaConexion];
+    
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -163,30 +163,6 @@
         NSLog(@"sancionar");
     }
  
-}
-
-
-- (void) validaConexion {
-    if ([self.dataLibrary existsKey:@"connection_id"] == YES) {
-        [self.manager GET:[self.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            
-            if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
-                if ([[[responseObject objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 0) {
-                    
-                    if (self.locationManager!=nil) {
-                        [self.locationManager stopUpdatingLocation];
-                        [self.locationManager stopUpdatingHeading];
-                        self.locationManager = nil;
-                    }
-                    
-                    [self.dataLibrary deleteAll];
-                    [self initLoginWindow];
-                }
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"%@", error);
-        }];
-    }
 }
 
 
