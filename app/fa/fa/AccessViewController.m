@@ -30,22 +30,27 @@
     [self.userInput setDelegate:self];
     [self.passwordInput setDelegate:self];
     
-    if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSDictionary *response = responseObject;
-            
-            [self stopSpinner];
-            
-            if ([[response objectForKey:@"status"] boolValue] == YES) {
-                if ([[[response objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 1) {
-                    [self.app initDrawerWindow];
+    if ([self.app noInternetConnection] == NO) {
+        NSLog(@"Find connection");
+        
+        if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
+            [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                [self stopSpinner];
+                
+                if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+                    if ([[[responseObject objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 1) {
+                        [self.app initDrawerWindow];
+                    }
                 }
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self stopSpinner];
+            }];
+        } else {
             [self stopSpinner];
-        }];
+        }
     } else {
         [self stopSpinner];
+        [self showAlert:@"GoPPlus" :@"No tienes conexión a internet"];
     }
 }
 
@@ -55,6 +60,12 @@
 }
 
 - (IBAction)doVerifyCredentials:(id)sender {
+    
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes conexión a internet"];
+        return;
+    }
+    
     if (self.userInput.text.length == 0 || self.passwordInput.text.length == 0) {
         [self showAlert:@"Acceder" :@"Todos los campos son necesarios"];
         return;
@@ -124,8 +135,6 @@
         [self.passwordInput resignFirstResponder];
     }
 }
-
-
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.userInput resignFirstResponder];

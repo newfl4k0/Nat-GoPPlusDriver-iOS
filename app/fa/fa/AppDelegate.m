@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "Reachability.h"
 @import GoogleMaps;
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
@@ -162,7 +163,10 @@
         [self.dataLibrary saveString:@"1" :@"quit"];
         NSLog(@"sancionar");
     }
- 
+}
+
+- (BOOL)noInternetConnection {
+    return [[Reachability reachabilityForInternetConnection]currentReachabilityStatus] == NotReachable;
 }
 
 

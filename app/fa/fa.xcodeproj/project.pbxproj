@@ -19,6 +19,7 @@
 		6C30829F1E23CD3100692EDD /* ChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C30829E1E23CD3100692EDD /* ChatCell.m */; };
 		6C3082A21E23CD4100692EDD /* LeftChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C3082A11E23CD4100692EDD /* LeftChatCell.m */; };
 		6C3082A51E23DB2800692EDD /* HistorialCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C3082A41E23DB2800692EDD /* HistorialCell.m */; };
+		6C43EBBE1FCC768900400A7B /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C43EBBD1FCC768900400A7B /* Reachability.m */; };
 		6C6C48C11F4655ED00003FFD /* StatsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C6C48C01F4655ED00003FFD /* StatsViewController.m */; };
 		6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */; };
 		6CB636891E184927005ECA7F /* AccessViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CB636881E184927005ECA7F /* AccessViewController.m */; };
@@ -62,6 +63,8 @@
 		6C3082A11E23CD4100692EDD /* LeftChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftChatCell.m; sourceTree = "<group>"; };
 		6C3082A31E23DB2800692EDD /* HistorialCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistorialCell.h; sourceTree = "<group>"; };
 		6C3082A41E23DB2800692EDD /* HistorialCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistorialCell.m; sourceTree = "<group>"; };
+		6C43EBBC1FCC768900400A7B /* Reachability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		6C43EBBD1FCC768900400A7B /* Reachability.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		6C6C48BF1F4655ED00003FFD /* StatsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatsViewController.h; sourceTree = "<group>"; };
 		6C6C48C01F4655ED00003FFD /* StatsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatsViewController.m; sourceTree = "<group>"; };
 		6C7381071E90645E00B48214 /* fa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = fa.entitlements; sourceTree = "<group>"; };
@@ -221,6 +224,8 @@
 				6CDD65981E182E5D00E59880 /* Sidebar Controllers */,
 				6CDD656E1E18027F00E59880 /* Supporting Files */,
 				6C98DCBE1E1BDD56008CB4EB /* Tables Controller */,
+				6C43EBBC1FCC768900400A7B /* Reachability.h */,
+				6C43EBBD1FCC768900400A7B /* Reachability.m */,
 			);
 			path = fa;
 			sourceTree = "<group>";
@@ -418,6 +423,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C43EBBE1FCC768900400A7B /* Reachability.m in Sources */,
 				6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */,
 				6C3082A51E23DB2800692EDD /* HistorialCell.m in Sources */,
 				6CB636891E184927005ECA7F /* AccessViewController.m in Sources */,

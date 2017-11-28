@@ -90,6 +90,14 @@
 }
 
 
+//spinner - Methods
+- (void)showSpinner {
+    [self.spinner startAnimating];
+}
+- (void)hideSpinner {
+    [self.spinner stopAnimating];
+}
+
 - (NSDictionary*)decodeURL:(NSString*)urlString {
     NSMutableDictionary *queryStringDictionary = [[NSMutableDictionary alloc] init];
     NSArray *urlComponents = [urlString componentsSeparatedByString:@"&"];
@@ -322,9 +330,7 @@
 }
 
 - (void)initializeServiceData {
-    NSDictionary *parameters = @{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] };
-    
-    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:parameters progress:nil
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil
                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                       @try {
                           NSArray *responseArray = [responseObject objectForKey:@"data"];
@@ -357,6 +363,7 @@
                               
                               self.isOnService = YES;
                               self.ServiceView.hidden = NO;
+
                               self.statusButton.hidden = YES;
                               self.statusButton.enabled = NO;
                 
@@ -378,11 +385,10 @@
                               [self removeGeofence];
                           } else {
                               self.app.hasService = 0;
-                              
+                              self.ServiceView.hidden = YES;
                               self.currentService = nil;
                               self.isOnService = NO;
                               self.accepted = NO;
-                              self.ServiceView.hidden = YES;
                               self.statusButton.enabled = YES;
                               self.statusButton.hidden = NO;
                               self.isNotified = NO;
@@ -753,6 +759,9 @@
             urlString = [urlString stringByAppendingFormat:@"%f,%f&daddr=%f,%f",
                          location.coordinate.latitude, location.coordinate.longitude,lat, lng];
             
+            [urlString stringByAppendingString:@"&travelmode=driving"];
+            [urlString stringByAppendingString:@"&dir_action=navigate"];
+            
             NSURL *URL = [NSURL URLWithString:urlString];
             [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
                 NSLog(@"should open");
@@ -773,13 +782,7 @@
     [self changeStatus];
 }
 
-//spinner - Methods
-- (void)showSpinner {
-    [self.spinner startAnimating];
-}
-- (void)hideSpinner {
-    [self.spinner stopAnimating];
-}
+
 
 #pragma mark - Navigation
 

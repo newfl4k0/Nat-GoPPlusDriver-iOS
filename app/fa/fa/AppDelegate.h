@@ -30,5 +30,6 @@
 
 - (void)initDrawerWindow;
 - (void)initLoginWindow;
+- (BOOL)noInternetConnection;
 @end
 
