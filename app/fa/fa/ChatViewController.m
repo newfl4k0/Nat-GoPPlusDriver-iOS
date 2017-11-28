@@ -36,6 +36,8 @@
     [self.messageInput setDelegate:self];
     [self updateChatArray];
     
+    [self addKeyBoardToolbar:self.messageInput];
+    
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
                                                                                             resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 
@@ -197,8 +199,12 @@
 
 #pragma mark - Text Field
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+-(void)hideKeyboard {
     [self.messageInput resignFirstResponder];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [self hideKeyboard];
     
     if ([self isTextValid:self.messageInput.text]) {
         if (self.isClient == YES) {
@@ -341,6 +347,17 @@
     
     return [matches count] > 0;
 }
+
+- (void)addKeyBoardToolbar:(UITextField *)textfield {
+    UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 50)];
+    numberToolbar.barStyle = UIBarStyleDefault;
+    numberToolbar.items = [NSArray arrayWithObjects:
+                           [[UIBarButtonItem alloc]initWithTitle:@"OK" style:UIBarButtonItemStyleDone target:self action:@selector(hideKeyboard)],
+                           nil];
+    [numberToolbar sizeToFit];
+    textfield.inputAccessoryView = numberToolbar;
+}
+
 
 
 @end

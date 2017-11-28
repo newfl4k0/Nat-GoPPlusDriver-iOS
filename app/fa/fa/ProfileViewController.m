@@ -41,6 +41,13 @@
     self.confirmPassText.delegate = self;
     self.currentPassText.delegate = self;
     
+    
+    [self addKeyBoardToolbar:self.nameText];
+    [self addKeyBoardToolbar:self.surnameText];
+    [self addKeyBoardToolbar:self.passText];
+    [self addKeyBoardToolbar:self.confirmPassText];
+    [self addKeyBoardToolbar:self.currentPassText];
+    
     [self initializeImageProfile];
     [self getImage];
     [self.spinner stopAnimating];
@@ -247,6 +254,17 @@
     if ([self.surnameText isFirstResponder]) {
         [self.surnameText resignFirstResponder];
     }
+}
+
+
+- (void)addKeyBoardToolbar:(UITextField *)textfield {
+    UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 50)];
+    numberToolbar.barStyle = UIBarStyleDefault;
+    numberToolbar.items = [NSArray arrayWithObjects:
+                           [[UIBarButtonItem alloc]initWithTitle:@"OK" style:UIBarButtonItemStyleDone target:self action:@selector(hideKeyboard)],
+                           nil];
+    [numberToolbar sizeToFit];
+    textfield.inputAccessoryView = numberToolbar;
 }
 
 

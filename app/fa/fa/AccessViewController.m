@@ -30,6 +30,9 @@
     [self.userInput setDelegate:self];
     [self.passwordInput setDelegate:self];
     
+    [self addKeyBoardToolbar:self.userInput];
+    [self addKeyBoardToolbar:self.passwordInput];
+
     if ([self.app noInternetConnection] == NO) {
         NSLog(@"Find connection");
         
@@ -162,6 +165,16 @@
     [UIView setAnimationDuration: movementDuration];
     self.view.frame = CGRectOffset(self.view.frame, 0, movement);
     [UIView commitAnimations];
+}
+
+- (void)addKeyBoardToolbar:(UITextField *)textfield {
+    UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 50)];
+    numberToolbar.barStyle = UIBarStyleDefault;
+    numberToolbar.items = [NSArray arrayWithObjects:
+                           [[UIBarButtonItem alloc]initWithTitle:@"OK" style:UIBarButtonItemStyleDone target:self action:@selector(hideKeyboard)],
+                           nil];
+    [numberToolbar sizeToFit];
+    textfield.inputAccessoryView = numberToolbar;
 }
 
 @end
