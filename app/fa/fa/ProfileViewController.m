@@ -60,63 +60,71 @@
 
 
 - (IBAction)updateName:(id)sender {
-    NSString *name = self.nameText.text;
-    NSString *surname = self.surnameText.text;
-    
-    if ([name isEqualToString:@""] || [surname isEqualToString:@""]) {
-        [self showAlert:@"GoPPlus Driver" :@"Ingresa el nuevo nombre y apellido"];
-        return;
-    }
-
-    [self.spinner startAnimating];
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-name"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"name": name, @"surname": surname } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        [self.spinner stopAnimating];
-        [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes conexión a internet"];
+    } else {
+        NSString *name = self.nameText.text;
+        NSString *surname = self.surnameText.text;
         
-        if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
-            [self.app.dataLibrary saveString:name :@"driver_name"];
-            [self.app.dataLibrary saveString:surname :@"driver_surname"];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
+        if ([name isEqualToString:@""] || [surname isEqualToString:@""]) {
+            [self showAlert:@"GoPPlus Driver" :@"Ingresa el nuevo nombre y apellido"];
+            return;
         }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        [self.spinner stopAnimating];
-        [self showAlert:@"GoPPlus Driver" :@"Error al actualizar. Intenta nuevamente"];
-    }];
+        
+        [self.spinner startAnimating];
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-name"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"name": name, @"surname": surname } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            [self.spinner stopAnimating];
+            [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
+            
+            if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+                [self.app.dataLibrary saveString:name :@"driver_name"];
+                [self.app.dataLibrary saveString:surname :@"driver_surname"];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [self.spinner stopAnimating];
+            [self showAlert:@"GoPPlus Driver" :@"Error al actualizar. Intenta nuevamente"];
+        }];
+    }
 }
 
 - (IBAction)updatePassword:(id)sender {
-    NSString *pass = self.passText.text;
-    NSString *pass2 = self.confirmPassText.text;
-    NSString *currentPass = self.currentPassText.text;
-    
-    if ([pass isEqualToString:@""] || ![pass isEqualToString:pass2]) {
-        [self showAlert:@"GoPPlus Driver" :@"Verifica la nueva contraseña ingresada"];
-        return;
-    }
-    
-    if ([currentPass isEqualToString:@""]) {
-        [self showAlert:@"GoPPlus Driver" :@"Verifica la contraseña actual"];
-        return;
-    }
-    
-    [self.spinner startAnimating];
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"]
-                parameters:@{ @"id": [self.app.dataLibrary getString:@"userid"], @"pass": pass, @"oldpass": currentPass }
-                  progress:nil
-                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       [self.spinner stopAnimating];
-                       [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes conexión a internet"];
+    } else {
+        NSString *pass = self.passText.text;
+        NSString *pass2 = self.confirmPassText.text;
+        NSString *currentPass = self.currentPassText.text;
         
-                       if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
-                           self.passText.text = @"";
-                           self.confirmPassText.text = @"";
-                           self.currentPassText.text = @"";
-                       }
-                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       [self.spinner stopAnimating];
-                       [self showAlert:@"GoPPlus Driver" :@"Error al actualizar. Intenta nuevamente"];
-                   }];
+        if ([pass isEqualToString:@""] || ![pass isEqualToString:pass2]) {
+            [self showAlert:@"GoPPlus Driver" :@"Verifica la nueva contraseña ingresada"];
+            return;
+        }
+        
+        if ([currentPass isEqualToString:@""]) {
+            [self showAlert:@"GoPPlus Driver" :@"Verifica la contraseña actual"];
+            return;
+        }
+        
+        [self.spinner startAnimating];
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"save-pass"]
+                    parameters:@{ @"id": [self.app.dataLibrary getString:@"userid"], @"pass": pass, @"oldpass": currentPass }
+                      progress:nil
+                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                           [self.spinner stopAnimating];
+                           [self showAlert:@"GoPPlus Driver": [responseObject objectForKey:@"message"]];
+                           
+                           if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
+                               self.passText.text = @"";
+                               self.confirmPassText.text = @"";
+                               self.currentPassText.text = @"";
+                           }
+                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                           [self.spinner stopAnimating];
+                           [self showAlert:@"GoPPlus Driver" :@"Error al actualizar. Intenta nuevamente"];
+                       }];
+    }
 }
 
 - (IBAction)quitSegue:(id)sender {
@@ -158,24 +166,29 @@
     NSData *imageData = UIImageJPEGRepresentation(chosenImage, 0.5);
     
     [picker dismissViewControllerAnimated:YES completion:NULL];
-    [self.image setImage:chosenImage];
-    [self.spinner startAnimating];
     
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"upload"]
-                parameters:@{ @"id": [self.app.dataLibrary getString:@"driver_id"]  }
- constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-        [formData appendPartWithFileData:imageData name:@"theImage" fileName:@"image.jpg" mimeType:@"image/jpeg"];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes conexión a internet"];
+    } else {
+        [self.image setImage:chosenImage];
+        [self.spinner startAnimating];
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"upload"]
+                    parameters:@{ @"id": [self.app.dataLibrary getString:@"driver_id"]  }
+     constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+         [formData appendPartWithFileData:imageData name:@"theImage" fileName:@"image.jpg" mimeType:@"image/jpeg"];
+     }
+                      progress:nil
+                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                           [self.app.dataLibrary saveDriverImage:chosenImage];
+                           [self.spinner stopAnimating];
+                           [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
+                       }
+                       failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                           [self.spinner stopAnimating];
+                           [self showAlert:@"GoPPlus Driver" :@"Error al subir imagen"];
+                       }];
     }
-                  progress:nil
-                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       [self.app.dataLibrary saveDriverImage:chosenImage];
-                       [self.spinner stopAnimating];
-                       [[NSNotificationCenter defaultCenter] postNotificationName:@"driverData" object:nil];
-                   }
-                   failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       [self.spinner stopAnimating];
-                       [self showAlert:@"GoPPlus Driver" :@"Error al subir imagen"];
-                   }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {

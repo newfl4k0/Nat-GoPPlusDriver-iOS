@@ -330,85 +330,101 @@
 }
 
 - (void)initializeServiceData {
-    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil
-                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                      @try {
-                          NSArray *responseArray = [responseObject objectForKey:@"data"];
-            
-                          if (responseArray.count>0) {
-                              self.app.hasService = 1;
-                              [self clearServicesAndVehicles];
-                              NSDictionary *response =  [responseArray objectAtIndex:0];
-                
-                              self.currentService = response;
-                              self.serviceStatus = [[self.currentService objectForKey:@"estatus_reserva"] intValue];
-                              [self.app.dataLibrary saveDictionary:response :@"service"];
-                              [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
-                
-                              if (self.serviceStatus == 4) {
-                                  self.chatButton.enabled = YES;
-                                  [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
-                                  self.newStatus = 3; //Asignado
-                              } else if (self.serviceStatus == 5) {
-                                  self.chatButton.enabled = NO;
-                                  [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
-                                  self.newStatus = 11; //Ocupado
-                              }
-                
-                              [self.app.dataLibrary saveInteger:[[response objectForKey:@"idd"] intValue] :@"despacho_id"];
-                              //Set Address Labels
-                              self.startAddressLabel.text = [response objectForKey:@"origen"];
-                              self.endAddressLabel.text   = [response objectForKey:@"destino"];
-                              self.dataLabel.text         = [response objectForKey:@"observaciones"];
+    
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    } else {
+        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil
+                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                          @try {
+                              NSArray *responseArray = [responseObject objectForKey:@"data"];
                               
-                              self.isOnService = YES;
-                              self.ServiceView.hidden = NO;
-
-                              self.statusButton.hidden = YES;
-                              self.statusButton.enabled = NO;
-                
-                              if (self.isNotified == NO) {
-                                  [self playSound];
-                                  self.isNotified = YES;
-                                  self.locationUpdated = NO;
-                              }
-                
-                              if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
-                                  if (self.needsConfirm) {
-                                      [self showConfirmAlert];
-                                      self.needsConfirm = NO;
+                              if (responseArray.count>0) {
+                                  self.app.hasService = 1;
+                                  [self clearServicesAndVehicles];
+                                  NSDictionary *response =  [responseArray objectAtIndex:0];
+                                  
+                                  self.currentService = response;
+                                  self.serviceStatus = [[self.currentService objectForKey:@"estatus_reserva"] intValue];
+                                  [self.app.dataLibrary saveDictionary:response :@"service"];
+                                  [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
+                                  
+                                  if (self.serviceStatus == 4) {
+                                      self.chatButton.enabled = YES;
+                                      [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
+                                      self.newStatus = 3; //Asignado
+                                  } else if (self.serviceStatus == 5) {
+                                      self.chatButton.enabled = NO;
+                                      [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
+                                      self.newStatus = 11; //Ocupado
                                   }
+                                  
+                                  [self.app.dataLibrary saveInteger:[[response objectForKey:@"idd"] intValue] :@"despacho_id"];
+                                  //Set Address Labels
+                                  self.startAddressLabel.text = [response objectForKey:@"origen"];
+                                  self.endAddressLabel.text   = [response objectForKey:@"destino"];
+                                  self.dataLabel.text         = [response objectForKey:@"observaciones"];
+                                  
+                                  self.isOnService = YES;
+                                  self.ServiceView.hidden = NO;
+                                  
+                                  self.statusButton.hidden = YES;
+                                  self.statusButton.enabled = NO;
+                                  
+                                  if (self.isNotified == NO) {
+                                      [self playSound];
+                                      self.isNotified = YES;
+                                      self.locationUpdated = NO;
+                                  }
+                                  
+                                  if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
+                                      if (self.needsConfirm) {
+                                          [self showConfirmAlert];
+                                          self.needsConfirm = NO;
+                                      }
+                                  } else {
+                                      self.accepted = YES;
+                                  }
+                                  
+                                  [self removeGeofence];
                               } else {
-                                  self.accepted = YES;
+                                  self.app.hasService = 0;
+                                  self.ServiceView.hidden = YES;
+                                  self.currentService = nil;
+                                  self.isOnService = NO;
+                                  self.accepted = NO;
+                                  self.statusButton.enabled = YES;
+                                  self.statusButton.hidden = NO;
+                                  self.isNotified = NO;
+                                  self.needsConfirm = YES;
+                                  [self.app.dataLibrary deleteKey:@"despacho_id"];
+                                  [self.app.dataLibrary deleteKey:@"service"];
+                                  
+                                  if (self.status != 1 && self.status != 4) {
+                                      self.locationUpdated = NO;
+                                      self.newStatus = 1;
+                                  }
                               }
                               
-                              [self removeGeofence];
-                          } else {
+                              [self changeStatus];
+                              [self trackService];
+                          } @catch (NSException *exception) {
+                              NSLog(@"exception: %@", exception);
+                              
                               self.app.hasService = 0;
-                              self.ServiceView.hidden = YES;
-                              self.currentService = nil;
-                              self.isOnService = NO;
-                              self.accepted = NO;
-                              self.statusButton.enabled = YES;
-                              self.statusButton.hidden = NO;
-                              self.isNotified = NO;
-                              self.needsConfirm = YES;
-                              [self.app.dataLibrary deleteKey:@"despacho_id"];
+                              
                               [self.app.dataLibrary deleteKey:@"service"];
                               
                               if (self.status != 1 && self.status != 4) {
-                                  self.locationUpdated = NO;
                                   self.newStatus = 1;
                               }
+                              
+                              [self changeStatus];
+                              [self trackService];
                           }
-                          
-                          [self changeStatus];
-                          [self trackService];
-                      } @catch (NSException *exception) {
-                          NSLog(@"exception: %@", exception);
-                          
+                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                          NSLog(@"failure: %@", error);
                           self.app.hasService = 0;
-                          
                           [self.app.dataLibrary deleteKey:@"service"];
                           
                           if (self.status != 1 && self.status != 4) {
@@ -417,19 +433,10 @@
                           
                           [self changeStatus];
                           [self trackService];
-                      }
-                  } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                      NSLog(@"failure: %@", error);
-                      self.app.hasService = 0;
-                      [self.app.dataLibrary deleteKey:@"service"];
-                      
-                      if (self.status != 1 && self.status != 4) {
-                          self.newStatus = 1;
-                      }
-                      
-                      [self changeStatus];
-                      [self trackService];
-                  }];
+                      }];
+    }
+    
+    
 }
 
 - (void)changeStatus {
@@ -440,8 +447,10 @@
     
     if (self.status == 1) {
         self.driverStatusLabel.text = @"Libre";
+        [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
     } else if (self.status == 4) {
         self.driverStatusLabel.text = @"Ausente";
+        [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
     } else if (self.status == 3) {
         self.driverStatusLabel.text = @"Asignado";
     } else if (self.status == 11) {
@@ -468,26 +477,31 @@
 }
 
 - (void)forceTrackUpdate {
-    NSMutableDictionary *parameters = [NSMutableDictionary
-                                       dictionaryWithDictionary:@{
-                                                                  @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]],
-                                                                  @"af_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"affiliate_id"]],
-                                                                  @"status_id": [NSNumber numberWithInteger:self.status],
-                                                                  @"lat": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude],
-                                                                  @"lng": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude]}];
     
-    if (self.currentService != nil) {
-        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lat_origen"] floatValue]] forKey:@"lat_o"];
-        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lng_origen"] floatValue]] forKey:@"lng_o"];
-        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lat_destino"] floatValue]] forKey:@"lat_d"];
-        [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lng_destino"] floatValue]] forKey:@"lng_d"];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    } else {
+        NSMutableDictionary *parameters = [NSMutableDictionary
+                                           dictionaryWithDictionary:@{
+                                                                      @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]],
+                                                                      @"af_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"affiliate_id"]],
+                                                                      @"status_id": [NSNumber numberWithInteger:self.status],
+                                                                      @"lat": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.latitude],
+                                                                      @"lng": [NSNumber numberWithFloat:self.app.selfLocation.coordinate.longitude]}];
+        
+        if (self.currentService != nil) {
+            [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lat_origen"] floatValue]] forKey:@"lat_o"];
+            [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lng_origen"] floatValue]] forKey:@"lng_o"];
+            [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lat_destino"] floatValue]] forKey:@"lat_d"];
+            [parameters setObject:[NSNumber numberWithFloat:[self.currentService[@"lng_destino"] floatValue]] forKey:@"lng_d"];
+        }
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
+                       success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                           NSLog(@"Error, track not saved: %@", error);
+                       }];
     }
-    
-    [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"track"] parameters:parameters progress:nil
-                   success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                       NSLog(@"Error, track not saved: %@", error);
-                   }];
 }
 
 - (void)showConfirmAlert {
@@ -520,49 +534,63 @@
 }
 
 - (void)cancelService {
-    
-    if (self.currentService != nil) {
-        NSDictionary *parameters = @{
-                                     @"r_id": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
-                                     @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]};
-
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"reject-service"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"%@", responseObject);
-            self.accepted = YES;
-            [self showAlert:@"Confirmar" :@"Servicio Rechazado"];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
-            NSLog(@"%@", error);
-        }];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    } else {
+        if (self.currentService != nil) {
+            NSDictionary *parameters = @{
+                                         @"r_id": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
+                                         @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]
+                                         };
+            
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"reject-service"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"%@", responseObject);
+                self.accepted = YES;
+                [self showAlert:@"Confirmar" :@"Servicio Rechazado"];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
+                NSLog(@"%@", error);
+            }];
+        }
     }
+    
 }
 
 - (void)acceptService {
-    
-    if (self.currentService != nil) {
-        NSDictionary *parameters = @{@"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]] };
-        
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"%@", responseObject);
-            self.accepted = YES;
-            [self showAlert:@"Confirmar" :@"Servicio aceptado"];
-            [self trackService];
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
-            NSLog(@"%@", error);
-        }];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    } else {
+        if (self.currentService != nil) {
+            NSDictionary *parameters = @{@"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]] };
+            
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"%@", responseObject);
+                self.accepted = YES;
+                [self showAlert:@"Confirmar" :@"Servicio aceptado"];
+                [self trackService];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
+                NSLog(@"%@", error);
+            }];
+        }
     }
+    
 }
 
 - (void)automaticallyCancelService:(UIAlertController *) alert{
     
-    if (self.currentService != nil) {
-        if (self.accepted == NO) {
-            [self cancelService];
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+        return;
+    } else {
+        if (self.currentService != nil) {
+            if (self.accepted == NO) {
+                [self cancelService];
+            }
         }
+        
+        [alert dismissViewControllerAnimated:true completion:nil];
     }
-    
-    [alert dismissViewControllerAnimated:true completion:nil];
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {
@@ -590,130 +618,135 @@
 }
 
 - (IBAction)doEnd:(id)sender {
-    NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
-    
-    if (service != nil) {
-        NSDictionary *parameters = @{
-                                     @"idr": [service objectForKey:@"id"],
-                                     @"idd": [service objectForKey:@"idd"]
-                                    };
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    } else {
+        NSDictionary *service = [self.app.dataLibrary getDictionary:@"service"];
         
-        if (self.serviceStatus == 4 &&  [[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
-            [self showSpinner];
-            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-alert"] parameters:parameters progress:nil
-                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                               [self hideSpinner];
-                               self.endServiceButton.titleLabel.text = @"Ocupado";
-                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                               [self hideSpinner];
-                               NSLog(@"%@", error);
-                           }];
-        } else if (self.serviceStatus == 4 && ![[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
-            [self showSpinner];
-            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-occupy"] parameters:parameters progress:nil
-                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                               [self hideSpinner];
-                               self.endServiceButton.titleLabel.text = @"Finalizar";
-                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                               [self hideSpinner];
-                               NSLog(@"%@", error);
-                           }];
-        } else if (self.serviceStatus == 5) {
+        if (service != nil) {
+            NSDictionary *parameters = @{
+                                         @"idr": [service objectForKey:@"id"],
+                                         @"idd": [service objectForKey:@"idd"]
+                                         };
             
-            self.endServiceEmail = [self endServiceData];
-            NSDictionary *params = @{@"id": [self.endServiceEmail objectForKey:@"id"]};
-            
-            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"validate-code"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-
-                NSDictionary *data = [responseObject objectForKey:@"data"];
+            if (self.serviceStatus == 4 &&  [[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
+                [self showSpinner];
+                [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-alert"] parameters:parameters progress:nil
+                               success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                   [self hideSpinner];
+                                   self.endServiceButton.titleLabel.text = @"Ocupado";
+                               } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                   [self hideSpinner];
+                                   NSLog(@"%@", error);
+                               }];
+            } else if (self.serviceStatus == 4 && ![[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
+                [self showSpinner];
+                [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-occupy"] parameters:parameters progress:nil
+                               success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                   [self hideSpinner];
+                                   self.endServiceButton.titleLabel.text = @"Finalizar";
+                               } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                   [self hideSpinner];
+                                   NSLog(@"%@", error);
+                               }];
+            } else if (self.serviceStatus == 5) {
                 
-                if ([[data objectForKey:@"status"] boolValue] == YES) {
-                    double creditos_cl = [[data objectForKey:@"creditos_cliente"] doubleValue];
-                    double descuento   = [[data objectForKey:@"descuento_codigo"] doubleValue];
-                    double abono_us    = [[data objectForKey:@"nuevo_abono_usuario"] doubleValue];
-                    double n_total     = [[self.endServiceEmail objectForKey:@"total_viaje"] doubleValue] - (descuento + creditos_cl);
-                    int id_us          = [[data objectForKey:@"id_usuario"] intValue];
-                    NSString *codigo   = [data objectForKey:@"motivo_descuento"];
-                    
-                    
-                    if (n_total < 0) {
-                        n_total = 0;
-                    }
-                    
-                    if (id_us > 0 && abono_us > 0) {
-                        [self.endServiceEmail setObject:[NSNumber numberWithDouble:abono_us] forKey:@"n_cred_usr"];
-                        [self.endServiceEmail setObject:[NSNumber numberWithInt:id_us] forKey:@"id_cred_usr"];
-                    }
-                    
-                    [self.endServiceEmail setObject:codigo forKey:@"codigo"];
-                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:descuento]] forKey:@"codigo_monto"];
-                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:creditos_cl]] forKey:@"creditos"];
-                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:n_total]] forKey:@"total"];
-
-                } else {
-                    //Normal, no descuento
-                    [self.endServiceEmail setObject:[self.endServiceEmail objectForKey:@"total_viaje"] forKey:@"total"];
-                }
+                self.endServiceEmail = [self endServiceData];
+                NSDictionary *params = @{@"id": [self.endServiceEmail objectForKey:@"id"]};
                 
-                //Open
-                UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio" message:@"Ingresa el monto y observaciones" preferredStyle:UIAlertControllerStyleAlert];
-                
-                [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-                    textField.keyboardType = UIKeyboardTypeDecimalPad;
-                    //textField.enabled = NO;
-                    textField.text = [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[self.endServiceEmail objectForKey:@"total"] doubleValue]]];
-                }];
-                 
-                [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-                    textField.keyboardType = UIKeyboardTypeDefault;
-                    textField.placeholder = @"Observaciones del viaje";
-                }];
-                 
-                UIAlertAction *sendEndAction = [UIAlertAction actionWithTitle:@"Finalizar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    NSString *price = endAlert.textFields[0].text;
-                    NSString *obs   = endAlert.textFields[1].text;
-                  
-                    [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:[price doubleValue]]] forKey:@"total"];
+                [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"validate-code"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                     
-                    //update
+                    NSDictionary *data = [responseObject objectForKey:@"data"];
                     
-                    if ([price isEqualToString:@""]) {
-                        [self showAlert:@"Finalizar" :@"Ingresa el monto del servicio"];
-                    } else if (![self isTextValid:obs]) {
-                        [self showAlert:@"Finalizar" :@"Ingresa las observaciones del viaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
+                    if ([[data objectForKey:@"status"] boolValue] == YES) {
+                        double creditos_cl = [[data objectForKey:@"creditos_cliente"] doubleValue];
+                        double descuento   = [[data objectForKey:@"descuento_codigo"] doubleValue];
+                        double abono_us    = [[data objectForKey:@"nuevo_abono_usuario"] doubleValue];
+                        double n_total     = [[self.endServiceEmail objectForKey:@"total_viaje"] doubleValue] - (descuento + creditos_cl);
+                        int id_us          = [[data objectForKey:@"id_usuario"] intValue];
+                        NSString *codigo   = [data objectForKey:@"motivo_descuento"];
+                        
+                        
+                        if (n_total < 0) {
+                            n_total = 0;
+                        }
+                        
+                        if (id_us > 0 && abono_us > 0) {
+                            [self.endServiceEmail setObject:[NSNumber numberWithDouble:abono_us] forKey:@"n_cred_usr"];
+                            [self.endServiceEmail setObject:[NSNumber numberWithInt:id_us] forKey:@"id_cred_usr"];
+                        }
+                        
+                        [self.endServiceEmail setObject:codigo forKey:@"codigo"];
+                        [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:descuento]] forKey:@"codigo_monto"];
+                        [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:creditos_cl]] forKey:@"creditos"];
+                        [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:n_total]] forKey:@"total"];
+                        
                     } else {
-                        [self showSpinner];
-                        
-                        self.endServiceButton.enabled = NO;
-                        
-                        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"send-obs"] parameters:@{@"id": [service objectForKey:@"id"], @"obs": obs } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-
-                            NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
-
-                            NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
-                            
-                            [self.webController loadRequest: request];
-                            [self.view bringSubviewToFront:self.webController];
-
-                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                            [self showAlert:@"Finalizar" :@"Error. Comentario no enviado"];
-                        }];
+                        //Normal, no descuento
+                        [self.endServiceEmail setObject:[self.endServiceEmail objectForKey:@"total_viaje"] forKey:@"total"];
                     }
+                    
+                    //Open
+                    UIAlertController *endAlert = [UIAlertController alertControllerWithTitle:@"Finalizar Servicio" message:@"Ingresa el monto y observaciones" preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                        textField.keyboardType = UIKeyboardTypeDecimalPad;
+                        //textField.enabled = NO;
+                        textField.text = [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[self.endServiceEmail objectForKey:@"total"] doubleValue]]];
+                    }];
+                    
+                    [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+                        textField.keyboardType = UIKeyboardTypeDefault;
+                        textField.placeholder = @"Observaciones del viaje";
+                    }];
+                    
+                    UIAlertAction *sendEndAction = [UIAlertAction actionWithTitle:@"Finalizar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                        NSString *price = endAlert.textFields[0].text;
+                        NSString *obs   = endAlert.textFields[1].text;
+                        
+                        [self.endServiceEmail setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:[price doubleValue]]] forKey:@"total"];
+                        
+                        //update
+                        
+                        if ([price isEqualToString:@""]) {
+                            [self showAlert:@"Finalizar" :@"Ingresa el monto del servicio"];
+                        } else if (![self isTextValid:obs]) {
+                            [self showAlert:@"Finalizar" :@"Ingresa las observaciones del viaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
+                        } else {
+                            [self showSpinner];
+                            
+                            self.endServiceButton.enabled = NO;
+                            
+                            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"send-obs"] parameters:@{@"id": [service objectForKey:@"id"], @"obs": obs } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                
+                                NSString *url = [[[[[[self.app.payworksUrl stringByAppendingString:@"postauth-service-start"] stringByAppendingString:@"?id="] stringByAppendingString:[[service objectForKey:@"id"] stringValue]] stringByAppendingString:@"&monto="] stringByAppendingString:price] stringByAppendingString:@"&act=END"];
+                                
+                                NSURLRequest *request = [[NSURLRequest alloc] initWithURL: [NSURL URLWithString: url] cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: 60000];
+                                
+                                [self.webController loadRequest: request];
+                                [self.view bringSubviewToFront:self.webController];
+                                
+                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                [self showAlert:@"Finalizar" :@"Error. Comentario no enviado"];
+                            }];
+                        }
+                    }];
+                    
+                    UIAlertAction *cancelEndAction = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                        [self dissmissAlert:endAlert];
+                    }];
+                    
+                    [endAlert addAction:sendEndAction];
+                    [endAlert addAction:cancelEndAction];
+                    [self presentViewController:endAlert animated:YES completion:nil];
+                    
+                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    [self showAlert:@"Finalizar" :@"Error. Intenta nuevamente"];
                 }];
-                
-                UIAlertAction *cancelEndAction = [UIAlertAction actionWithTitle:@"Cancelar" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                     [self dissmissAlert:endAlert];
-                }];
-                
-                [endAlert addAction:sendEndAction];
-                [endAlert addAction:cancelEndAction];
-                [self presentViewController:endAlert animated:YES completion:nil];
-                
-            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                [self showAlert:@"Finalizar" :@"Error. Intenta nuevamente"];
-            }];
+            }
         }
     }
+    
 }
 
 - (BOOL)isTextValid:(NSString *) textToValidate {
@@ -726,18 +759,22 @@
 }
 
 - (void)sendServiceEmail {
-    if (self.endServiceEmail != nil) {
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-email"]
-                                         parameters:self.endServiceEmail progress:nil
-                                            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                                 [self hideSpinner];
-                                                self.newStatus = 1;
-                                                [self changeStatus];
-                                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                                                [self hideSpinner];
-                                                NSLog(@"%@", error);
-                                            }];
-        self.endServiceEmail = nil;
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    } else {
+        if (self.endServiceEmail != nil) {
+            [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-email"]
+                        parameters:self.endServiceEmail progress:nil
+                           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                               [self hideSpinner];
+                               self.newStatus = 1;
+                               [self changeStatus];
+                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                               [self hideSpinner];
+                               NSLog(@"%@", error);
+                           }];
+            self.endServiceEmail = nil;
+        }
     }
 }
 
@@ -771,15 +808,19 @@
 }
 
 - (IBAction)doChangeStatus:(id)sender {
-    if (self.status == 1) {
-        [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
-        self.newStatus = 4;
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
     } else {
-        [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
-        self.newStatus = 1;
+        if (self.status == 1) {
+            [self.statusButton setTitle:@"Cambiar a Libre" forState:UIControlStateNormal];
+            self.newStatus = 4;
+        } else {
+            [self.statusButton setTitle:@"Cambiar a Ausente" forState:UIControlStateNormal];
+            self.newStatus = 1;
+        }
+        
+        [self changeStatus];
     }
-    
-    [self changeStatus];
 }
 
 

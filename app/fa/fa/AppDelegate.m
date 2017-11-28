@@ -81,7 +81,7 @@
                 [[UIApplication sharedApplication] registerForRemoteNotifications];
             }];
         } else {
-            //NSLog(@"registerForRemoteNotifications %@", error);
+            NSLog(@"registerForRemoteNotifications %@", error);
         }
     }];
 }
@@ -93,6 +93,7 @@
                                                                         withString:@""]];
     
     if (strDevicetoken != nil) {
+        //NSLog(@"save token %@", strDevicetoken);
         [self.dataLibrary saveString:strDevicetoken :@"token"];
     } else {
         //NSLog(@"[didRegisterForRemoteNotificationsWithDeviceToken] strDeviceToken is null");
@@ -125,7 +126,7 @@
             }
         }
     } @catch (NSException *exception) {
-        NSLog(@"Error: %@", exception);
+        //NSLog(@"Error: %@", exception);
     }
 }
 
