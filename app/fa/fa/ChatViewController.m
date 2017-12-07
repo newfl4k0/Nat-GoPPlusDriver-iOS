@@ -21,6 +21,7 @@
 @property (strong, nonatomic) NSDictionary *clientData;
 @property (nonatomic) BOOL shouldUpdate;
 @property int keyboardsize;
+@property BOOL alreadyHidden;
 @end
 
 @implementation ChatViewController
@@ -30,28 +31,28 @@
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
     self.shouldUpdate = YES;
+    self.keyboardsize = 302;
+    self.alreadyHidden = NO;
     
     [self.table setDataSource:self];
     [self.table setDelegate:self];
     [self.messageInput setDelegate:self];
     [self updateChatArray];
-    
     [self addKeyBoardToolbar:self.messageInput];
-    
-    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0)
-                                                                                            resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 
     if (self.isClient == YES) {
         [self.navBackButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
         self.clientImage = [UIImage imageNamed:@"avatar.png"];
     }
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWasShown:)
-                                                 name:UIKeyboardDidShowNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasHidden:) name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShown:) name:UIKeyboardDidShowNotification object:nil];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self hideKeyboard];
+    self.shouldUpdate = NO;
 }
 
 - (void)updateChatArray {
@@ -74,6 +75,13 @@
                               }
                               
                               [self.table reloadData];
+                              
+                              if (self.dataArray.count > 0) {
+                                  [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.dataArray.count-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                              }
+                              
+                              
+                              
                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                               NSLog(@"Error %@", error);
                           }];
@@ -86,6 +94,11 @@
                               NSDictionary *data = (NSDictionary *) responseObject;
                               self.dataArray = [NSMutableArray arrayWithArray:data[@"data"]];
                               [self.table reloadData];
+                              
+                              if (self.dataArray.count > 0) {
+                                  [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.dataArray.count-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                              }
+                              
                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                               NSLog(@"Error %@", error);
                           }];
@@ -121,10 +134,6 @@
     }
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 - (IBAction)doToggleMenu:(id)sender {
     if (self.isClient) {
@@ -139,46 +148,28 @@
 #pragma mark - Keyboard
 
 - (void)keyboardWasShown:(NSNotification *)notification {
-    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
-    
-    //Given size may not account for screen rotation
+    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
     int height = MIN(keyboardSize.height,keyboardSize.width);
+
+    if (height > 0) {
+        self.keyboardsize = height;
+    }
     
-    NSLog(@"keyboardWasShown %i", height);
-    
-    self.keyboardsize = height;
-    
-    [self animateView:YES :self.keyboardsize];
+    [self animateView:YES];
 }
 
-- (void)keyboardWasHidden:(NSNotification *)notification {
-    [self animateView:NO :self.keyboardsize];
-}
-
-- (void)animateView:(BOOL)up :(int)height {
-//    const int movementDistance = - (height); // tweak as needed
-//    const float movementDuration = 0.3f; // tweak as needed
-//
-//    int movement = (up ? movementDistance : -movementDistance);
-//
-//    [UIView beginAnimations: @"animateTextField" context: nil];
-//    [UIView setAnimationBeginsFromCurrentState: YES];
-//    [UIView setAnimationDuration: movementDuration];
-//    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
-//    [UIView commitAnimations];
-}
 
 -(void)textFieldDidBeginEditing:(UITextField *)textField {
-    [self animateTextField:textField up:YES];
+    
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-    [self animateTextField:textField up:NO];
+    [self animateView:NO];
 }
 
--(void)animateTextField:(UITextField*)textField up:(BOOL)up {
-    const int movementDistance = -220; // tweak as needed
-    const float movementDuration = 0.3f; // tweak as needed
+- (void)animateView:(BOOL)up{
+    const int movementDistance   = self.keyboardsize * -1;
+    const float movementDuration = 0.1f;
     
     int movement = (up ? movementDistance : -movementDistance);
     
@@ -189,19 +180,20 @@
     [UIView commitAnimations];
 }
 
-
 //Touch table view and hide keyboard
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     if ([self.messageInput isFirstResponder]) {
-        [self.messageInput resignFirstResponder];
+        [self hideKeyboard];
     }
 }
-
-#pragma mark - Text Field
 
 -(void)hideKeyboard {
     [self.messageInput resignFirstResponder];
 }
+
+#pragma mark - Text Field
+
+
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self hideKeyboard];
@@ -213,8 +205,6 @@
                                          @"message": self.messageInput.text,
                                          @"did": self.did
                                          };
-            
-            //NSLog(@"Debe enviar chat cliente %@", parameters);
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-client"]
                         parameters:parameters progress:nil
@@ -228,8 +218,6 @@
                                          @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
                                          @"message": self.messageInput.text
                                          };
-            
-            //NSLog(@"Debe enviar chat base %@", parameters);
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"chat-send-base"]
                         parameters:parameters progress:nil
@@ -340,7 +328,7 @@
 }
 
 - (BOOL)isTextValid:(NSString *) textToValidate {
-    NSString *pattern = @"([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])";
+    NSString *pattern = @"^([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])*$";
     NSError  *error = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
     NSArray *matches = [regex matchesInString:textToValidate options:0 range: NSMakeRange(0, [textToValidate length])];

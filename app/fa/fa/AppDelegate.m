@@ -33,7 +33,6 @@
     [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
     //Push notifications
     [self registerForRemoteNotifications];
-    
     return YES;
 }
 
@@ -93,20 +92,16 @@
                                                                         withString:@""]];
     
     if (strDevicetoken != nil) {
-        //NSLog(@"save token %@", strDevicetoken);
         [self.dataLibrary saveString:strDevicetoken :@"token"];
-    } else {
-        //NSLog(@"[didRegisterForRemoteNotificationsWithDeviceToken] strDeviceToken is null");
     }
 }
 
+
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    //NSLog(@"Push Notification Information : %@", userInfo);
+    NSLog(@"didReceiveRemoteNotification : %@", userInfo);
 }
 
 -(void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    //NSLog(@"%@ = %@", NSStringFromSelector(_cmd), error);
-    //NSLog(@"Error = %@",error);
 }
 
 - (void)handleNotification:(NSDictionary *)notification {
@@ -137,8 +132,7 @@
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+    
 }
 
 
@@ -149,27 +143,37 @@
 
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
-    NSLog(@"quit value: %@", [self.dataLibrary getString:@"quit"]);
 }
-
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     
-    if (self.isAlertOpen) {
-        [self.dataLibrary saveString:@"1" :@"quit"];
-        NSLog(@"sancionar");
-    }
 }
 
 - (BOOL)noInternetConnection {
     return [[Reachability reachabilityForInternetConnection]currentReachabilityStatus] == NotReachable;
 }
 
+- (BOOL)noBattery {
+    UIDevice *device = [UIDevice currentDevice];
+    [device setBatteryMonitoringEnabled:YES];
+    
+    return ((float)[device batteryLevel] * 100) < 5;
+}
 
+- (void)showLocalNotification:(NSString *)message {
+    UILocalNotification *notification = [[UILocalNotification alloc] init];
+    notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
+    notification.alertBody = message;
+    notification.timeZone = [NSTimeZone defaultTimeZone];
+    notification.soundName = UILocalNotificationDefaultSoundName;
+    notification.applicationIconBadgeNumber = 0;
+    
+    [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+}
 
 @end

@@ -14,6 +14,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *welcomeLabel;
 @property (strong, nonatomic) NSDate *currentDate;
 @property (strong, nonatomic) NSDate *trackDate;
+@property (strong, nonatomic) NSDate *connectionDate;
+@property (strong, nonatomic) NSDate *locationUpdate;
 @property (strong, nonatomic) NSNumber *id_connection;
 @property (nonatomic) BOOL firstUpdate;
 @property (weak, nonatomic) IBOutlet UIImageView *imageDriver;
@@ -32,9 +34,12 @@
     self.id_connection = [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]];
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
-        self.currentDate = [NSDate date];
-        self.trackDate   = [NSDate date];
+        self.currentDate    = [NSDate date];
+        self.trackDate      = [NSDate date];
+        self.connectionDate = [NSDate date];
+        
         [self initializeLocationManager];
+        [self lastLocationUpdate];
         
         self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@ %@", [self.app.dataLibrary getString:@"driver_name"], [self.app.dataLibrary getString:@"driver_surname"]];
         [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
@@ -47,32 +52,17 @@
         [self syncVehicleData];
         [self syncConfiguration];
         
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self
-         selector:@selector(setDriverData:)
-         name:@"driverData"
-         object:nil ];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setDriverData:) name:@"driverData" object:nil];
     }
 }
 
-- (void) viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:YES animated:animated];
 }
 
-- (void)updateToken {
-    NSString *token = [self.app.dataLibrary getString:@"token"];
-    
-    if (token != nil) {
-        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"token": token };
-        
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"set-token"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"Error: token not updated: %@", error);
-        }];
-    } else {
-        NSLog(@"token is null");
-    }
-}
+/**
+ * Window Manager
+ **/
 
 - (void) updateCenterView:(NSString*)newCenterWindowName {
     [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:newCenterWindowName]];
@@ -98,6 +88,10 @@
 - (IBAction)doOpenSettingsView:(id)sender {
     [self updateCenterView:@"SettingsViewController"];
 }
+
+/**
+ * Timers
+ **/
 
 - (void)initializeLocationManager {
     if (self.app.locationManager == nil) {
@@ -127,27 +121,11 @@
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
-//    double last_heading = [self.app.dataLibrary getDouble:@"heading"];
-//    self.trueHeading = [newHeading trueHeading];
-//
-//    if (last_heading != self.trueHeading) {
-//        double diff = last_heading - self.trueHeading;
-//
-//        if (diff < 0) {
-//            diff = diff * -1;
-//        }
-//
-//        if (diff > 15) {
-//            [self.app.dataLibrary saveDouble:self.trueHeading :@"heading"];
-//        }
-//    }
-}
-
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
     self.app.selfLocation = location;
+    self.locationUpdate = eventDate;
     
     if (self.firstUpdate == NO) {
         self.firstUpdate = YES;
@@ -159,13 +137,18 @@
         //NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
-        [self verifyConnection];
     }
     
     if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
         //NSLog(@"sendTrack");
         self.trackDate = [NSDate date];
         [self sendTrack:location];
+    }
+    
+    if ([eventDate timeIntervalSince1970] - [self.connectionDate timeIntervalSince1970] > 60.0) {
+        //NSLog(@"verifyConnection");
+        self.connectionDate = [NSDate date];
+        [self verifyConnection];
     }
 }
 
@@ -205,8 +188,7 @@
                        NSLog(@"Error, location not saved: %@", error);
                    }];
 }
-                          
-                          
+
 - (void)verifyConnection {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": self.id_connection } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
@@ -221,32 +203,36 @@
                 
                 [self.app.dataLibrary deleteAll];
                 [self.app initLoginWindow];
+                [self.app showLocalNotification:@"Se ha detectado el cierre de tu sesión de forma remota"];
             }
         }
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"Error connection-status %@", error);
     }];
 }
 
-
-- (void)ios9LocationManagerTimer {
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     [self initializeLocationManager];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        [self ios9LocationManagerTimer];
-    });
 }
 
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-    if ([[[UIDevice currentDevice] systemVersion] intValue] >= 10) {
-        [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+- (void)lastLocationUpdate {
+    NSLog(@"lastLocationUpdate");
+    
+    if (self.app.locationManager!=nil) {
+        if ([self.locationUpdate timeIntervalSince1970] - [[NSDate date] timeIntervalSince1970] > 30.0) {
             [self initializeLocationManager];
-        }];
-    } else {
-        [self ios9LocationManagerTimer];
+        }
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [self lastLocationUpdate];
+        });
     }
 }
 
+/**
+ * Mostrar Alerta
+ **/
 - (void)showAlert:(NSString *)title :(NSString *)message {
     UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:title
                                                                         message:message
@@ -263,6 +249,9 @@
     [alert dismissViewControllerAnimated:true completion:nil];
 }
 
+/**
+ * Sync Data
+ **/
 
 - (void) getImage {
     @try {
@@ -282,9 +271,7 @@
 - (void)setDriverData: (NSNotification *) notification {
     [self.imageDriver setImage:[self.app.dataLibrary getDriverImage]];
     self.welcomeLabel.text = [NSString stringWithFormat:@"Bienvenido\n%@ %@", [self.app.dataLibrary getString:@"driver_name"], [self.app.dataLibrary getString:@"driver_surname"]];
-    
 }
-
 
 - (void)syncStatus {
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"status"] parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -340,6 +327,21 @@
                   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                       [self showAlert:@"Sincronización Manual" :@"Error: servicio no disponible. Intenta nuevamente."];
                   }];
+}
+
+- (void)updateToken {
+    NSString *token = [self.app.dataLibrary getString:@"token"];
+    
+    if (token != nil) {
+        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"token": token };
+        
+        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"set-token"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"Error: token not updated: %@", error);
+        }];
+    } else {
+        [self showAlert:@"GoPPlus" :@"Verifica los permisos para recibir Notificaciones. Las notificaciones son indispensables para el correcto funcionamiento de la aplicación"];
+    }
 }
 
 @end

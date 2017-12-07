@@ -45,6 +45,7 @@
 @property (strong, nonatomic) NSString *lastStoredLocation;
 @property (strong, nonatomic) NSNumberFormatter *fmt;
 @property double trueHeading;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *largeSpinner;
 
 @end
 
@@ -69,12 +70,6 @@
     
     self.fmt = [[NSNumberFormatter alloc] init];
     [self.fmt setPositiveFormat:@"0.##"];
-    
-    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [self.spinner setBackgroundColor:[UIColor blackColor]];
-    self.spinner.center = CGPointMake(160, 240);
-    self.spinner.hidesWhenStopped = YES;
-    [self.view addSubview:self.spinner];
     [self initGoogleMap];
     
     if (self.status == 1) {
@@ -91,11 +86,16 @@
 
 
 //spinner - Methods
+
+
+
 - (void)showSpinner {
-    [self.spinner startAnimating];
+    [self.largeSpinner startAnimating];
+    //[[UIApplication sharedApplication] beginIgnoringInteractionEvents];
 }
 - (void)hideSpinner {
-    [self.spinner stopAnimating];
+    [self.largeSpinner stopAnimating];
+    //[[UIApplication sharedApplication] endIgnoringInteractionEvents];
 }
 
 - (NSDictionary*)decodeURL:(NSString*)urlString {
@@ -281,7 +281,6 @@
 
 - (void)getServicesAndVehicles {
     if (self.currentService == nil && self.gmap!= nil) {
-        //[self clearServicesAndVehicles];
         self.geofenceMarker.title = @"Espere un momento";
         [self drawGeofence];
         
@@ -308,12 +307,10 @@
                     
                 }
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                //[self clearServicesAndVehicles];
             }];
 
         }
     } else {
-        //[self clearServicesAndVehicles];
         [self removeGeofence];
     }
 }
@@ -351,10 +348,12 @@
                                   
                                   if (self.serviceStatus == 4) {
                                       self.chatButton.enabled = YES;
+                                      self.chatButton.hidden = NO;
                                       [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
                                       self.newStatus = 3; //Asignado
                                   } else if (self.serviceStatus == 5) {
                                       self.chatButton.enabled = NO;
+                                      self.chatButton.hidden = YES;
                                       [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
                                       self.newStatus = 11; //Ocupado
                                   }
@@ -424,19 +423,9 @@
                           }
                       } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                           NSLog(@"failure: %@", error);
-                          self.app.hasService = 0;
-                          [self.app.dataLibrary deleteKey:@"service"];
-                          
-                          if (self.status != 1 && self.status != 4) {
-                              self.newStatus = 1;
-                          }
-                          
-                          [self changeStatus];
-                          [self trackService];
+                          [self showAlert:@"GoPPlus" :@"Imposible conectar con los servicios"];
                       }];
     }
-    
-    
 }
 
 - (void)changeStatus {
@@ -468,7 +457,9 @@
     [self showSpinner];
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"location"] parameters:parameters progress:nil
                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                       [self hideSpinner];
+                       dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                           [self hideSpinner];
+                       });
                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                        [self hideSpinner];
                    }];
@@ -542,18 +533,22 @@
                                          @"r_id": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"id"] intValue]],
                                          @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]]
                                          };
-            
+            [self showSpinner];
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"reject-service"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSLog(@"%@", responseObject);
                 self.accepted = YES;
                 [self showAlert:@"Confirmar" :@"Servicio Rechazado"];
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                    [self hideSpinner];
+                    [self.app showLocalNotification:@"Conductor sancionado. No podrás recibir servicios hasta que tu sanción termine. Si quieres conocer el tiempo de tu sanción comunícate con la central"];
+                });
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self hideSpinner];
                 [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
-                NSLog(@"%@", error);
             }];
         }
     }
-    
 }
 
 - (void)acceptService {
@@ -562,15 +557,21 @@
     } else {
         if (self.currentService != nil) {
             NSDictionary *parameters = @{@"d": [NSNumber numberWithInteger:[[self.currentService objectForKey:@"idd"] intValue]] };
+            [self showSpinner];
             
             [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"confirm"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 NSLog(@"%@", responseObject);
                 self.accepted = YES;
                 [self showAlert:@"Confirmar" :@"Servicio aceptado"];
                 [self trackService];
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                    [self hideSpinner];
+                });
+                
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self hideSpinner];
                 [self showAlert:@"Confirmar" :@"Error. Intenta nuevamente"];
-                NSLog(@"%@", error);
             }];
         }
     }
@@ -633,21 +634,30 @@
                 [self showSpinner];
                 [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-alert"] parameters:parameters progress:nil
                                success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                   [self hideSpinner];
-                                   self.endServiceButton.titleLabel.text = @"Ocupado";
+                                   
+                                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                                       [self hideSpinner];
+                                   });
+                                   
+                                   
+                                   [self.endServiceButton setTitle:@"Ocupado" forState:UIControlStateNormal];
+                                   
                                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                    [self hideSpinner];
-                                   NSLog(@"%@", error);
+                                   [self showAlert:@"GoPPlus" :@"Algo ha pasado, intenta nuevamente"];
                                }];
             } else if (self.serviceStatus == 4 && ![[service objectForKey:@"fecha_domicilio"] isEqualToString:@""]) {
                 [self showSpinner];
                 [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"service-occupy"] parameters:parameters progress:nil
                                success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                   [self hideSpinner];
-                                   self.endServiceButton.titleLabel.text = @"Finalizar";
+                                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                                       [self hideSpinner];
+                                   });
+                                   
+                                   [self.endServiceButton setTitle:@"Finalizar" forState:UIControlStateNormal];
                                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                                    [self hideSpinner];
-                                   NSLog(@"%@", error);
+                                   [self showAlert:@"GoPPlus" :@"Algo ha pasado, intenta nuevamente"];
                                }];
             } else if (self.serviceStatus == 5) {
                 
@@ -691,7 +701,7 @@
                     
                     [endAlert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
                         textField.keyboardType = UIKeyboardTypeDecimalPad;
-                        //textField.enabled = NO;
+                        textField.enabled = NO;
                         textField.text = [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[self.endServiceEmail objectForKey:@"total"] doubleValue]]];
                     }];
                     
@@ -727,7 +737,9 @@
                                 [self.view bringSubviewToFront:self.webController];
                                 
                             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                NSLog(@"error %@", error);
                                 [self showAlert:@"Finalizar" :@"Error. Comentario no enviado"];
+                                [self hideSpinner];
                             }];
                         }
                     }];
@@ -750,7 +762,11 @@
 }
 
 - (BOOL)isTextValid:(NSString *) textToValidate {
-    NSString *pattern = @"([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])";
+    if ([textToValidate isEqualToString:@""]) {
+        return NO;
+    }
+    
+    NSString *pattern = @"^([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])*$";
     NSError  *error = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
     NSArray *matches = [regex matchesInString:textToValidate options:0 range: NSMakeRange(0, [textToValidate length])];
@@ -888,8 +904,6 @@
                 
                 distance = [[[self.app.dataLibrary getDictionary:@"track"] objectForKey:@"distance"] doubleValue];
                 
-                //if (![currentLocation isEqualToString:lastLocation] && currentDistance > minMts ) {
-                
                 if (![currentLocation isEqualToString:lastLocation] && currentDistance > minMts ) {
                     [trackServiceLocation addObject:currentLocation];
                     distance = distance + currentDistance;
@@ -947,9 +961,14 @@
     double fareMin = [[fare objectForKey:@"minimo"] doubleValue];
     
     double fareTotal = fareStart + fareDistance + fareTime;
+    double maxTotal = [[self.currentService objectForKey:@"estimacion"] doubleValue];
     
     if (fareTotal < fareMin) {
         fareTotal = fareMin;
+    }
+    
+    if (fareTotal > maxTotal) {
+        fareTotal = maxTotal;
     }
     
     NSString *cleanLocations = [[locations componentsJoinedByString:@"|"] stringByReplacingOccurrencesOfString:@"0,0|" withString:@""];

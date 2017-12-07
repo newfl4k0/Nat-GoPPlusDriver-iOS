@@ -31,5 +31,8 @@
 - (void)initDrawerWindow;
 - (void)initLoginWindow;
 - (BOOL)noInternetConnection;
+- (BOOL)noBattery;
+- (void)showLocalNotification:(NSString *)message;
+
 @end
 

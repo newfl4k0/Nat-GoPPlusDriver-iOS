@@ -34,8 +34,6 @@
     [self addKeyBoardToolbar:self.passwordInput];
 
     if ([self.app noInternetConnection] == NO) {
-        NSLog(@"Find connection");
-        
         if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
             [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 [self stopSpinner];

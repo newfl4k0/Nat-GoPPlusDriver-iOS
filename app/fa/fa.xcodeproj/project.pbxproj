@@ -68,6 +68,7 @@
 		6C6C48BF1F4655ED00003FFD /* StatsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatsViewController.h; sourceTree = "<group>"; };
 		6C6C48C01F4655ED00003FFD /* StatsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatsViewController.m; sourceTree = "<group>"; };
 		6C7381071E90645E00B48214 /* fa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = fa.entitlements; sourceTree = "<group>"; };
+		6C858F241FD700A500AC7C63 /* GlorietaCaballos.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = GlorietaCaballos.gpx; sourceTree = "<group>"; };
 		6C98DCBF1E1BDD7B008CB4EB /* NextTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextTableViewCell.h; sourceTree = "<group>"; };
 		6C98DCC01E1BDD7B008CB4EB /* NextTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NextTableViewCell.m; sourceTree = "<group>"; };
 		6CB636871E184927005ECA7F /* AccessViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessViewController.h; sourceTree = "<group>"; };
@@ -237,6 +238,7 @@
 				6CDD657A1E18027F00E59880 /* Assets.xcassets */,
 				6CB636861E18430D005ECA7F /* StoryBoard */,
 				6CB636851E1842F3005ECA7F /* MMDrawer */,
+				6C858F241FD700A500AC7C63 /* GlorietaCaballos.gpx */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";

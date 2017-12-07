@@ -38,7 +38,7 @@
             NSArray *filterArray = [services filteredArrayUsingPredicate:predicate];
             self.dataArray = [NSMutableArray arrayWithArray:filterArray];
         } else {
-            [self showAlert:@"Historial" :@"Actualmente no tienes ningún servicio en historial. Para actualizar ve a Configuración>Iniciar sincronización manual"];
+            [self showAlert:@"Historial" :@"Actualmente no tienes ningún servicio en historial. Da click en el botón Recargar (esquina superior derecha) para volver a buscar."];
         }
         
         [self.table reloadData];
