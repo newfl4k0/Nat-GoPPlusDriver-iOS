@@ -190,7 +190,9 @@
 }
 
 - (void)verifyConnection {
-    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": self.id_connection } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    NSNumber *id_connection = [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]];
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"connection-status"] parameters:@{ @"id": id_connection } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         if ([[responseObject objectForKey:@"status"] boolValue] == YES) {
             if ([[[responseObject objectForKey:@"data"] objectForKey:@"abierto"] integerValue] == 0) {
@@ -217,9 +219,9 @@
 }
 
 - (void)lastLocationUpdate {
-    NSLog(@"lastLocationUpdate");
-    
     if (self.app.locationManager!=nil) {
+        NSLog(@"lastLocationUpdate");
+        
         if ([self.locationUpdate timeIntervalSince1970] - [[NSDate date] timeIntervalSince1970] > 30.0) {
             [self initializeLocationManager];
         }
