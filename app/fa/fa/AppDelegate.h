@@ -26,6 +26,7 @@
 @property (strong, nonatomic) CLLocation *selfLocation;
 @property (nonatomic) NSInteger currentStatus;
 @property (nonatomic) NSInteger hasService;
+@property (strong, nonatomic) NSString *deviceToken;
 @property BOOL isAlertOpen;
 
 - (void)initDrawerWindow;

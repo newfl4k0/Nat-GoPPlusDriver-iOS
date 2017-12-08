@@ -45,7 +45,6 @@
         [self.app.drawerController setCenterViewController:[self.storyboard instantiateViewControllerWithIdentifier:@"MapViewController"]];
         
         [self getImage];
-        [self updateToken];
         [self syncStatus];
         [self syncCancelOptions];
         [self syncServices];
@@ -331,19 +330,6 @@
                   }];
 }
 
-- (void)updateToken {
-    NSString *token = [self.app.dataLibrary getString:@"token"];
-    
-    if (token != nil) {
-        NSDictionary *parameters = @{ @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]], @"token": token };
-        
-        [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"set-token"] parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"Error: token not updated: %@", error);
-        }];
-    } else {
-        [self showAlert:@"GoPPlus" :@"Verifica los permisos para recibir Notificaciones. Las notificaciones son indispensables para el correcto funcionamiento de la aplicación"];
-    }
-}
+
 
 @end

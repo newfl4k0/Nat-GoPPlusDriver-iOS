@@ -92,6 +92,7 @@
                                                                         withString:@""]];
     
     if (strDevicetoken != nil) {
+        self.deviceToken = strDevicetoken;
         [self.dataLibrary saveString:strDevicetoken :@"token"];
     }
 }
