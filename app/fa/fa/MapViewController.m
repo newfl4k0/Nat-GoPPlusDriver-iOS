@@ -31,6 +31,7 @@
 @property (nonatomic) BOOL accepted;
 @property (nonatomic) BOOL shouldCleanMap;
 @property (nonatomic) BOOL locationUpdated;
+@property (nonatomic) BOOL isChatOpen;
 @property (nonatomic) int serviceStatus;
 @property (weak, nonatomic) IBOutlet GMSMapView *gmap;
 @property (strong, nonatomic) GMSMarker *startServiceMarker;
@@ -61,6 +62,7 @@
     self.accepted = NO;
     self.shouldCleanMap = YES;
     self.needsConfirm = YES;
+    self.isChatOpen = NO;
     self.connection_id = [self.app.dataLibrary getInteger:@"connection_id"];
     self.status = [self.app.dataLibrary getInteger:@"status"];
     self.newStatus = [self.app.dataLibrary getInteger:@"status"];
@@ -402,6 +404,11 @@
                                   if (self.status != 1 && self.status != 4) {
                                       self.locationUpdated = NO;
                                       self.newStatus = 1;
+                                  }
+                                  
+                                  if (self.isChatOpen == YES) {
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"closeView" object:nil];
+                                      self.isChatOpen = NO;
                                   }
                               }
                               
@@ -847,6 +854,7 @@
     if ([identifier isEqualToString:@"segueChat"]) {
         if (self.currentService != nil) {
             if ([self.currentService objectForKey:@"idd"]!=nil && self.serviceStatus == 4) {
+                self.isChatOpen = YES;
                 return YES;
             }
         }

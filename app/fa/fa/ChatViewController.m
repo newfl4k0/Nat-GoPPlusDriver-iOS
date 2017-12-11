@@ -47,12 +47,16 @@
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShown:) name:UIKeyboardDidShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(closeView:) name:@"closeView" object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self hideKeyboard];
     self.shouldUpdate = NO;
+}
+
+- (void)closeView: (NSNotification *) notification {
+    [self.navBackButton sendActionsForControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)updateChatArray {
@@ -136,6 +140,8 @@
 
 
 - (IBAction)doToggleMenu:(id)sender {
+    [self hideKeyboard];
+    
     if (self.isClient) {
         self.shouldUpdate = NO;
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -346,6 +352,14 @@
     textfield.inputAccessoryView = numberToolbar;
 }
 
-
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    // Prevent crashing undo bug – see note below.
+    if (range.length + range.location > textField.text.length) {
+        return NO;
+    }
+    
+    NSUInteger newLength = [textField.text length] + [string length] - range.length;
+    return newLength <= 200;
+}
 
 @end

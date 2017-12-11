@@ -32,7 +32,7 @@
 - (void)setTableData {
     @try {
         NSArray *services = [self.app.dataLibrary getArray:@"vc-services"];
-        
+
         if ([services count] > 0) {
             NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(es_historial == %@)", @"SI"];
             NSArray *filterArray = [services filteredArrayUsingPredicate:predicate];
@@ -85,18 +85,36 @@
     HistorialCell *cell = (HistorialCell *) [self.table dequeueReusableCellWithIdentifier:@"HistorialCell" forIndexPath:indexPath];
     NSDictionary *data = (NSDictionary *)[_dataArray objectAtIndex:indexPath.row];
     
-    [cell initWithCoords:[data[@"lat_origen"] floatValue] :[data[@"lng_origen"] floatValue] :[data[@"lat_destino"] floatValue] :[data[@"lng_destino"] floatValue]:self.app];
-    [cell.startLabel setText: data[@"origen"]];
-    [cell.endLabel setText:data[@"destino"]];
-    [cell.dateLabel setText:data[@"fecha_despacho"]];
-    [cell.status setText:data[@"estatus"]];
-    [cell.clientLabel setText:data[@"cliente"]];
-    
+    if (data != nil) {
+        
+        [cell.startLabel setText: data[@"origen"]];
+        [cell.endLabel setText: data[@"destino"]];
+        [cell.dateLabel setText:data[@"fecha_despacho"]];
+        [cell.status setText:data[@"estatus"]];
+        [cell.clientLabel setText:data[@"cliente"]];
+        
+        NSString *mapUrl = @"https://maps.googleapis.com/maps/api/staticmap?size=400x170&key=AIzaSyAlFlXzg70yBiBKQCKdIDeLIQ9k_XXqVNc&sensor=false&path=";
+        
+        if ([[data objectForKey:@"ruta"] isEqualToString:@""]) {
+            
+            mapUrl = [mapUrl stringByAppendingString:[[data objectForKey:@"lat_origen"] stringValue]];
+            mapUrl = [mapUrl stringByAppendingString:@","];
+            mapUrl = [mapUrl stringByAppendingString:[[data objectForKey:@"lng_origen"] stringValue]];
+            
+        } else {
+            NSString *route = [data objectForKey:@"ruta"];
+            route = [route substringToIndex:[route length] - 1];
+            mapUrl = [mapUrl stringByAppendingString:route];
+        }
+        
+        [cell setMapImage:mapUrl];
+    }
+
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 200.0;
+    return 400.0;
 }
 
 - (void)showAlert:(NSString *)title :(NSString *)message {

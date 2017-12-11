@@ -18,11 +18,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *endLabel;
 @property (weak, nonatomic) IBOutlet UILabel *dateLabel;
 @property (weak, nonatomic) IBOutlet UILabel *clientLabel;
-@property (nonatomic) float lat_o;
-@property (nonatomic) float lng_o;
-@property (nonatomic) float lat_d;
-@property (nonatomic) float lng_d;
-@property (weak, nonatomic) AppDelegate *app;
+@property (weak, nonatomic) IBOutlet UIImageView *mapView;
 
-- (void)initWithCoords:(float)lat_o :(float)lng_o :(float)lat_d :(float)lng_d :(AppDelegate *)app;
+- (void)setMapImage:(NSString *)mapUrl;
 @end

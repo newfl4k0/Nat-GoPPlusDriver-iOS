@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		52E55F4308C9BAE20A177A17 /* libPods-fa.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A49A1930B0C37A1CF74B19B /* libPods-fa.a */; };
 		6C028C5A1F47231F00FF7573 /* StatsDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C028C591F47231F00FF7573 /* StatsDetailViewController.m */; };
+		6C0FC7821FDCA4E6004C6582 /* HistoricDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C0FC7811FDCA4E6004C6582 /* HistoricDetailViewController.m */; };
 		6C14A7291E38F97E00E82958 /* sound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6C14A7281E38F97E00E82958 /* sound.mp3 */; };
 		6C180A211E1AAC0E002DF27C /* HistoricViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A201E1AAC0E002DF27C /* HistoricViewController.m */; };
 		6C180A241E1AAD08002DF27C /* NextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C180A231E1AAD08002DF27C /* NextViewController.m */; };
@@ -45,6 +46,8 @@
 		4A49A1930B0C37A1CF74B19B /* libPods-fa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-fa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C028C581F47231F00FF7573 /* StatsDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatsDetailViewController.h; sourceTree = "<group>"; };
 		6C028C591F47231F00FF7573 /* StatsDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatsDetailViewController.m; sourceTree = "<group>"; };
+		6C0FC7801FDCA4E6004C6582 /* HistoricDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HistoricDetailViewController.h; sourceTree = "<group>"; };
+		6C0FC7811FDCA4E6004C6582 /* HistoricDetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HistoricDetailViewController.m; sourceTree = "<group>"; };
 		6C14A7281E38F97E00E82958 /* sound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound.mp3; sourceTree = "<group>"; };
 		6C180A1F1E1AAC0E002DF27C /* HistoricViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistoricViewController.h; sourceTree = "<group>"; };
 		6C180A201E1AAC0E002DF27C /* HistoricViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HistoricViewController.m; sourceTree = "<group>"; };
@@ -264,6 +267,8 @@
 				6C6C48C01F4655ED00003FFD /* StatsViewController.m */,
 				6C028C581F47231F00FF7573 /* StatsDetailViewController.h */,
 				6C028C591F47231F00FF7573 /* StatsDetailViewController.m */,
+				6C0FC7801FDCA4E6004C6582 /* HistoricDetailViewController.h */,
+				6C0FC7811FDCA4E6004C6582 /* HistoricDetailViewController.m */,
 			);
 			name = "Sidebar Controllers";
 			sourceTree = "<group>";
@@ -427,6 +432,7 @@
 			files = (
 				6C43EBBE1FCC768900400A7B /* Reachability.m in Sources */,
 				6C98DCC11E1BDD7B008CB4EB /* NextTableViewCell.m in Sources */,
+				6C0FC7821FDCA4E6004C6582 /* HistoricDetailViewController.m in Sources */,
 				6C3082A51E23DB2800692EDD /* HistorialCell.m in Sources */,
 				6CB636891E184927005ECA7F /* AccessViewController.m in Sources */,
 				6C180A241E1AAD08002DF27C /* NextViewController.m in Sources */,
