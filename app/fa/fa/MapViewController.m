@@ -343,6 +343,13 @@
                                   [self clearServicesAndVehicles];
                                   NSDictionary *response =  [responseArray objectAtIndex:0];
                                   
+                                  if (self.currentService != nil) {
+                                      if ([[self.currentService objectForKey:@"idd"] intValue] != [[response objectForKey:@"idd"] intValue]) {
+                                          self.isNotified = NO;
+                                          self.needsConfirm = YES;
+                                      }
+                                  }
+                                  
                                   self.currentService = response;
                                   self.serviceStatus = [[self.currentService objectForKey:@"estatus_reserva"] intValue];
                                   [self.app.dataLibrary saveDictionary:response :@"service"];
