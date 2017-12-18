@@ -60,6 +60,8 @@
     [self.view setUserInteractionEnabled:YES];
 }
 
+
+
 - (IBAction)doVerifyCredentials:(id)sender {
     
     if ([self.app noInternetConnection]) {
@@ -71,19 +73,12 @@
         [self showAlert:@"Acceder" :@"Todos los campos son necesarios"];
         return;
     }
-    
-    NSString *send_token = @"";
-    
-    if ([self.app.dataLibrary existsKey:@"token"]) {
-        send_token = [self.app.dataLibrary getString:@"token"];
-    } else if ([self.app.deviceToken isEqualToString:@""] == NO) {
-        send_token = self.app.deviceToken;
-    }
+
     
     [self.spinner startAnimating];
     [self.view setUserInteractionEnabled:NO];
     
-    NSDictionary *parameters = @{@"user": [self.userInput text], @"password": [self.passwordInput text], @"token": send_token};
+    NSDictionary *parameters = @{@"user": [self.userInput text], @"password": [self.passwordInput text], @"token": [self.app getDeviceToken]};
     
     [self.app.manager POST:[self.app.serverUrl stringByAppendingString:@"login"]
                 parameters:parameters

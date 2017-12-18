@@ -105,7 +105,7 @@
         self.carPlatesLabel.text   = [carData valueForKey:@"matricula"];
         self.carCardLabel.text     = [carData valueForKey:@"tarjeton"];
         self.carMagazineLabel.text = [[carData valueForKey:@"revista"] stringValue];
-        self.carLicenseLabel.text  = [self.app.dataLibrary getString:@"license"];
+        self.carLicenseLabel.text  = [carData valueForKey:@"licencia"];
         self.carColorLabel.text    = [carData valueForKey:@"color"];
     } @catch (NSException *exception) {
         NSLog(@"Exception: %@", exception);

@@ -34,6 +34,7 @@
 - (BOOL)noInternetConnection;
 - (BOOL)noBattery;
 - (void)showLocalNotification:(NSString *)message;
+- (NSString *)getDeviceToken;
 
 @end
 

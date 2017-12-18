@@ -13,4 +13,5 @@
 @interface ChatViewController : ViewController<UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate>
 @property (nonatomic) BOOL isClient;
 @property (strong, nonatomic) NSNumber *did;
+@property (strong, nonatomic) NSString *phone;
 @end

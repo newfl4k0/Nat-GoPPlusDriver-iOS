@@ -93,11 +93,9 @@
 
 - (void)showSpinner {
     [self.largeSpinner startAnimating];
-    //[[UIApplication sharedApplication] beginIgnoringInteractionEvents];
 }
 - (void)hideSpinner {
     [self.largeSpinner stopAnimating];
-    //[[UIApplication sharedApplication] endIgnoringInteractionEvents];
 }
 
 - (NSDictionary*)decodeURL:(NSString*)urlString {
@@ -877,6 +875,7 @@
         ((ChatViewController *)segue.destinationViewController).definesPresentationContext = YES;
         ((ChatViewController *)segue.destinationViewController).modalPresentationStyle = UIModalPresentationOverFullScreen;
         ((ChatViewController *)segue.destinationViewController).did = [self.currentService objectForKey:@"idd"];
+        ((ChatViewController*) segue.destinationViewController).phone = [self.currentService objectForKey:@"telefono_cliente"];
         ((ChatViewController *)segue.destinationViewController).isClient = YES;
     }
 }

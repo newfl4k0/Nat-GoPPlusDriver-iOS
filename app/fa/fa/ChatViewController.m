@@ -117,11 +117,13 @@
 
 - (IBAction)doCall:(id)sender {
     if (self.isClient) {
-        if (self.clientData != nil) {
-            NSString *phoneNumber = @"tel:";
-            phoneNumber = [phoneNumber stringByAppendingString: [self.clientData objectForKey:@"phone"]];
-            
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber]];
+        
+        if (self.phone != nil && [self.phone isEqualToString:@""] == NO) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[@"tel:" stringByAppendingString:self.phone]]];
+        } else {
+            if (self.clientData != nil) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[@"tel:" stringByAppendingString: [self.clientData objectForKey:@"phone"]]]];
+            }
         }
     } else {
         NSArray *data = [self.app.dataLibrary getArray:@"settings"];

@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "Reachability.h"
+#import <AudioToolbox/AudioToolbox.h>
 @import GoogleMaps;
 
 #define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
@@ -25,8 +26,8 @@
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
     self.hasService = 0;
-    self.serverUrl = @"https://godriverqa.azurewebsites.net/";
-    self.payworksUrl = @"https://gopspayqa.azurewebsites.net/";
+    self.serverUrl = @"https://godriver.azurewebsites.net/";
+    self.payworksUrl = @"https://gopspay.azurewebsites.net/";
     self.isAlertOpen = NO;
 
     [Fabric with:@[[Crashlytics class]]];
@@ -107,6 +108,8 @@
 
 - (void)handleNotification:(NSDictionary *)notification {
     @try {
+        [self playNotificationSound];
+        
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             
@@ -176,6 +179,25 @@
     notification.applicationIconBadgeNumber = 0;
     
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+}
+
+- (NSString *)getDeviceToken {
+    NSString *send_token = @"";
+    
+    if ([self.dataLibrary existsKey:@"token"]) {
+        send_token = [self.dataLibrary getString:@"token"];
+    } else if ([self.deviceToken isEqualToString:@""] == NO) {
+        send_token = self.deviceToken;
+    }
+    
+    return send_token;
+}
+
+- (void)playNotificationSound {
+    NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"sound" ofType:@"mp3"];
+    SystemSoundID soundID;
+    AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:soundPath], &soundID);
+    AudioServicesPlaySystemSound(soundID);
 }
 
 @end
