@@ -46,6 +46,7 @@
 		4A49A1930B0C37A1CF74B19B /* libPods-fa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-fa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C028C581F47231F00FF7573 /* StatsDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatsDetailViewController.h; sourceTree = "<group>"; };
 		6C028C591F47231F00FF7573 /* StatsDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatsDetailViewController.m; sourceTree = "<group>"; };
+		6C05ECFD1FE88A39002F3B0F /* Leon.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Leon.gpx; sourceTree = "<group>"; };
 		6C0FC7801FDCA4E6004C6582 /* HistoricDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HistoricDetailViewController.h; sourceTree = "<group>"; };
 		6C0FC7811FDCA4E6004C6582 /* HistoricDetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HistoricDetailViewController.m; sourceTree = "<group>"; };
 		6C14A7281E38F97E00E82958 /* sound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound.mp3; sourceTree = "<group>"; };
@@ -242,6 +243,7 @@
 				6CB636861E18430D005ECA7F /* StoryBoard */,
 				6CB636851E1842F3005ECA7F /* MMDrawer */,
 				6C858F241FD700A500AC7C63 /* GlorietaCaballos.gpx */,
+				6C05ECFD1FE88A39002F3B0F /* Leon.gpx */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
