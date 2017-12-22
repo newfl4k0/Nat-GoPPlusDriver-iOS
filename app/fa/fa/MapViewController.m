@@ -54,6 +54,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self.app registerForRemoteNotifications];
     
     self.app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     self.isOnService = NO;
@@ -84,13 +85,25 @@
     
     self.webController.delegate = self;
     self.app.isAlertOpen = YES;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callInitializeServiceData:) name:@"serviceDataNotification" object:nil];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.timerMap invalidate];
+    [self.timerService invalidate];
+    self.timerMap = nil;
+    self.timerService = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [self setGoogleMapLatestLocation];
+    //[self initializeServiceData];
+    
+}
 
 //spinner - Methods
-
-
-
 - (void)showSpinner {
     [self.largeSpinner startAnimating];
 }
@@ -142,22 +155,9 @@
     return YES;
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [self.timerMap invalidate];
-    [self.timerService invalidate];
-    self.timerMap = nil;
-    self.timerService = nil;
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [self setGoogleMapLatestLocation];
-    [self initializeServiceData];
-    
-}
-
 - (void)initTimeriOS9 {
     [self setGoogleMapLatestLocation];
-    [self initializeServiceData];
+    //[self initializeServiceData];
     [self getServicesAndVehicles];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -173,7 +173,7 @@
         }];
         
         self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-            [self initializeServiceData];
+            //[self initializeServiceData];
         }];
         
         self.timerServicesAndVehicles = [NSTimer scheduledTimerWithTimeInterval:30.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
@@ -326,117 +326,106 @@
     }
 }
 
-- (void)initializeServiceData {
-    
-    if ([self.app noInternetConnection]) {
-        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
-    } else {
-        [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil
-                      success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                          @try {
-                              NSArray *responseArray = [responseObject objectForKey:@"data"];
-                              
-                              if (responseArray.count>0) {
-                                  self.app.hasService = 1;
-                                  [self clearServicesAndVehicles];
-                                  NSDictionary *response =  [responseArray objectAtIndex:0];
-                                  
-                                  if (self.currentService != nil) {
-                                      if ([[self.currentService objectForKey:@"idd"] intValue] != [[response objectForKey:@"idd"] intValue]) {
-                                          self.isNotified = NO;
-                                          self.needsConfirm = YES;
-                                      }
-                                  }
-                                  
-                                  self.currentService = response;
-                                  self.serviceStatus = [[self.currentService objectForKey:@"estatus_reserva"] intValue];
-                                  [self.app.dataLibrary saveDictionary:response :@"service"];
-                                  [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
-                                  
-                                  if (self.serviceStatus == 4) {
-                                      self.chatButton.enabled = YES;
-                                      self.chatButton.hidden = NO;
-                                      [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
-                                      self.newStatus = 3; //Asignado
-                                  } else if (self.serviceStatus == 5) {
-                                      self.chatButton.enabled = NO;
-                                      self.chatButton.hidden = YES;
-                                      [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
-                                      self.newStatus = 11; //Ocupado
-                                  }
-                                  
-                                  [self.app.dataLibrary saveInteger:[[response objectForKey:@"idd"] intValue] :@"despacho_id"];
-                                  //Set Address Labels
-                                  self.startAddressLabel.text = [response objectForKey:@"origen"];
-                                  self.endAddressLabel.text   = [response objectForKey:@"destino"];
-                                  self.dataLabel.text         = [response objectForKey:@"observaciones"];
-                                  
-                                  self.isOnService = YES;
-                                  self.ServiceView.hidden = NO;
-                                  
-                                  self.statusButton.hidden = YES;
-                                  self.statusButton.enabled = NO;
-                                  
-                                  if (self.isNotified == NO) {
-                                      [self playSound];
-                                      self.isNotified = YES;
-                                      self.locationUpdated = NO;
-                                  }
-                                  
-                                  if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
-                                      if (self.needsConfirm) {
-                                          [self showConfirmAlert];
-                                          self.needsConfirm = NO;
-                                      }
-                                  } else {
-                                      self.accepted = YES;
-                                  }
-                                  
-                                  [self removeGeofence];
-                              } else {
-                                  self.app.hasService = 0;
-                                  self.ServiceView.hidden = YES;
-                                  self.currentService = nil;
-                                  self.isOnService = NO;
-                                  self.accepted = NO;
-                                  self.statusButton.enabled = YES;
-                                  self.statusButton.hidden = NO;
-                                  self.isNotified = NO;
-                                  self.needsConfirm = YES;
-                                  [self.app.dataLibrary deleteKey:@"despacho_id"];
-                                  [self.app.dataLibrary deleteKey:@"service"];
-                                  
-                                  if (self.status != 1 && self.status != 4) {
-                                      self.locationUpdated = NO;
-                                      self.newStatus = 1;
-                                  }
-                                  
-                                  if (self.isChatOpen == YES) {
-                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"closeView" object:nil];
-                                      self.isChatOpen = NO;
-                                  }
-                              }
-                              
-                              [self changeStatus];
-                              [self trackService];
-                          } @catch (NSException *exception) {
-                              NSLog(@"exception: %@", exception);
-                              
-                              self.app.hasService = 0;
-                              
-                              [self.app.dataLibrary deleteKey:@"service"];
-                              
-                              if (self.status != 1 && self.status != 4) {
-                                  self.newStatus = 1;
-                              }
-                              
-                              [self changeStatus];
-                              [self trackService];
-                          }
-                      } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                          NSLog(@"failure: %@", error);
-                          [self showAlert:@"GoPPlus" :@"Imposible conectar con los servicios"];
-                      }];
+-(void)callInitializeServiceData:(NSNotification *) notification {
+    [self initializeServiceData:[[notification userInfo] objectForKey:@"service"]];
+}
+
+- (void)initializeServiceData:(NSArray *)responseArray {
+    @try {
+        if (responseArray.count>0) {
+            self.app.hasService = 1;
+            [self clearServicesAndVehicles];
+            NSDictionary *response =  [responseArray objectAtIndex:0];
+            
+            if (self.currentService != nil) {
+                if ([[self.currentService objectForKey:@"idd"] intValue] != [[response objectForKey:@"idd"] intValue]) {
+                    self.isNotified = NO;
+                    self.needsConfirm = YES;
+                }
+            }
+            
+            self.currentService = response;
+            self.serviceStatus = [[self.currentService objectForKey:@"estatus_reserva"] intValue];
+            [self.app.dataLibrary saveDictionary:response :@"service"];
+            [self.clientLabel setText:[response objectForKey:@"nombre_cliente"]];
+            
+            if (self.serviceStatus == 4) {
+                self.chatButton.enabled = YES;
+                self.chatButton.hidden = NO;
+                [self.endServiceButton setTitle:[[response objectForKey:@"fecha_domicilio"] isEqualToString:@""] ? @"Avisar" : @"Ocupado" forState:UIControlStateNormal];
+                self.newStatus = 3; //Asignado
+            } else if (self.serviceStatus == 5) {
+                self.chatButton.enabled = NO;
+                self.chatButton.hidden = YES;
+                [self.endServiceButton setTitle: @"Finalizar" forState:UIControlStateNormal];
+                self.newStatus = 11; //Ocupado
+            }
+            
+            [self.app.dataLibrary saveInteger:[[response objectForKey:@"idd"] intValue] :@"despacho_id"];
+            //Set Address Labels
+            self.startAddressLabel.text = [response objectForKey:@"origen"];
+            self.endAddressLabel.text   = [response objectForKey:@"destino"];
+            self.dataLabel.text         = [response objectForKey:@"observaciones"];
+            
+            self.isOnService = YES;
+            self.ServiceView.hidden = NO;
+            
+            self.statusButton.hidden = YES;
+            self.statusButton.enabled = NO;
+            
+            if (self.isNotified == NO) {
+                [self playSound];
+                self.isNotified = YES;
+                self.locationUpdated = NO;
+            }
+            
+            if ([[response objectForKey:@"fecha_confirmacion"] isEqualToString:@""]) {
+                if (self.needsConfirm) {
+                    [self showConfirmAlert];
+                    self.needsConfirm = NO;
+                }
+            } else {
+                self.accepted = YES;
+            }
+            
+            [self removeGeofence];
+        } else {
+            self.app.hasService = 0;
+            self.ServiceView.hidden = YES;
+            self.currentService = nil;
+            self.isOnService = NO;
+            self.accepted = NO;
+            self.statusButton.enabled = YES;
+            self.statusButton.hidden = NO;
+            self.isNotified = NO;
+            self.needsConfirm = YES;
+            [self.app.dataLibrary deleteKey:@"despacho_id"];
+            [self.app.dataLibrary deleteKey:@"service"];
+            
+            if (self.status != 1 && self.status != 4) {
+                self.locationUpdated = NO;
+                self.newStatus = 1;
+            }
+            
+            if (self.isChatOpen == YES) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"closeView" object:nil];
+                self.isChatOpen = NO;
+            }
+        }
+        
+        [self changeStatus];
+        [self trackService];
+    } @catch (NSException *exception) {
+        self.app.hasService = 0;
+        
+        [self.app.dataLibrary deleteKey:@"service"];
+        
+        if (self.status != 1 && self.status != 4) {
+            self.newStatus = 1;
+        }
+        
+        [self changeStatus];
+        [self trackService];
     }
 }
 

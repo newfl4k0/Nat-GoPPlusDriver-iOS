@@ -16,7 +16,9 @@
 @property (strong, nonatomic) NSDate *trackDate;
 @property (strong, nonatomic) NSDate *connectionDate;
 @property (strong, nonatomic) NSDate *locationUpdate;
+@property (strong, nonatomic) NSDate *serviceUpdate;
 @property (strong, nonatomic) NSNumber *id_connection;
+@property int id_last_service;
 @property (nonatomic) BOOL firstUpdate;
 @property (weak, nonatomic) IBOutlet UIImageView *imageDriver;
 @property double trueHeading;
@@ -30,12 +32,12 @@
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.firstUpdate = NO;
     self.trueHeading = -1;
+    self.id_last_service = 0;
     
     self.id_connection = [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"connection_id"]];
     
     if ([self.app.dataLibrary existsKey:@"connection_id"] == YES) {
         self.currentDate    = [NSDate date];
-        self.trackDate      = [NSDate date];
         self.connectionDate = [NSDate date];
         
         [self initializeLocationManager];
@@ -137,9 +139,10 @@
         //NSLog(@"sendLocation");
         self.currentDate = [NSDate date];
         [self sendLocation:location];
+        [self updateToken];
     }
     
-    if ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0) {
+    if (self.trackDate == nil || ([eventDate timeIntervalSince1970] - [self.trackDate timeIntervalSince1970] > 15.0)) {
         //NSLog(@"sendTrack");
         self.trackDate = [NSDate date];
         [self sendTrack:location];
@@ -150,6 +153,39 @@
         self.connectionDate = [NSDate date];
         [self verifyConnection];
     }
+    
+    if (self.serviceUpdate == nil || ([eventDate timeIntervalSince1970] - [self.serviceUpdate timeIntervalSince1970] > 5.0)) {
+        self.serviceUpdate = [NSDate date];
+        [self getService];
+    }
+}
+
+- (void)getService {
+    if ([self.app noInternetConnection]) {
+        [self showAlert:@"GoPPlus" :@"No tienes acceso a internet"];
+    }
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSArray *data = [responseObject objectForKey:@"data"];
+        
+        if (data.count > 0) {
+            int current_id_service = [[[data objectAtIndex:0] objectForKey:@"idd"] intValue];
+            
+            if (self.id_last_service != current_id_service) {
+                [self.app showLocalNotification:@"Tienes un nuevo servicio asignado. Para aceptar ó rechazar entra a la ventana del mapa. Si ya aceptaste el servcio ignora esta alerta."];
+            }
+            
+            self.id_last_service = current_id_service;
+        } else {
+            self.id_last_service = 0;
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"serviceDataNotification" object:nil userInfo:@{@"service": data}];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"Error %@", error);
+    }];
+    
 }
 
 - (void)sendTrack:(CLLocation* )location {
@@ -342,6 +378,7 @@
             NSLog(@"Error: token not updated: %@", error);
         }];
     } else {
+        [self.app playNotificationSound];
         [self showAlert:@"GoPPlus" :@"Verifica los permisos para recibir Notificaciones. Las notificaciones son indispensables para el correcto funcionamiento de la aplicación"];
     }
 }

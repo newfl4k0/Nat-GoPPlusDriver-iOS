@@ -310,7 +310,7 @@
                                              context:nil];
     
     const CGFloat CELL_CONTENT_MARGIN = 22;
-    return MAX(CELL_CONTENT_MARGIN + size.size.height + sizeDate.size.height, 64);
+    return MAX(CELL_CONTENT_MARGIN + size.size.height + sizeDate.size.height, 100);
 }
 
 - (void) setClientName : (UIImage *)image {

@@ -44,9 +44,7 @@
     UINavigationController *leftNavigation   = [[UINavigationController alloc] initWithRootViewController:leftViewController];
     UINavigationController *centerNavigation = [[UINavigationController alloc] initWithRootViewController:centerViewController];
     
-    self.drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerNavigation
-                                                            leftDrawerViewController:leftNavigation];
-    
+    self.drawerController = [[MMDrawerController alloc] initWithCenterViewController:centerNavigation leftDrawerViewController:leftNavigation];
     self.drawerController.openDrawerGestureModeMask = MMOpenDrawerGestureModePanningCenterView;
     self.drawerController.closeDrawerGestureModeMask = MMCloseDrawerGestureModePanningCenterView;
     
@@ -123,6 +121,7 @@
                 [self.dataLibrary deleteAll];
                 [self initLoginWindow];
             }
+            
         }
     } @catch (NSException *exception) {
         //NSLog(@"Error: %@", exception);
@@ -186,7 +185,7 @@
     
     if ([self.dataLibrary existsKey:@"token"]) {
         send_token = [self.dataLibrary getString:@"token"];
-    } else if ([self.deviceToken isEqualToString:@""] == NO) {
+    } else if (self.deviceToken!= nil && [self.deviceToken isEqualToString:@""] == NO) {
         send_token = self.deviceToken;
     }
     

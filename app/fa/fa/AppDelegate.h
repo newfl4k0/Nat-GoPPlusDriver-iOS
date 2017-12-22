@@ -35,6 +35,7 @@
 - (BOOL)noBattery;
 - (void)showLocalNotification:(NSString *)message;
 - (NSString *)getDeviceToken;
-
+- (void)registerForRemoteNotifications;
+- (void)playNotificationSound;
 @end
 
