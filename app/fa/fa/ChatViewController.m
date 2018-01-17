@@ -206,7 +206,7 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self hideKeyboard];
     
-    if ([self isTextValid:self.messageInput.text]) {
+    if ([self isTextValid:self.messageInput.text] && [self.messageInput.text isEqualToString:@""] == NO) {
         if (self.isClient == YES) {
             NSDictionary *parameters = @{
                                          @"user_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]],
@@ -238,7 +238,7 @@
         
         self.messageInput.text = @"";
     } else {
-        [self showAlert:@"Chat" :@"Verifica tu mensaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
+        [self showAlert:@"Chat" :@"Verifica tu mensaje. No puede ser un mensaje vacío y solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
     }
 
     return NO;
