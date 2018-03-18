@@ -19,10 +19,10 @@
         <time>2017-12-11T08:30:00Z</time>
     </wpt>
     
-    <wpt lat="20.667667" lon="-103.391903">
+    <wpt lat="20.666536" lon="-103.392698">
         <name>Minerva</name>
         <time>2017-12-11T08:30:30Z</time>
-    </wpt>
+    </wpt><!--
     <wpt lat="20.669112" lon="-103.391002">
         <name>Minerva</name>
         <time>2017-12-11T08:31:00Z</time>
@@ -40,7 +40,7 @@
     <wpt lat="20.674412" lon="-103.387354">
         <name>Minerva</name>
         <time>2017-12-11T08:32:30Z</time>
-    </wpt>
+    </wpt>-->
     
     
 </gpx>

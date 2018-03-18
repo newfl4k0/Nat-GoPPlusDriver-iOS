@@ -111,6 +111,9 @@
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             
+
+            
+            
             if ([id_notif isEqualToString:@"close-connection"]) {
                 if (self.locationManager!=nil) {
                     [self.locationManager stopUpdatingLocation];
