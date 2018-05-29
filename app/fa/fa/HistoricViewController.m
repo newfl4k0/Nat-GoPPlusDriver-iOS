@@ -93,7 +93,7 @@
         [cell.status setText:data[@"estatus"]];
         [cell.clientLabel setText:data[@"cliente"]];
         
-        NSString *mapUrl = @"https://maps.googleapis.com/maps/api/staticmap?size=400x170&key=AIzaSyAlFlXzg70yBiBKQCKdIDeLIQ9k_XXqVNc&sensor=false&path=";
+        NSString *mapUrl = @"https://maps.googleapis.com/maps/api/staticmap?size=400x170&key=AIzaSyAc1fVS62y75XuVMLDBPB20bbnuhiz222k&sensor=false&path=";
         
         if ([[data objectForKey:@"ruta"] isEqualToString:@""]) {
             

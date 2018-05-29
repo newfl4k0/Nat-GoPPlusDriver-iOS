@@ -26,12 +26,12 @@
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
     self.hasService = 0;
-    self.serverUrl = @"https://godriver.azurewebsites.net/";
-    self.payworksUrl = @"https://gopspay.azurewebsites.net/";
+    self.serverUrl = @"https://godriverdev.azurewebsites.net/";
+    self.payworksUrl = @"https://gopspaydev.azurewebsites.net/";
     self.isAlertOpen = NO;
 
     [Fabric with:@[[Crashlytics class]]];
-    [GMSServices provideAPIKey:@"AIzaSyD9eeKFw_dwCH5blRwv9k1U9lEBHrfPyZw"];
+    [GMSServices provideAPIKey:@"AIzaSyAc1fVS62y75XuVMLDBPB20bbnuhiz222k"];
     //Push notifications
     [self registerForRemoteNotifications];
     return YES;
