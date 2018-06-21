@@ -26,8 +26,8 @@
     self.manager = [AFHTTPSessionManager manager];
     self.currentStatus = 0;
     self.hasService = 0;
-    self.serverUrl = @"https://godriverdev.azurewebsites.net/";
-    self.payworksUrl = @"https://gopspaydev.azurewebsites.net/";
+    self.serverUrl = @"https://godriver.azurewebsites.net/";
+    self.payworksUrl = @"https://gopspay.azurewebsites.net/";
     self.isAlertOpen = NO;
 
     [Fabric with:@[[Crashlytics class]]];
