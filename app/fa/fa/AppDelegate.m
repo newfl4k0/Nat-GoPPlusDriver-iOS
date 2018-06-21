@@ -31,7 +31,7 @@
     self.isAlertOpen = NO;
 
     [Fabric with:@[[Crashlytics class]]];
-    [GMSServices provideAPIKey:@"AIzaSyAc1fVS62y75XuVMLDBPB20bbnuhiz222k"];
+    [GMSServices provideAPIKey:@"AIzaSyAaxU4-c1ifle2YqKr6NHGQLoPncjq7fWY"];
     //Push notifications
     [self registerForRemoteNotifications];
     return YES;
