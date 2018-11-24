@@ -20,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *carLicenseLabel;
 @property (weak, nonatomic) IBOutlet UILabel *carColorLabel;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
+@property (weak, nonatomic) IBOutlet UILabel *carNoPermLabel;
 
 
 @end
@@ -107,6 +108,7 @@
         self.carMagazineLabel.text = [[carData valueForKey:@"revista"] stringValue];
         self.carLicenseLabel.text  = [carData valueForKey:@"licencia"];
         self.carColorLabel.text    = [carData valueForKey:@"color"];
+        self.carNoPermLabel.text   = [carData valueForKey:@"permiso"];
     } @catch (NSException *exception) {
         NSLog(@"Exception: %@", exception);
     }
