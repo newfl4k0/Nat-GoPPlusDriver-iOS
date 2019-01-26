@@ -218,19 +218,19 @@
 			isa = PBXGroup;
 			children = (
 				6C7381071E90645E00B48214 /* fa.entitlements */,
-				6CC42FFD1E35245B008FDF93 /* Annotations */,
 				6CDD65711E18027F00E59880 /* AppDelegate.h */,
-				6CDD65721E18027F00E59880 /* AppDelegate.m */,
 				6CEAE3BA1E2D1A38005AE2ED /* DataLibrary.h */,
+				6C43EBBC1FCC768900400A7B /* Reachability.h */,
+				6CDD65721E18027F00E59880 /* AppDelegate.m */,
 				6CEAE3BB1E2D1A38005AE2ED /* DataLibrary.m */,
-				6CDD657F1E18027F00E59880 /* Info.plist */,
+				6C43EBBD1FCC768900400A7B /* Reachability.m */,
 				6C14A7281E38F97E00E82958 /* sound.mp3 */,
+				6CDD657F1E18027F00E59880 /* Info.plist */,
+				6CC42FFD1E35245B008FDF93 /* Annotations */,
 				6CDD659C1E182EEB00E59880 /* Navigation Controllers */,
 				6CDD65981E182E5D00E59880 /* Sidebar Controllers */,
 				6CDD656E1E18027F00E59880 /* Supporting Files */,
 				6C98DCBE1E1BDD56008CB4EB /* Tables Controller */,
-				6C43EBBC1FCC768900400A7B /* Reachability.h */,
-				6C43EBBD1FCC768900400A7B /* Reachability.m */,
 			);
 			path = fa;
 			sourceTree = "<group>";
