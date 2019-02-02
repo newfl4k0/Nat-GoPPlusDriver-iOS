@@ -722,7 +722,7 @@
                         if ([price isEqualToString:@""]) {
                             [self showAlert:@"Finalizar" :@"Ingresa el monto del servicio"];
                         } else if (![self isTextValid:obs]) {
-                            [self showAlert:@"Finalizar" :@"Ingresa las observaciones del viaje. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
+                            [self showAlert:@"Finalizar" :@"Ingresa las observaciones del viaje. Máximo 50 caracteres. Solo se permiten números, letras, espacios y los siguientes caracteres especiales ,.:?¡¿!"];
                         } else {
                             [self showSpinner];
                             
@@ -767,7 +767,11 @@
         return NO;
     }
     
-    NSString *pattern = @"^([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])*$";
+    if (textToValidate.length > 50) {
+        return NO;
+    }
+    
+    NSString *pattern = @"^([A-Z\u00E0-\u00FCa-z\u00E0-\u00FC0-9 .,:?!¿¡])*$";
     NSError  *error = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
     NSArray *matches = [regex matchesInString:textToValidate options:0 range: NSMakeRange(0, [textToValidate length])];

@@ -21,6 +21,7 @@
 @property (strong, nonatomic) NSDictionary *clientData;
 @property (nonatomic) BOOL shouldUpdate;
 @property int keyboardsize;
+@property int last_keyboardsize;
 @property BOOL alreadyHidden;
 @end
 
@@ -31,7 +32,8 @@
     self.app = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     self.dataArray = [[NSMutableArray alloc] init];
     self.shouldUpdate = YES;
-    self.keyboardsize = 302;
+    self.keyboardsize = 0;
+    self.last_keyboardsize = 0;
     self.alreadyHidden = NO;
     
     [self.table setDataSource:self];
@@ -39,6 +41,7 @@
     [self.messageInput setDelegate:self];
     [self updateChatArray];
     [self addKeyBoardToolbar:self.messageInput];
+    
     [self.navigationBar setBackgroundImage:[[UIImage imageNamed:@"bgnavbar"] resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch] forBarMetrics:UIBarMetricsDefault];
 
     if (self.isClient == YES) {
@@ -46,8 +49,8 @@
         self.clientImage = [UIImage imageNamed:@"avatar.png"];
     }
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWasShown:) name:UIKeyboardDidShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(closeView:) name:@"closeView" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logNotification:) name:UIKeyboardWillChangeFrameNotification object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -83,9 +86,6 @@
                               if (self.dataArray.count > 0) {
                                   [self.table scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.dataArray.count-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
                               }
-                              
-                              
-                              
                           } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                               NSLog(@"Error %@", error);
                           }];
@@ -155,31 +155,47 @@
 
 #pragma mark - Keyboard
 
-- (void)keyboardWasShown:(NSNotification *)notification {
-    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
-    int height = MIN(keyboardSize.height,keyboardSize.width);
-
-    if (height > 0) {
-        self.keyboardsize = height;
+- (void)hideKeyboard {
+    if ([self.messageInput isFirstResponder]) {
+        [self.messageInput resignFirstResponder];
     }
-    
-    [self animateView:YES];
 }
 
-
--(void)textFieldDidBeginEditing:(UITextField *)textField {
-    
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self animateTextField:textField up:YES];
+    });
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-    [self animateView:NO];
+    [self animateTextField:textField up:NO];
 }
 
-- (void)animateView:(BOOL)up{
-    const int movementDistance   = self.keyboardsize * -1;
-    const float movementDuration = 0.1f;
+-(void)animateTextField:(UITextField*)textField up:(BOOL)up {
+    
+    int movementDistance = -300;
+    
+    if (self.keyboardsize != 0) {
+        movementDistance = self.keyboardsize * -1;
+    }
     
     int movement = (up ? movementDistance : -movementDistance);
+    
+    if (up) {
+        self.last_keyboardsize = movement;
+    } else {
+        if (self.last_keyboardsize != 0) {
+            movement = self.last_keyboardsize * -1;
+        }
+        
+        self.last_keyboardsize = 0;
+    }
+    
+    [self setViewPosition:movement];
+}
+
+- (void)setViewPosition:(int) movement {
+    const float movementDuration = 0.3f;
     
     [UIView beginAnimations: @"animateTextField" context: nil];
     [UIView setAnimationBeginsFromCurrentState: YES];
@@ -188,23 +204,34 @@
     [UIView commitAnimations];
 }
 
-//Touch table view and hide keyboard
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    if ([self.messageInput isFirstResponder]) {
-        [self hideKeyboard];
-    }
-}
+- (void)logNotification:(NSNotification *)notification {
+    CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+    int height = MIN(keyboardSize.height,keyboardSize.width);
+    
+    if (height != 0) {
+        self.keyboardsize = height;
+        
+        int new_height = height;
+        int last_height = self.last_keyboardsize * -1;
+        
+        if (self.last_keyboardsize!=0 && (last_height != new_height)) {
+            int diff = new_height - last_height;
 
--(void)hideKeyboard {
-    [self.messageInput resignFirstResponder];
+            if (diff > 0) {
+                self.last_keyboardsize = (last_height + diff) * -1;
+            } else {
+                self.last_keyboardsize = (last_height - (diff * -1) ) * -1;
+            }
+            
+            [self setViewPosition:(diff * -1)];
+        }
+    }
 }
 
 #pragma mark - Text Field
 
-
-
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self hideKeyboard];
+    [self.messageInput resignFirstResponder];
     
     if ([self isTextValid:self.messageInput.text] && [self.messageInput.text isEqualToString:@""] == NO) {
         if (self.isClient == YES) {
@@ -336,7 +363,7 @@
 }
 
 - (BOOL)isTextValid:(NSString *) textToValidate {
-    NSString *pattern = @"^([A-Z\u00E0-\u00FC]*[A-Za-z0-9 .,:?!¿¡])*$";
+    NSString *pattern = @"^([A-Z\u00E0-\u00FCa-z\u00E0-\u00FC0-9 .,:?!¿¡])*$";
     NSError  *error = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
     NSArray *matches = [regex matchesInString:textToValidate options:0 range: NSMakeRange(0, [textToValidate length])];
