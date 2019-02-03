@@ -12,4 +12,5 @@
 
 @interface LeftViewController : ViewController<CLLocationManagerDelegate>
 
+
 @end

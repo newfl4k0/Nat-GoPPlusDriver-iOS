@@ -10,7 +10,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "fa/MapViewController.m"
-            timestampString = "570824487.134354"
+            timestampString = "570853328.57304"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "731"
@@ -73,7 +73,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "fa/MapViewController.m"
-            timestampString = "570824496.460431"
+            timestampString = "570853328.573117"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "626"
@@ -89,7 +89,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "fa/MapViewController.m"
-            timestampString = "570824506.473354"
+            timestampString = "570853328.5731781"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "628"
@@ -105,12 +105,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "fa/MapViewController.m"
-            timestampString = "570824565.2553459"
+            timestampString = "570853328.573249"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "733"
             endingLineNumber = "733"
             landmarkName = "-doEnd:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "fa/StatsViewController.m"
+            timestampString = "570853328.573325"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
+            landmarkName = "-setChart"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

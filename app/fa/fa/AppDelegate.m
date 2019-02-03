@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "Reachability.h"
+#import "LeftViewController.h"
 #import <AudioToolbox/AudioToolbox.h>
 @import GoogleMaps;
 
@@ -111,9 +112,6 @@
         if ([notification objectForKey:@"id"] != nil) {
             NSString *id_notif = [notification objectForKey:@"id"];
             
-
-            
-            
             if ([id_notif isEqualToString:@"close-connection"]) {
                 if (self.locationManager!=nil) {
                     [self.locationManager stopUpdatingLocation];
@@ -123,8 +121,13 @@
                 
                 [self.dataLibrary deleteAll];
                 [self initLoginWindow];
+            } else if ([id_notif isEqualToString:@"new-service"] || [id_notif isEqualToString:@"service-cancel"]) {
+                NSString *controllerName =  NSStringFromClass([[self.drawerController centerViewController] class]);
+                
+                if ([controllerName isEqualToString:@"MapViewController"] == NO) {
+                    [self.drawerController setCenterViewController:[[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MapViewController"]];
+                }
             }
-            
         }
     } @catch (NSException *exception) {
         //NSLog(@"Error: %@", exception);

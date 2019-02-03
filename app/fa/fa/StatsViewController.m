@@ -51,8 +51,6 @@
 - (void)setChart {
     [self deleteChart];
     
-    
-    
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"statsDriverByWeek"] parameters:@{@"id": self.conductor_id, @"day": [self.formatter stringFromDate:self.datepicker.date] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSDictionary *data = [responseObject objectForKey:@"data"];
         NSMutableArray *vals = [[NSMutableArray alloc] init];
@@ -60,16 +58,30 @@
         
         self.stats = [data objectForKey:@"stats"];
         
+       
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZ"];
+        
+        
         for (NSDictionary *day in [data objectForKey:@"week"]) {
             [vals addObject:[NSNumber numberWithDouble:[[day objectForKey:@"Monto"] doubleValue]]];
-            [ref addObject:[day objectForKey:@"Dia"]];
+            NSDate *date = [dateFormatter dateFromString:[day objectForKey:@"Fecha"]];
+            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:date];
+            
+            NSString *day_name = [[[day objectForKey:@"Dia"] substringToIndex: 3] stringByAppendingString:[NSString stringWithFormat:@" %ld", (long)[components day]]];
+            
+            
+             [ref addObject:day_name];
+            
         }
         
         self.dayAmount.text = [NSString stringWithFormat:@"$%@", [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[[data objectForKey:@"driver"] objectForKey:@"Total_Conductor"] doubleValue]]]];
+        
         self.chrt = [[DSBarChart alloc] initWithFrame:self.chartContainer.bounds
                                                 color:[UIColor redColor]
                                            references:ref
                                             andValues:vals];
+        
         self.chrt.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.chrt.bounds = self.chartContainer.bounds;
         [self.chartContainer addSubview:self.chrt];
