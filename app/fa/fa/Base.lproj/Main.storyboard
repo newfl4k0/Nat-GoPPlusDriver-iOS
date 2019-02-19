@@ -1678,7 +1678,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bglogin" translatesAutoresizingMaskIntoConstraints="NO" id="Bda-J4-HBZ">
-                                <rect key="frame" x="0.0" y="-34" width="414" height="896"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="862"/>
                             </imageView>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xat-Ng-UrN">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -1754,7 +1754,7 @@
                                 </constraints>
                             </scrollView>
                             <activityIndicatorView hidden="YES" opaque="NO" userInteractionEnabled="NO" alpha="0.84999999999999998" tag="1" contentMode="center" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="icn-zA-Bng">
-                                <rect key="frame" x="157" y="364" width="100" height="100"/>
+                                <rect key="frame" x="157" y="381" width="100" height="100"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="7Dt-jh-Ky6"/>
@@ -1776,7 +1776,6 @@
                             <constraint firstItem="icn-zA-Bng" firstAttribute="centerX" secondItem="Bda-J4-HBZ" secondAttribute="centerX" id="W5Y-74-Uyy"/>
                             <constraint firstItem="Xat-Ng-UrN" firstAttribute="centerY" secondItem="LwG-MS-Xe2" secondAttribute="centerY" id="Xq6-zQ-AGr"/>
                             <constraint firstItem="ye4-nc-sYr" firstAttribute="top" secondItem="Bda-J4-HBZ" secondAttribute="bottom" id="dGG-Dq-p2s"/>
-                            <constraint firstItem="Bda-J4-HBZ" firstAttribute="height" secondItem="LwG-MS-Xe2" secondAttribute="height" id="rl4-Ja-AKT"/>
                             <constraint firstAttribute="trailing" secondItem="pTN-MJ-Lhp" secondAttribute="trailing" constant="16" id="tau-Np-DYF"/>
                         </constraints>
                     </view>
@@ -1890,7 +1889,7 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="menu-configuracion" translatesAutoresizingMaskIntoConstraints="NO" id="VFG-Yb-Dz7">
                                 <rect key="frame" x="8" y="367.33333333333331" width="40" height="40"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Versión 1.0.0 (49) TEST" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TMl-FR-9fl">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Versión 1.0.0 (50) TEST" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TMl-FR-9fl">
                                 <rect key="frame" x="144" y="837" width="126" height="17"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="12"/>
                                 <nil key="textColor"/>

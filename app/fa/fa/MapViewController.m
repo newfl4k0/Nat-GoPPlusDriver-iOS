@@ -898,7 +898,7 @@
         
         NSString *currentLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
         double distance = 0;
-        double minMts = 50;
+        double minMts = 10;
         
         if (self.app.selfLocation != nil && lat > 0 && lng >0) {
             if ([self.app.dataLibrary existsKey:@"track"]) {
@@ -980,7 +980,7 @@
     
     NSString *cleanLocations = [[locations componentsJoinedByString:@"|"] stringByReplacingOccurrencesOfString:@"0,0|" withString:@""];
     NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
-    
+    [fmt setNumberStyle:NSNumberFormatterDecimalStyle];
     [fmt setPositiveFormat:@"0.##"];
     
     NSMutableDictionary *end = [NSMutableDictionary new];
@@ -995,8 +995,8 @@
     [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_origen"] doubleValue]] forKey:@"lng_o"];
     [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lat_destino"] doubleValue]] forKey:@"lat_d"];
     [end setObject:[NSNumber numberWithDouble:[[self.currentService objectForKey:@"lng_destino"] doubleValue]] forKey:@"lng_d"];
-    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"base"] intValue]]] forKey:@"precio_base"];
-    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithInt:[[fare objectForKey:@"minimo"] intValue]]] forKey:@"precio_minimo"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:[[fare objectForKey:@"base"] doubleValue]]] forKey:@"precio_base"];
+    [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:[[fare objectForKey:@"minimo"] doubleValue]]] forKey:@"precio_minimo"];
     [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:fareDistance]] forKey:@"precio_km"];
     [end setObject:[self.fmt stringFromNumber:[NSNumber numberWithDouble:fareTime]] forKey:@"precio_minuto"];
     [end setObject:cleanLocations forKey:@"path"];

@@ -16,12 +16,12 @@
          
          Waypoints must be sorted by time in ascending order.
          -->
-        <time>2017-12-11T08:30:00Z</time>
+        <time>2019-02-19T07:09:00Z</time>
     </wpt>
     
     <wpt lat="20.666536" lon="-103.392698">
         <name>Minerva</name>
-        <time>2017-12-11T08:30:30Z</time>
+        <time>2019-02-19T07:20:00Z</time>
     </wpt><!--
     <wpt lat="20.669112" lon="-103.391002">
         <name>Minerva</name>
