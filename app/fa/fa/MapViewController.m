@@ -279,6 +279,22 @@
     AudioServicesPlaySystemSound(soundID);
 }
 
+- (void)setVehicleFare {
+    
+    NSDictionary *params = @{
+                             @"id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_id"]]
+                            };
+    
+    [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"getVehicleFare"] parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSDictionary *response = responseObject;
+        
+        if ([[response objectForKey:@"status"] boolValue] == YES) {
+            [self.app.dataLibrary saveDictionary:[response valueForKey:@"data"] :@"fare"];
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    }];
+}
+
 - (void)getServicesAndVehicles {
     if (self.currentService == nil && self.gmap!= nil) {
         self.geofenceMarker.title = @"Espere un momento";
@@ -342,6 +358,8 @@
                     self.isNotified = NO;
                     self.needsConfirm = YES;
                 }
+            } else {
+                [self setVehicleFare];
             }
             
             self.currentService = response;
