@@ -22,45 +22,45 @@
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "__27-[MapViewController doEnd:]_block_invoke_2.684"
+                  symbolName = "__27-[MapViewController doEnd:]_block_invoke.651"
                   moduleName = "fa"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/mcma/Documents/GitHub/gopplus/fa/app/fa/fa/MapViewController.m"
-                  timestampString = "570824487.4987971"
+                  timestampString = "572837622.301739"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "731"
-                  endingLineNumber = "731"
-                  offsetFromSymbolStart = "948">
+                  startingLineNumber = "732"
+                  endingLineNumber = "732"
+                  offsetFromSymbolStart = "2432">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "__27-[MapViewController doEnd:]_block_invoke_3"
+                  symbolName = "__27-[MapViewController doEnd:]_block_invoke_2.700"
                   moduleName = "fa"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/mcma/Documents/GitHub/gopplus/fa/app/fa/fa/MapViewController.m"
-                  timestampString = "570824487.501822"
+                  timestampString = "572837622.304605"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "731"
-                  endingLineNumber = "731"
-                  offsetFromSymbolStart = "24">
+                  startingLineNumber = "732"
+                  endingLineNumber = "732"
+                  offsetFromSymbolStart = "56">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "__destroy_helper_block_.719"
+                  symbolName = "__destroy_helper_block_.746"
                   moduleName = "fa"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/mcma/Documents/GitHub/gopplus/fa/app/fa/fa/MapViewController.m"
-                  timestampString = "570824487.504766"
+                  timestampString = "572837622.307247"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "731"
-                  endingLineNumber = "731"
+                  startingLineNumber = "732"
+                  endingLineNumber = "732"
                   offsetFromSymbolStart = "20">
                </Location>
             </Locations>
@@ -69,7 +69,7 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "fa/MapViewController.m"
@@ -78,14 +78,14 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "626"
             endingLineNumber = "626"
-            landmarkName = "-doEnd:"
+            landmarkName = "-showAlert::"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "fa/MapViewController.m"
@@ -94,7 +94,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "628"
             endingLineNumber = "628"
-            landmarkName = "-doEnd:"
+            landmarkName = "-dissmissAlert:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -127,6 +127,22 @@
             startingLineNumber = "78"
             endingLineNumber = "78"
             landmarkName = "-setChart"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "fa/MapViewController.m"
+            timestampString = "572837656.2620879"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "368"
+            endingLineNumber = "368"
+            landmarkName = "-initializeServiceData:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
