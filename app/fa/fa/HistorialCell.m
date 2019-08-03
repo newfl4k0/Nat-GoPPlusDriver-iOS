@@ -21,7 +21,7 @@
 - (void)setMapImage:(NSString *)mapUrl{
     
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-        NSData *imageremote = [NSData dataWithContentsOfURL:[NSURL URLWithString:[mapUrl stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]];
+        NSData *imageremote = [NSData dataWithContentsOfURL:[NSURL URLWithString:[mapUrl stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]]]];
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self.mapView setImage:[UIImage imageWithData:imageremote]];
