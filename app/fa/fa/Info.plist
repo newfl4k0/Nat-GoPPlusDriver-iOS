@@ -31,20 +31,6 @@
 	<string>1.0.53</string>
 	<key>CFBundleVersion</key>
 	<string>53</string>
-	<key>Fabric</key>
-	<dict>
-		<key>APIKey</key>
-		<string>d242f0ad2b576a7dd9302c36d0af5f842497dbe8</string>
-		<key>Kits</key>
-		<array>
-			<dict>
-				<key>KitInfo</key>
-				<dict/>
-				<key>KitName</key>
-				<string>Crashlytics</string>
-			</dict>
-		</array>
-	</dict>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>googlechromes</string>

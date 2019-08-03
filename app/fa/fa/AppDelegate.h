@@ -11,8 +11,6 @@
 #import "MMDrawerController.h"
 #import "AFNetworking.h"
 #import "DataLibrary.h"
-#import <Fabric/Fabric.h>
-#import <Crashlytics/Crashlytics.h>
 #import <UserNotifications/UserNotifications.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate,UNUserNotificationCenterDelegate>

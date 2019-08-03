@@ -31,7 +31,6 @@
     self.payworksUrl = @"https://gopspay.azurewebsites.net/";
     self.isAlertOpen = NO;
 
-    [Fabric with:@[[Crashlytics class]]];
     [GMSServices provideAPIKey:@"AIzaSyAaxU4-c1ifle2YqKr6NHGQLoPncjq7fWY"];
     //Push notifications
     [self registerForRemoteNotifications];
