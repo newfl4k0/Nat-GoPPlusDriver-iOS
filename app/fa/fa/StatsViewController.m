@@ -57,18 +57,12 @@
         NSMutableArray *ref = [[NSMutableArray alloc] init];
         
         self.stats = [data objectForKey:@"stats"];
-        
-       
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZ"];
-        
-        
+    
         for (NSDictionary *day in [data objectForKey:@"week"]) {
             [vals addObject:[NSNumber numberWithDouble:[[day objectForKey:@"Monto"] doubleValue]]];
-            NSDate *date = [dateFormatter dateFromString:[day objectForKey:@"Fecha"]];
-            NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:date];
             
-            NSString *day_name = [[[day objectForKey:@"Dia"] substringToIndex: 3] stringByAppendingString:[NSString stringWithFormat:@" %ld", (long)[components day]]];
+            
+            NSString *day_name = [[[day objectForKey:@"Dia"] substringToIndex: 3] stringByAppendingString:[day objectForKey:@"dia_mes"]];
             
             
              [ref addObject:day_name];
