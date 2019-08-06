@@ -125,6 +125,10 @@
                 
                 if ([controllerName isEqualToString:@"MapViewController"] == NO) {
                     [self.drawerController setCenterViewController:[[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MapViewController"]];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"closeStatsDetails" object:nil userInfo:@{}];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeUpperViews" object:nil userInfo:@{}];
+                    });
                 }
             }
         }
@@ -150,7 +154,6 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:@"closeView" object:nil];
 }
 
-
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
@@ -160,7 +163,7 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    
+    [self showLocalNotification: @"Gopplus está por terminar su tiempo de vida. Entra a la aplicación para extenderlo."];
 }
 
 - (BOOL)noInternetConnection {

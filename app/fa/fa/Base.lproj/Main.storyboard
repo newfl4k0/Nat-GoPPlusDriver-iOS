@@ -748,6 +748,7 @@
                         <outlet property="chartContainer" destination="Ikg-Pq-EDY" id="zp1-KR-jCG"/>
                         <outlet property="datepicker" destination="6A4-X4-C0n" id="odx-Cu-hfy"/>
                         <outlet property="dayAmount" destination="hrv-Bq-cmA" id="XHD-1B-gM8"/>
+                        <outlet property="navBackButton" destination="80D-iw-XQx" id="HaD-cC-PjY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hgx-ih-tgr" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -948,6 +949,7 @@
                         <outlet property="ganancias" destination="vcV-6o-02W" id="eL8-aY-Aej"/>
                         <outlet property="gfa" destination="U2v-dd-tkH" id="gf2-Pm-Idn"/>
                         <outlet property="impuestos" destination="HPM-mk-IbL" id="lfm-fh-9uw"/>
+                        <outlet property="navBackButton" destination="LnX-dH-Ww2" id="l8K-Sd-0E9"/>
                         <outlet property="total" destination="HTt-mW-v0E" id="pLg-bt-fO6"/>
                     </connections>
                 </viewController>
@@ -1459,6 +1461,7 @@
                         <outlet property="currentPassText" destination="aWJ-BZ-XWK" id="9nu-kg-Jsy"/>
                         <outlet property="image" destination="OqA-yH-wvb" id="ZCB-62-Jn0"/>
                         <outlet property="nameText" destination="ZPe-Cj-Smp" id="J0h-Yh-TIH"/>
+                        <outlet property="navBackButton" destination="gnq-t7-pOB" id="6zh-9Y-OLU"/>
                         <outlet property="passText" destination="Jxa-RW-Uao" id="nxE-Qe-KW3"/>
                         <outlet property="spinner" destination="Jan-JS-9tH" id="yYH-ql-IvV"/>
                         <outlet property="surnameText" destination="VwY-ia-evO" id="gRL-a4-rhE"/>

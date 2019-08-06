@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *impuestos;
 @property (weak, nonatomic) IBOutlet UILabel *fecha;
 @property (weak, nonatomic) IBOutlet UILabel *encuesta;
+@property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 
 @end
 
@@ -42,10 +43,20 @@
     self.gfa.text = [fmt stringFromNumber: [NSNumber numberWithDouble:[[self.stats objectForKey:@"Total_GFA"] doubleValue]]];
     self.impuestos.text = [fmt stringFromNumber: [NSNumber numberWithDouble:[[self.stats objectForKey:@"Total_Impuesto"] doubleValue]]];
     self.encuesta.text =  [[NSNumber numberWithDouble:[[self.stats objectForKey:@"Total_Encuesta"] doubleValue]] stringValue];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callCloseMyself:) name:@"closeStatsDetails" object:nil];
+}
+
+- (void) viewWillDisappear:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (IBAction)quitView:(id)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+- (void)callCloseMyself: (NSNotification *) notification  {
+    [self.navBackButton sendActionsForControlEvents:UIControlEventTouchUpInside];
 }
 
 @end

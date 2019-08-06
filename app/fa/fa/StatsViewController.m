@@ -21,6 +21,7 @@
 @property (strong, nonatomic) NSNumber *conductor_id;
 @property (weak, nonatomic) IBOutlet UILabel *dayAmount;
 @property (strong, nonatomic) NSDictionary *stats;
+@property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 @property (strong, nonatomic) NSNumberFormatter *fmt;
 @end
 
@@ -45,8 +46,16 @@
     [self.fmt setPositiveFormat:@"0.##"];
     
     [self setChart];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callCloseMyself:) name:@"closeUpperViews" object:nil];
 }
 
+- (void) viewWillDisappear:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)callCloseMyself: (NSNotification *) notification  {
+    [self.navBackButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+}
 
 - (void)setChart {
     [self deleteChart];

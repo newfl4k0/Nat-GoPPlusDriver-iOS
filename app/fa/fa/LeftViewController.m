@@ -53,6 +53,7 @@
         [self syncVehicleData];
         [self syncConfiguration];
         [self updateToken];
+        [self detectLocationStatus];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setDriverData:) name:@"driverData" object:nil];
     }
@@ -123,6 +124,14 @@
     }
 }
 
+- (void)detectLocationStatus {
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        [self showAlert:@"GoPPlus" :@"Para evitar una desconexión permite el acceso a la ubicación"];
+    } else if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways){
+       [self showAlert:@"GoPPlus" :@"Es preferible permitir el acceso a ubicación siempre"];
+    }
+}
+
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations {
     CLLocation* location = [locations lastObject];
     NSDate* eventDate = [NSDate date];
@@ -166,13 +175,22 @@
     }
     
     [self.app.manager GET:[self.app.serverUrl stringByAppendingString:@"service"] parameters:@{ @"vc_id": [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"vehicle_driver_id"]] } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        
         NSArray *data = [responseObject objectForKey:@"data"];
         
         if (data.count > 0) {
             int current_id_service = [[[data objectAtIndex:0] objectForKey:@"idd"] intValue];
             
             if (self.id_last_service != current_id_service) {
+                NSString *controllerName = NSStringFromClass([[self.app.drawerController centerViewController] class]);
+                
+                if ([controllerName isEqualToString:@"MapViewController"] == NO) {
+                    [self.app.drawerController setCenterViewController:[[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MapViewController"]];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"closeStatsDetails" object:nil userInfo:@{}];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"closeUpperViews" object:nil userInfo:@{}];
+                    });
+                }
+                
                 [self.app showLocalNotification:@"Tienes un nuevo servicio asignado. Para aceptar ó rechazar entra a la ventana del mapa. Si ya aceptaste el servcio ignora esta alerta."];
             }
             
@@ -256,7 +274,6 @@
 
 - (void)lastLocationUpdate {
     if (self.app.locationManager!=nil) {
-        NSLog(@"lastLocationUpdate");
         
         if ([self.locationUpdate timeIntervalSince1970] - [[NSDate date] timeIntervalSince1970] > 30.0) {
             [self initializeLocationManager];

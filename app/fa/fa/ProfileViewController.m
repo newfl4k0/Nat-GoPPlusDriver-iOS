@@ -20,6 +20,7 @@
 @property (strong, nonatomic) UIImagePickerController *imagePickerController;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *spinner;
 @property(weak, nonatomic) id<UINavigationControllerDelegate, UIImagePickerControllerDelegate> delegate;
+@property (weak, nonatomic) IBOutlet UIButton *navBackButton;
 
 @end
 
@@ -56,8 +57,16 @@
     singleTap.numberOfTapsRequired = 1;
     [self.view setUserInteractionEnabled:YES];
     [self.view addGestureRecognizer:singleTap];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callCloseMyself:) name:@"closeUpperViews" object:nil];
 }
 
+- (void) viewWillDisappear:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)callCloseMyself: (NSNotification *) notification  {
+    [self.navBackButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+}
 
 - (IBAction)updateName:(id)sender {
     if ([self.app noInternetConnection]) {

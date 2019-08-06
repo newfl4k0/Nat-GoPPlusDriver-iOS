@@ -157,7 +157,6 @@
 
 - (void)initTimeriOS9 {
     [self setGoogleMapLatestLocation];
-    //[self initializeServiceData];
     [self getServicesAndVehicles];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -172,10 +171,6 @@
             [self setGoogleMapLatestLocation];
         }];
         
-        self.timerService = [NSTimer scheduledTimerWithTimeInterval:10.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-            //[self initializeServiceData];
-        }];
-        
         self.timerServicesAndVehicles = [NSTimer scheduledTimerWithTimeInterval:30.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
             [self getServicesAndVehicles];
         }];
@@ -185,16 +180,20 @@
 }
 
 - (void)initGoogleMap {
-    self.gmap.delegate = self;
-    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:18];
-    self.gmap.myLocationEnabled = YES;
-    self.gmap.settings.myLocationButton = YES;
-    self.gmap.mapType = kGMSTypeNormal;
-    self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 2.2, 0);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        self.gmap.delegate = self;
+        self.gmap.camera = [GMSCameraPosition cameraWithLatitude:0 longitude:0 zoom:18];
+        self.gmap.myLocationEnabled = YES;
+        self.gmap.settings.myLocationButton = YES;
+        self.gmap.mapType = kGMSTypeNormal;
+        self.gmap.padding = UIEdgeInsetsMake(0, 0, self.gmap.frame.size.height / 2.2, 0);
+    });
 }
 
 - (void)setGoogleMapCenter:(CLLocation *)location {
-    self.gmap.camera = [GMSCameraPosition cameraWithLatitude:location.coordinate.latitude longitude:location.coordinate.longitude zoom:17];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        self.gmap.camera = [GMSCameraPosition cameraWithLatitude:location.coordinate.latitude longitude:location.coordinate.longitude zoom:17];
+    });
 }
 
 - (void)removeStartServiceMarker {
@@ -225,12 +224,22 @@
                 
                 if (currentDistance > 20) {
                     self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
-                    [self setGoogleMapCenter:location];
+                    
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                        [self setGoogleMapCenter:location];
+                    });
                 }
             } else {
                 self.lastStoredLocation = [[[lat stringValue] stringByAppendingString:@","] stringByAppendingString:[lng stringValue]];
-                [self setGoogleMapCenter:location];
-                [self getServicesAndVehicles];
+                
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                    [self setGoogleMapCenter:location];
+                    [self getServicesAndVehicles];
+                });
+                
+                
+                
             }
         }
     }
@@ -515,32 +524,35 @@
 }
 
 - (void)showConfirmAlert {
-    UIAlertController *confirmAlert = [UIAlertController alertControllerWithTitle:@"GoPS"
-                                                                          message:@"Confirmar el servicio"
-                                                                   preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self];
-        [self acceptService];
-        [confirmAlert dismissViewControllerAnimated:true completion:nil];
-        self.app.isAlertOpen = NO;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        UIAlertController *confirmAlert = [UIAlertController alertControllerWithTitle:@"GoPS"
+                                                                              message:@"Confirmar el servicio"
+                                                                       preferredStyle:UIAlertControllerStyleAlert];
         
-    }];
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Rechazar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self];
-        [self cancelService];
-        [confirmAlert dismissViewControllerAnimated:true completion:nil];
-        self.app.isAlertOpen = NO;
-    }];
-    
-    [confirmAlert addAction:ok];
-    [confirmAlert addAction:cancel];
-    
-    [self performSelector:@selector(automaticallyCancelService:) withObject:confirmAlert afterDelay:90.0];
-    [self presentViewController:confirmAlert animated:YES completion:nil];
-    
-    self.app.isAlertOpen = YES;
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Aceptar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [NSObject cancelPreviousPerformRequestsWithTarget:self];
+            [self acceptService];
+            [confirmAlert dismissViewControllerAnimated:true completion:nil];
+            self.app.isAlertOpen = NO;
+            
+        }];
+        
+        UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Rechazar" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [NSObject cancelPreviousPerformRequestsWithTarget:self];
+            [self cancelService];
+            [confirmAlert dismissViewControllerAnimated:true completion:nil];
+            self.app.isAlertOpen = NO;
+        }];
+        
+        [confirmAlert addAction:ok];
+        [confirmAlert addAction:cancel];
+        
+        [self performSelector:@selector(automaticallyCancelService:) withObject:confirmAlert afterDelay:90.0];
+        [self presentViewController:confirmAlert animated:YES completion:nil];
+        
+        self.app.isAlertOpen = YES;
+    });
 }
 
 - (void)cancelService {
@@ -1029,24 +1041,26 @@
 //Geofence
 
 - (void) drawGeofence {
-    if (self.circ == nil) {
-        self.circ = [[GMSCircle alloc] init];
-        self.circ.position = [self.gmap.camera target];
-        self.circ.radius = 1000;
-        self.circ.fillColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.3];
-        self.circ.strokeColor = [UIColor redColor];
-        self.circ.strokeWidth = 1;
-        self.circ.map = self.gmap;
-        
-        self.geofenceMarker = [[GMSMarker alloc] init];
-        self.geofenceMarker.title = @"Espere un momento";
-        self.geofenceMarker.position = self.circ.position;
-        self.geofenceMarker.map = self.gmap;
-        self.gmap.selectedMarker = self.geofenceMarker;
-    } else {
-        self.circ.position = [self.gmap.camera target];
-        self.geofenceMarker.position = self.circ.position;
-    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if (self.circ == nil) {
+            self.circ = [[GMSCircle alloc] init];
+            self.circ.position = [self.gmap.camera target];
+            self.circ.radius = 1000;
+            self.circ.fillColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.3];
+            self.circ.strokeColor = [UIColor redColor];
+            self.circ.strokeWidth = 1;
+            self.circ.map = self.gmap;
+            
+            self.geofenceMarker = [[GMSMarker alloc] init];
+            self.geofenceMarker.title = @"Espere un momento";
+            self.geofenceMarker.position = self.circ.position;
+            self.geofenceMarker.map = self.gmap;
+            self.gmap.selectedMarker = self.geofenceMarker;
+        } else {
+            self.circ.position = [self.gmap.camera target];
+            self.geofenceMarker.position = self.circ.position;
+        }
+    });
 }
 
 - (void) removeGeofence {
