@@ -34,6 +34,8 @@
     
     NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
     [fmt setPositiveFormat:@"$0.##"];
+    [fmt setMinimumFractionDigits:2];
+    [fmt setMinimumIntegerDigits:1];
     
     self.fecha.text = self.day;
     self.total.text = [fmt stringFromNumber: [NSNumber numberWithDouble:[[self.stats objectForKey:@"Total"] doubleValue]]];

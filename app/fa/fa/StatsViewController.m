@@ -22,7 +22,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *dayAmount;
 @property (strong, nonatomic) NSDictionary *stats;
 @property (weak, nonatomic) IBOutlet UIButton *navBackButton;
-@property (strong, nonatomic) NSNumberFormatter *fmt;
 @end
 
 @implementation StatsViewController
@@ -41,9 +40,6 @@
     self.datepicker.maximumDate = [[NSDate alloc] init];
     self.datepicker.minimumDate =  [self.datepicker.maximumDate dateByAddingTimeInterval:(-86400 * 365)];
     self.conductor_id = [NSNumber numberWithInteger:[self.app.dataLibrary getInteger:@"driver_id"]];
-    
-    self.fmt = [[NSNumberFormatter alloc] init];
-    [self.fmt setPositiveFormat:@"0.##"];
     
     [self setChart];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callCloseMyself:) name:@"closeUpperViews" object:nil];
@@ -69,17 +65,18 @@
     
         for (NSDictionary *day in [data objectForKey:@"week"]) {
             [vals addObject:[NSNumber numberWithDouble:[[day objectForKey:@"Monto"] doubleValue]]];
-            
-            
-            NSString *day_name = [[[day objectForKey:@"Dia"] substringToIndex: 3] stringByAppendingString:[day objectForKey:@"dia_mes"]];
-            
-            
-             [ref addObject:day_name];
-            
+            [ref addObject:[[[day objectForKey:@"Dia"] substringToIndex: 3] stringByAppendingString:[day objectForKey:@"dia_mes"]]];
         }
         
-        self.dayAmount.text = [NSString stringWithFormat:@"$%@", [self.fmt stringFromNumber:[NSNumber numberWithDouble:[[[data objectForKey:@"driver"] objectForKey:@"Total_Conductor"] doubleValue]]]];
         
+        NSNumberFormatter *number_formater = [[NSNumberFormatter alloc] init];
+        [number_formater setMinimumFractionDigits:2];
+        [number_formater setMinimumIntegerDigits:1];
+        
+        NSNumber *total_conductor = [NSNumber numberWithDouble:[[[data objectForKey:@"driver"] objectForKey:@"Total_Conductor"] doubleValue]];
+        NSString *total_conductor_str = [number_formater stringFromNumber:total_conductor];
+        
+        self.dayAmount.text = [NSString stringWithFormat:@"$%@", total_conductor_str];
         self.chrt = [[DSBarChart alloc] initWithFrame:self.chartContainer.bounds
                                                 color:[UIColor redColor]
                                            references:ref
