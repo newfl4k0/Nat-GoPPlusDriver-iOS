@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>GoPPlus Driver TEST</string>
+	<string>GoPPlus Driver</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
